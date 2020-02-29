@@ -2,10 +2,7 @@ package com.afa.devicesfiletransfer.view.ui;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,8 +13,8 @@ import com.afa.devicesfiletransfer.view.discovery.DiscoveryContract;
 import com.afa.devicesfiletransfer.view.discovery.DiscoveryPresenter;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -53,13 +50,10 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.toTransferScreenButton) {
-            openTransferActivity();
+            List<Device> devices = devicesAdapter.getSelectedDevices();
+            openSendFileActivity(devices);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void openTransferActivity() {
-        startActivity(new Intent());
     }
 
     private void initializeViews() {
@@ -82,24 +76,32 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         devicesAdapter = new DevicesAdapter(new DevicesAdapter.Callback() {
             @Override
             public void onClick(Device device) {
-                Log.d("OPEN", "Open screen - " + device.getName());
+                List<Device> devices = new ArrayList<>();
+                devices.add(device);
+                openSendFileActivity(devices);
             }
 
             @Override
             public void onItemSelected(Device device) {
-                if (devicesAdapter.getSelectedDevices().size() >= 2){
+                if (devicesAdapter.getSelectedDevices().size() >= 2) {
                     sendMenuButton.setVisible(true);
                 }
             }
 
             @Override
             public void onItemDeselected(Device device) {
-                if (devicesAdapter.getSelectedDevices().size() < 2){
+                if (devicesAdapter.getSelectedDevices().size() < 2) {
                     sendMenuButton.setVisible(false);
                 }
             }
         });
         devicesRecyclerView.setAdapter(devicesAdapter);
+    }
+
+    private void openSendFileActivity(List<Device> devices) {
+        Intent intent = new Intent(this, SendFileActivity.class);
+        intent.putParcelableArrayListExtra("devicesList", new ArrayList<>(devices));
+        startActivity(intent);
     }
 
     @Override
