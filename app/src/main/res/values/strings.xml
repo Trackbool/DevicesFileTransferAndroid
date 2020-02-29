@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">DevicesFileTransfer</string>
+    <string name="device_icon_description">Device icon</string>
+    <string name="devices_title">Devices</string>
+    <string name="no_devices_found">No devices found</string>
+</resources>
