@@ -114,14 +114,18 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
                 public void onClick(View v) {
                     if (getAdapterPosition() == RecyclerView.NO_POSITION) return;
 
+                    Device selectedDevice = devices.get(getAdapterPosition());
+
                     if (selectedPositions.contains(getAdapterPosition())) {
                         selectedPositions.remove(getAdapterPosition());
                         notifyDataSetChanged();
+                        callback.onItemDeselected(selectedDevice);
                     } else if (selectedPositions.size() > 0) {
                         selectedPositions.add(getAdapterPosition());
                         notifyItemChanged(getAdapterPosition());
+                        callback.onItemSelected(selectedDevice);
                     } else {
-                        callback.onClick(devices.get(getAdapterPosition()));
+                        callback.onClick(selectedDevice);
                     }
                 }
             });
@@ -140,5 +144,9 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
 
     interface Callback {
         void onClick(Device device);
+
+        void onItemSelected(Device device);
+
+        void onItemDeselected(Device device);
     }
 }

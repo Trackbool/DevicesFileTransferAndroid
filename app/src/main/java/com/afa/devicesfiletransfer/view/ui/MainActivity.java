@@ -1,5 +1,6 @@
 package com.afa.devicesfiletransfer.view.ui;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
     private DiscoveryContract.Presenter presenter;
     private DevicesAdapter devicesAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private MenuItem sendMenuButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,21 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.devices_menu, menu);
+        sendMenuButton = menu.findItem(R.id.toTransferScreenButton);
+        sendMenuButton.setVisible(false);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.toTransferScreenButton) {
+            openTransferActivity();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void openTransferActivity() {
+        startActivity(new Intent());
     }
 
     private void initializeViews() {
@@ -66,6 +83,20 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
             @Override
             public void onClick(Device device) {
                 Log.d("OPEN", "Open screen - " + device.getName());
+            }
+
+            @Override
+            public void onItemSelected(Device device) {
+                if (devicesAdapter.getSelectedDevices().size() >= 2){
+                    sendMenuButton.setVisible(true);
+                }
+            }
+
+            @Override
+            public void onItemDeselected(Device device) {
+                if (devicesAdapter.getSelectedDevices().size() < 2){
+                    sendMenuButton.setVisible(false);
+                }
             }
         });
         devicesRecyclerView.setAdapter(devicesAdapter);
