@@ -127,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
     }
 
     @Override
+    public List<Device> getDevicesList() {
+        return devicesAdapter.getDevices();
+    }
+
+    @Override
     public void clearDevicesList() {
         runOnUiThread(new Runnable() {
             @Override

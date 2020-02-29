@@ -31,10 +31,13 @@ public class DiscoveryPresenter implements DiscoveryContract.Presenter {
 
                     @Override
                     public void discoveryResponseReceived(InetAddress senderAddress, int senderPort, DeviceProperties deviceProperties) {
-                        System.out.println("Received response: " + senderAddress.getHostAddress() + " - " + deviceProperties.getName() + ", " + deviceProperties.getOs());
                         String deviceName = deviceProperties.getName();
                         String os = deviceProperties.getOs();
-                        view.addDevice(new Device(deviceName, os, senderAddress));
+                        Device device = new Device(deviceName, os, senderAddress);
+
+                        if (!view.getDevicesList().contains(device)) {
+                            view.addDevice(device);
+                        }
                     }
                 });
         try {

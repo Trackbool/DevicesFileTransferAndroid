@@ -2,11 +2,15 @@ package com.afa.devicesfiletransfer.view.discovery;
 
 import com.afa.devicesfiletransfer.model.Device;
 
+import java.util.List;
+
 public interface DiscoveryContract {
     interface View {
         void addDevice(Device device);
 
         void showError(String title, String message);
+
+        List<Device> getDevicesList();
 
         void clearDevicesList();
 
