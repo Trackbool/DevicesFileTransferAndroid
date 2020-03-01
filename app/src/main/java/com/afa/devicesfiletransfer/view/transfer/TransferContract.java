@@ -25,6 +25,8 @@ public interface TransferContract {
 
         void refreshReceptionsData();
 
+        File getDownloadsDirectory();
+
         void close();
     }
 

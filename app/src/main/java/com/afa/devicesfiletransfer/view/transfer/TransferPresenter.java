@@ -94,7 +94,7 @@ public class TransferPresenter implements TransferContract.Presenter {
     }
 
     private FileReceiverProtocol createFileReceiver() {
-        final FileReceiverProtocol fileReceiver = new FileReceiverProtocol();
+        final FileReceiverProtocol fileReceiver = new FileReceiverProtocol(view.getDownloadsDirectory());
         fileReceiver.setCallback(new FileReceiverProtocol.Callback() {
             @Override
             public void onStart() {

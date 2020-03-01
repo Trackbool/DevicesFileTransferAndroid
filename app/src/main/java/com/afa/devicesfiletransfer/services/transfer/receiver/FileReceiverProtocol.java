@@ -10,15 +10,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class FileReceiverProtocol {
+    private File targetDirectory;
     private Callback callback;
     private FileReceiver fileReceiver;
     private Transfer transfer;
 
-    public FileReceiverProtocol() {
+    public FileReceiverProtocol(File targetDirectory) {
+        this.targetDirectory = targetDirectory;
         fileReceiver = new FileReceiver();
     }
 
-    public FileReceiverProtocol(Callback callback) {
+    public FileReceiverProtocol(File targetDirectory, Callback callback) {
+        this.targetDirectory = targetDirectory;
         this.callback = callback;
         this.fileReceiver = createFileReceiver(callback);
     }
@@ -26,6 +29,10 @@ public class FileReceiverProtocol {
     public void setCallback(Callback callback) {
         this.callback = callback;
         this.fileReceiver = createFileReceiver(callback);
+    }
+
+    public File getTargetDirectory() {
+        return targetDirectory;
     }
 
     public Transfer getTransfer() {
@@ -49,7 +56,7 @@ public class FileReceiverProtocol {
             long fileSize = dataInputStream.readLong();
             transfer = new Transfer(device, fileName, 0);
 
-            fileReceiver.receive(fileName, fileSize, inputStream);
+            fileReceiver.receive(targetDirectory.getPath() + "/" + fileName, fileSize, inputStream);
         } catch (IOException e) {
             if (callback != null)
                 callback.onFailure(e);
