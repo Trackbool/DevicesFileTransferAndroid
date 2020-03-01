@@ -134,7 +134,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
 
     private int getDeviceIcon(Device device) {
         String os = device.getOs().replace(" ", "").toLowerCase();
-        if (os.contains("android") || os.contains("ios") || os.contains("phone")
+        if (os.contains("android") && !os.contains("tv") || os.contains("ios") || os.contains("phone")
                 || os.contains("mobile")) {
             return R.drawable.mobile_icon;
         }

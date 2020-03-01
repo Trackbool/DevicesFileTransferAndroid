@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,21 +15,19 @@ import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.util.SystemUtils;
-import com.afa.devicesfiletransfer.view.transfer.TransferContract;
-import com.afa.devicesfiletransfer.view.transfer.TransferPresenter;
+import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferContract;
+import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
-public class SendFileActivity extends AppCompatActivity implements TransferContract.View {
+public class SendFileActivity extends AppCompatActivity implements SendTransferContract.View {
 
-    private TransferContract.Presenter presenter;
+    private SendTransferContract.Presenter sendTransferPresenter;
     private List<Device> devices;
-    private Button attachFileButton;
     private TextView attachedFileNameTextView;
-    private Button sendFileButton;
 
     private static final int BROWSE_FILE_RESULT_CODE = 10;
 
@@ -42,23 +39,22 @@ public class SendFileActivity extends AppCompatActivity implements TransferContr
         devices = Objects.requireNonNull(
                 getIntent().getExtras()).getParcelableArrayList("devicesList");
 
-        presenter = new TransferPresenter(this);
-        attachFileButton = findViewById(R.id.attachFileButton);
+        sendTransferPresenter = new SendTransferPresenter(this);
+        Button attachFileButton = findViewById(R.id.attachFileButton);
         attachFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.onBrowseFileButtonClicked();
+                sendTransferPresenter.onBrowseFileButtonClicked();
             }
         });
         attachedFileNameTextView = findViewById(R.id.attachedFileNameTextView);
-        sendFileButton = findViewById(R.id.sendFileButton);
+        Button sendFileButton = findViewById(R.id.sendFileButton);
         sendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.onSendFileButtonClicked();
+                sendTransferPresenter.onSendFileButtonClicked();
             }
         });
-        presenter.onViewLoaded();
     }
 
     @Override
@@ -102,7 +98,7 @@ public class SendFileActivity extends AppCompatActivity implements TransferContr
         if (requestCode == BROWSE_FILE_RESULT_CODE) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                 File file = new File(data.getData().getPath());
-                presenter.onFileAttached(file);
+                sendTransferPresenter.onFileAttached(file);
             }
         }
     }
@@ -128,32 +124,18 @@ public class SendFileActivity extends AppCompatActivity implements TransferContr
     }
 
     @Override
-    public void addReceptionTransfer(Transfer transfer) {
-
-    }
-
-    @Override
-    public void refreshReceptionsData() {
-
-    }
-
-    @Override
-    public File getDownloadsDirectory() {
-        return SystemUtils.getDownloadsDirectory();
-    }
-
-    @Override
     public void close() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                presenter.onDestroy();
+                sendTransferPresenter.onDestroy();
             }
         });
     }
 
     @Override
     protected void onDestroy() {
-        presenter.onDestroy();
+        sendTransferPresenter.onDestroy();
+        super.onDestroy();
     }
 }

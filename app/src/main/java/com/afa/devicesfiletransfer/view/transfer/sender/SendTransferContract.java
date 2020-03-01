@@ -1,11 +1,11 @@
-package com.afa.devicesfiletransfer.view.transfer;
+package com.afa.devicesfiletransfer.view.transfer.sender;
 
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 
 import java.io.File;
 
-public interface TransferContract {
+public interface SendTransferContract {
     interface View {
         void showError(String title, String message);
 
@@ -21,18 +21,10 @@ public interface TransferContract {
 
         void refreshSendingData();
 
-        void addReceptionTransfer(Transfer transfer);
-
-        void refreshReceptionsData();
-
-        File getDownloadsDirectory();
-
         void close();
     }
 
     interface Presenter {
-        void onViewLoaded();
-
         void onBrowseFileButtonClicked();
 
         void onFileAttached(File file);

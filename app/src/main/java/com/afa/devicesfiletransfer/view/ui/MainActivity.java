@@ -1,21 +1,29 @@
 package com.afa.devicesfiletransfer.view.ui;
 
 import android.Manifest;
+import android.app.UiModeManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.util.SystemUtils;
 import com.afa.devicesfiletransfer.view.discovery.DiscoveryContract;
 import com.afa.devicesfiletransfer.view.discovery.DiscoveryPresenter;
+import com.afa.devicesfiletransfer.view.transfer.receiver.ReceiveTransferContract;
+import com.afa.devicesfiletransfer.view.transfer.receiver.ReceiveTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +36,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class MainActivity extends AppCompatActivity implements DiscoveryContract.View {
+public class MainActivity extends AppCompatActivity implements DiscoveryContract.View, ReceiveTransferContract.View {
 
-    private DiscoveryContract.Presenter presenter;
+    private DiscoveryContract.Presenter discoveryPresenter;
+    private ReceiveTransferPresenter receiveTransferPresenter;
     private DevicesAdapter devicesAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private MenuItem sendMenuButton;
@@ -43,9 +52,10 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         setContentView(R.layout.activity_main);
 
         initializeViews();
-        presenter = new DiscoveryPresenter(this);
+        discoveryPresenter = new DiscoveryPresenter(this);
+        receiveTransferPresenter = new ReceiveTransferPresenter(this);
         requestStoragePermissions();
-        presenter.onViewLoaded();
+        discoveryPresenter.onViewLoaded();
     }
 
     private void requestStoragePermissions() {
@@ -69,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_READ_WRITE_PERMISSION);
             }
+        } else {
+            receiveTransferPresenter.onViewLoaded();
         }
     }
 
@@ -79,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             requestStoragePermissions();
+        } else {
+            receiveTransferPresenter.onViewLoaded();
         }
     }
 
@@ -105,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.onDiscoverDevicesEvent();
+                discoveryPresenter.onDiscoverDevicesEvent();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -192,9 +206,58 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         finish();
     }
 
+    //Receiver listener
+    @Override
+    public void showAlert(final String title, final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar snackbar = Snackbar.make(MainActivity.this.findViewById(android.R.id.content),
+                        title + ". " + message,
+                        Snackbar.LENGTH_LONG);
+                snackbar.show();
+            }
+        });
+    }
+
+    @Override
+    public void addReceptionTransfer(Transfer transfer) {
+
+    }
+
+    @Override
+    public void refreshReceptionsData() {
+
+    }
+
+    @Override
+    public File getDownloadsDirectory() {
+        return SystemUtils.getDownloadsDirectory();
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Do you want to exit the app?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.super.onBackPressed();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+    }
+
     @Override
     protected void onDestroy() {
-        presenter.onDestroy();
+        discoveryPresenter.onDestroy();
+        receiveTransferPresenter.onDestroy();
         super.onDestroy();
     }
 }

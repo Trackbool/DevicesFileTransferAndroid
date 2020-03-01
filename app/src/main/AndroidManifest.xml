@@ -15,7 +15,7 @@
         <activity android:name=".view.ui.SendFileActivity"></activity>
         <activity
             android:name=".view.ui.MainActivity"
-            android:configChanges="keyboardHidden|orientation">
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
