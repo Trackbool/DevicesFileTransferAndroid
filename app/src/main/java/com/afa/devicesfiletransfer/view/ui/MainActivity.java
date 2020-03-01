@@ -1,6 +1,9 @@
 package com.afa.devicesfiletransfer.view.ui;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,7 +19,11 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -28,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
     private SwipeRefreshLayout swipeRefreshLayout;
     private MenuItem sendMenuButton;
 
+    private static final int REQUEST_READ_WRITE_PERMISSION = 9;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +44,42 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
 
         initializeViews();
         presenter = new DiscoveryPresenter(this);
+        requestStoragePermissions();
         presenter.onViewLoaded();
+    }
+
+    private void requestStoragePermissions() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Storage permissions")
+                        .setMessage("The access storage permissions are required for the app")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_READ_WRITE_PERMISSION);
+                            }
+                        })
+                        .show();
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_READ_WRITE_PERMISSION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            requestStoragePermissions();
+        }
     }
 
     @Override

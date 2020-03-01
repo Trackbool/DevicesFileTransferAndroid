@@ -1,5 +1,9 @@
 package com.afa.devicesfiletransfer.util;
 
+import android.os.Environment;
+
+import java.io.File;
+
 public class SystemUtils {
     public static String getSystemName() {
         String name = android.os.Build.MODEL;
@@ -10,5 +14,9 @@ public class SystemUtils {
 
     public static String getOs() {
         return "Android";
+    }
+
+    public static File getDownloadsDirectory() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 }

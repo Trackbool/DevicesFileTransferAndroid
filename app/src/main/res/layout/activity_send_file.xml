@@ -7,4 +7,21 @@
     android:orientation="vertical"
     tools:context=".view.ui.SendFileActivity">
 
+    <Button
+        android:id="@+id/attachFileButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Attach file" />
+
+    <TextView
+        android:id="@+id/attachedFileNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
+    <Button
+        android:id="@+id/sendFileButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send" />
 </LinearLayout>

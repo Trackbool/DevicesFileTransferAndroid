@@ -42,6 +42,7 @@ public class Device implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(os);
+        dest.writeSerializable(address);
     }
 
     @Override
@@ -60,6 +61,7 @@ public class Device implements Parcelable {
     protected Device(Parcel in) {
         name = in.readString();
         os = in.readString();
+        address = (InetAddress) in.readSerializable();
     }
 
     public static final Creator<Device> CREATOR = new Creator<Device>() {
