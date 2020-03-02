@@ -1,11 +1,9 @@
 package com.afa.devicesfiletransfer.view.ui;
 
 import android.Manifest;
-import android.app.UiModeManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,9 +14,11 @@ import android.view.MenuItem;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.util.SystemUtils;
 import com.afa.devicesfiletransfer.view.discovery.DiscoveryContract;
 import com.afa.devicesfiletransfer.view.discovery.DiscoveryPresenter;
+import com.afa.devicesfiletransfer.view.framework.services.AndroidFilesReceiverListenerServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.transfer.receiver.ReceiveTransferContract;
 import com.afa.devicesfiletransfer.view.transfer.receiver.ReceiveTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
@@ -53,7 +53,9 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
 
         initializeViews();
         discoveryPresenter = new DiscoveryPresenter(this);
-        receiveTransferPresenter = new ReceiveTransferPresenter(this);
+        FilesReceiverListenerServiceExecutor receiverServiceExecutor =
+                new AndroidFilesReceiverListenerServiceExecutorImpl(getApplicationContext());
+        receiveTransferPresenter = new ReceiveTransferPresenter(this, receiverServiceExecutor);
         requestStoragePermissions();
         discoveryPresenter.onViewLoaded();
     }

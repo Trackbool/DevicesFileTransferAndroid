@@ -2,6 +2,7 @@ package com.afa.devicesfiletransfer.view.transfer.receiver;
 
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListener;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,39 +12,21 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class ReceiveTransferPresenter implements ReceiveTransferContract.Presenter {
     private final static int TRANSFER_SERVICE_PORT = 5001;
-    private final ReceiveTransferContract.View view;
-    private FilesReceiverListener filesReceiverListener;
-    private ThreadPoolExecutor fileReceivingExecutor;
+    private ReceiveTransferContract.View view;
+    private final FilesReceiverListenerServiceExecutor receiverServiceExecutor;
 
-    public ReceiveTransferPresenter(ReceiveTransferContract.View view) {
+    public ReceiveTransferPresenter(ReceiveTransferContract.View view,
+                                    FilesReceiverListenerServiceExecutor receiverServiceExecutor) {
         this.view = view;
-        fileReceivingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+        this.receiverServiceExecutor = receiverServiceExecutor;
     }
 
     @Override
     public void onViewLoaded() {
-        filesReceiverListener = new FilesReceiverListener(TRANSFER_SERVICE_PORT, new FilesReceiverListener.Callback() {
-            @Override
-            public void onTransferReceived(final InputStream inputStream) {
-                final FileReceiverProtocol fileReceiver = ReceiveTransferPresenter.this.createFileReceiver();
-                fileReceivingExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        fileReceiver.receive(inputStream);
-                    }
-                });
-            }
-        });
-
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    filesReceiverListener.start();
-                } catch (IOException e) {
-                    view.showError("Initialization error", e.getMessage());
-                    view.close();
-                }
+                receiverServiceExecutor.start();
             }
         }).start();
     }
@@ -79,7 +62,6 @@ public class ReceiveTransferPresenter implements ReceiveTransferContract.Present
 
     @Override
     public void onDestroy() {
-        filesReceiverListener.stop();
-        fileReceivingExecutor.shutdownNow();
+        view = null;
     }
 }
