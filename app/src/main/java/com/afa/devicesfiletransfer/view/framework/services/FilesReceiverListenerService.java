@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.afa.devicesfiletransfer.R;
+import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListener;
 import com.afa.devicesfiletransfer.util.SystemUtils;
@@ -96,23 +97,23 @@ public class FilesReceiverListenerService extends Service {
         final FileReceiverProtocol fileReceiver = new FileReceiverProtocol(SystemUtils.getDownloadsDirectory());
         fileReceiver.setCallback(new FileReceiverProtocol.Callback() {
             @Override
-            public void onStart() {
-                //Notify transfer received
+            public void onStart(Transfer transfer) {
+                //TODO: Transfer received in notification
             }
 
             @Override
             public void onFailure(Exception e) {
-                //Transfer error
+                //TODO: Transfer error in notification
             }
 
             @Override
             public void onProgressUpdated() {
-
+                //TODO: Update progress in notification
             }
 
             @Override
             public void onSuccess(File file) {
-                //Transfer succeeded
+                //TODO: Transfer succeeded in notification
             }
         });
 
