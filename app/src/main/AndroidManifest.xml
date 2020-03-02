@@ -25,6 +25,7 @@
         </activity>
 
         <service android:name=".view.framework.services.FilesReceiverListenerService" />
+        <service android:name=".view.framework.services.FilesSenderService" />
     </application>
 
 </manifest>

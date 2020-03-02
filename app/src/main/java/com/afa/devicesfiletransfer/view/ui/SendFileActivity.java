@@ -14,7 +14,9 @@ import android.widget.TextView;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.util.SystemUtils;
+import com.afa.devicesfiletransfer.view.framework.services.AndroidFileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferContract;
 import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
@@ -39,7 +41,9 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
         devices = Objects.requireNonNull(
                 getIntent().getExtras()).getParcelableArrayList("devicesList");
 
-        sendTransferPresenter = new SendTransferPresenter(this);
+        FileSenderServiceExecutor fileSenderExecutor =
+                new AndroidFileSenderServiceExecutorImpl(getApplicationContext());
+        sendTransferPresenter = new SendTransferPresenter(this, fileSenderExecutor);
         Button attachFileButton = findViewById(R.id.attachFileButton);
         attachFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +71,6 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
                         Snackbar.LENGTH_LONG);
                 snackbar.getView().setBackgroundColor(Color.RED);
                 snackbar.show();
-                Log.d("MENSAJE ERROR", message);
             }
         });
     }
