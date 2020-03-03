@@ -10,9 +10,10 @@ import android.os.IBinder;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
+import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
 
-import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -36,7 +37,9 @@ public class FilesSenderService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Device device = intent.getParcelableExtra("device");
-        File file = (File) intent.getSerializableExtra("file");
+        AndroidTransferFileImpl file = intent.getParcelableExtra("file");
+        file.setContext(getApplicationContext());
+
         final FileSenderProtocol fileSenderProtocol = createFileSender(device, file);
         fileSendingExecutor.execute(new Runnable() {
             @Override
@@ -69,7 +72,7 @@ public class FilesSenderService extends Service {
         }
     }
 
-    private FileSenderProtocol createFileSender(Device device, File file) {
+    private FileSenderProtocol createFileSender(Device device, TransferFile file) {
         FileSenderProtocol fileSender = new FileSenderProtocol(device, file);
         fileSender.setCallback(new FileSenderProtocol.Callback() {
             @Override
@@ -89,7 +92,7 @@ public class FilesSenderService extends Service {
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(TransferFile file) {
                 //TODO: Notify transfer succeeded
                 finishServiceIfThereAreNoMoreTransfers();
             }

@@ -14,8 +14,10 @@ import android.widget.TextView;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.util.SystemUtils;
+import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
 import com.afa.devicesfiletransfer.view.framework.services.AndroidFileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferContract;
 import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferPresenter;
@@ -100,7 +102,7 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == BROWSE_FILE_RESULT_CODE) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                File file = new File(data.getData().getPath());
+                TransferFile file = new AndroidTransferFileImpl(getApplicationContext(), data.getData());
                 sendTransferPresenter.onFileAttached(file);
             }
         }

@@ -1,23 +1,25 @@
 package com.afa.devicesfiletransfer.services.transfer.sender;
 
+import com.afa.devicesfiletransfer.model.TransferFile;
+
 import java.io.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class FileSender {
     private final static int BUFFER_SIZE = 8192;
-    private final File file;
+    private final TransferFile file;
     private final AtomicBoolean sending;
     private Callback callback;
     private AtomicLong sentCount;
 
-    public FileSender(File file) {
+    public FileSender(TransferFile file) {
         this.file = file;
         this.sending = new AtomicBoolean(false);
         this.sentCount = new AtomicLong(0);
     }
 
-    public FileSender(File file, Callback callback) {
+    public FileSender(TransferFile file, Callback callback) {
         this(file);
         this.callback = callback;
     }
@@ -40,7 +42,7 @@ public class FileSender {
         sending.set(true);
         if (callback != null)
             callback.onStart();
-        try (FileInputStream fileReader = new FileInputStream(file);
+        try (InputStream fileReader = file.getInputStream();
              DataOutputStream output = new DataOutputStream(outputStream)) {
             byte[] buffer = new byte[BUFFER_SIZE];
             sentCount.set(0);
@@ -84,6 +86,6 @@ public class FileSender {
 
         void onProgressUpdated();
 
-        void onSuccess(File file);
+        void onSuccess(TransferFile file);
     }
 }

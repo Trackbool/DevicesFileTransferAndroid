@@ -2,8 +2,7 @@ package com.afa.devicesfiletransfer.view.transfer.sender;
 
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
-
-import java.io.File;
+import com.afa.devicesfiletransfer.model.TransferFile;
 
 public interface SendTransferContract {
     interface View {
@@ -27,7 +26,7 @@ public interface SendTransferContract {
     interface Presenter {
         void onBrowseFileButtonClicked();
 
-        void onFileAttached(File file);
+        void onFileAttached(TransferFile file);
 
         void onSendFileButtonClicked();
 

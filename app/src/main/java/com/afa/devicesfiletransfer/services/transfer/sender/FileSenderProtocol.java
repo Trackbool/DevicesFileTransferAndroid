@@ -1,8 +1,11 @@
 package com.afa.devicesfiletransfer.services.transfer.sender;
 
+import android.util.Log;
+
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.DeviceFactory;
 import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.model.TransferFile;
 import com.google.gson.Gson;
 
 import java.io.DataOutputStream;
@@ -16,19 +19,19 @@ import java.net.Socket;
 public class FileSenderProtocol {
     private static final int SOCKET_PORT = 5001;
     private final Device remoteDevice;
-    private final File file;
+    private final TransferFile file;
     private Callback callback;
     private FileSender fileSender;
     private Transfer transfer;
 
-    public FileSenderProtocol(Device remoteDevice, File file) {
+    public FileSenderProtocol(Device remoteDevice, TransferFile file) {
         this.remoteDevice = remoteDevice;
         this.file = file;
         this.fileSender = new FileSender(file);
         transfer = new Transfer(remoteDevice, file.getName(), 0);
     }
 
-    public FileSenderProtocol(Device remoteDevice, File file, Callback callback) {
+    public FileSenderProtocol(Device remoteDevice, TransferFile file, Callback callback) {
         this(remoteDevice, file);
         this.callback = callback;
         this.fileSender = createFileSender(callback);
@@ -101,7 +104,7 @@ public class FileSenderProtocol {
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(TransferFile file) {
                 transfer.setStatus(Transfer.TransferStatus.SUCCEEDED);
                 callback.onSuccess(file);
             }
@@ -116,6 +119,6 @@ public class FileSenderProtocol {
 
         void onProgressUpdated();
 
-        void onSuccess(File file);
+        void onSuccess(TransferFile file);
     }
 }

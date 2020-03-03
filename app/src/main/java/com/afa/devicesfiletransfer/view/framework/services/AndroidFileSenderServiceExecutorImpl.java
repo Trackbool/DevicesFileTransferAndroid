@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Build;
 
 import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
-
-import java.io.File;
+import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
 
 public class AndroidFileSenderServiceExecutorImpl implements FileSenderServiceExecutor {
 
@@ -18,14 +18,10 @@ public class AndroidFileSenderServiceExecutorImpl implements FileSenderServiceEx
     }
 
     @Override
-    public void send(Device device, File file) {
-        startService(device, file);
-    }
-
-    private void startService(Device device, File file) {
+    public void send(Device device, TransferFile file) {
         Intent serviceIntent = new Intent(context, FilesSenderService.class);
         serviceIntent.putExtra("device", device);
-        serviceIntent.putExtra("file", file);
+        serviceIntent.putExtra("file", (AndroidTransferFileImpl) file);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);
         } else {

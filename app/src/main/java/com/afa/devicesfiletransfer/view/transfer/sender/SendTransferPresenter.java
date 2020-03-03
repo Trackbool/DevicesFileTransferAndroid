@@ -1,14 +1,13 @@
 package com.afa.devicesfiletransfer.view.transfer.sender;
 
 import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
-
-import java.io.File;
 
 public class SendTransferPresenter implements SendTransferContract.Presenter {
     private SendTransferContract.View view;
     private final FileSenderServiceExecutor fileSenderExecutor;
-    private File fileToSend;
+    private TransferFile fileToSend;
 
     public SendTransferPresenter(SendTransferContract.View view, FileSenderServiceExecutor fileSenderExecutor) {
         this.view = view;
@@ -21,7 +20,7 @@ public class SendTransferPresenter implements SendTransferContract.Presenter {
     }
 
     @Override
-    public void onFileAttached(File file) {
+    public void onFileAttached(TransferFile file) {
         fileToSend = file;
         view.showFileAttachedName(fileToSend.getName());
     }
