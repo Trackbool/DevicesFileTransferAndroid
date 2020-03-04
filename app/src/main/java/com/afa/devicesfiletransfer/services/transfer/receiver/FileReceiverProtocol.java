@@ -1,5 +1,7 @@
 package com.afa.devicesfiletransfer.services.transfer.receiver;
 
+import android.util.Log;
+
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.google.gson.Gson;
@@ -52,7 +54,8 @@ public class FileReceiverProtocol {
             DataInputStream dataInputStream = new DataInputStream(inputStream);
             String deviceJson = dataInputStream.readUTF();
             Device device = new Gson().fromJson(deviceJson, Device.class);
-            String fileName = dataInputStream.readUTF();
+            String fileNameWithExtension = dataInputStream.readUTF();
+            String fileName = generateFileName(fileNameWithExtension);
             long fileSize = dataInputStream.readLong();
             transfer = new Transfer(device, fileName, 0);
 
@@ -61,6 +64,11 @@ public class FileReceiverProtocol {
             if (callback != null)
                 callback.onFailure(e);
         }
+    }
+
+    private String generateFileName(String fileNameWithExtension) {
+        String[] tokens = fileNameWithExtension.split("\\.(?=[^\\.]+$)");
+        return tokens[0] + "-" + System.currentTimeMillis() + "." + tokens[1];
     }
 
     public void cancel() {

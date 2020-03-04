@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -93,7 +94,8 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
     @Override
     public void browseFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("file/*");
+        intent.setType("*/*");
+        intent = Intent.createChooser(intent, "Choose a file");
         startActivityForResult(intent, BROWSE_FILE_RESULT_CODE);
     }
 
@@ -102,8 +104,11 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == BROWSE_FILE_RESULT_CODE) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                TransferFile file = new AndroidTransferFileImpl(getApplicationContext(), data.getData());
-                sendTransferPresenter.onFileAttached(file);
+                Uri uri = data.getData();
+                if (uri != null) {
+                    TransferFile file = new AndroidTransferFileImpl(getApplicationContext(), uri);
+                    sendTransferPresenter.onFileAttached(file);
+                }
             }
         }
     }

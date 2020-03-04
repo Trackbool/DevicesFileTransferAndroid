@@ -3,62 +3,57 @@ package com.afa.devicesfiletransfer.view.framework.model;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Parcel;
-import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.view.framework.UriWrapper;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class AndroidTransferFileImpl implements TransferFile, Parcelable {
     private Context context;
-    private final Uri uri;
-    private final File file;
-    private long length;
+    private UriWrapper uriWrapper;
+    private Uri uri;
 
     public AndroidTransferFileImpl(Context context, Uri uri) {
         this.context = context;
         this.uri = uri;
-        file = new File(uri.getPath());
-        calculateLength();
-    }
-
-    private void calculateLength() {
-        try (ParcelFileDescriptor fileDescriptor = context.getContentResolver()
-                .openFileDescriptor(uri, "r")) {
-
-            length = fileDescriptor != null ? fileDescriptor.getStatSize() : -1;
-        } catch (IOException e) {
-            length = -1;
-        }
+        this.uriWrapper = new UriWrapper(context, uri);
     }
 
     public void setContext(Context context) {
         this.context = context;
+        uriWrapper = new UriWrapper(context, uri);
+    }
+
+    @Override
+    public boolean exists() {
+        return uriWrapper.exists();
     }
 
     @Override
     public String getName() {
-        return file.getName();
+        return uriWrapper.getFileName();
     }
 
     @Override
     public String getPath() {
-        return file.getPath();
+        return uriWrapper.getRealPath();
     }
 
     @Override
     public long length() {
-        return length;
+        return uriWrapper.getLength();
     }
 
     @Override
     public InputStream getInputStream() throws FileNotFoundException {
-        return context.getContentResolver().openInputStream(uri);
+        try {
+            return context.getContentResolver().openInputStream(uriWrapper.getUri());
+        } catch (SecurityException e) {
+            throw new FileNotFoundException("The file " + getName() + " doesn´t exists");
+        }
     }
 
     @Override
@@ -69,14 +64,10 @@ public class AndroidTransferFileImpl implements TransferFile, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(uri, flags);
-        dest.writeSerializable(file);
-        dest.writeLong(length);
     }
 
     private AndroidTransferFileImpl(Parcel in) {
         uri = in.readParcelable(Uri.class.getClassLoader());
-        file = (File) in.readSerializable();
-        length = in.readLong();
     }
 
     public static final Creator<AndroidTransferFileImpl> CREATOR = new Creator<AndroidTransferFileImpl>() {

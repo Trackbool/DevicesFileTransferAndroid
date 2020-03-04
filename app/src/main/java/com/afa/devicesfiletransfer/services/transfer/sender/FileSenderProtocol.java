@@ -1,7 +1,5 @@
 package com.afa.devicesfiletransfer.services.transfer.sender;
 
-import android.util.Log;
-
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.DeviceFactory;
 import com.afa.devicesfiletransfer.model.Transfer;
@@ -9,7 +7,6 @@ import com.afa.devicesfiletransfer.model.TransferFile;
 import com.google.gson.Gson;
 
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
