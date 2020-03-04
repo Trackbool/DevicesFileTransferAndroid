@@ -1,7 +1,5 @@
 package com.afa.devicesfiletransfer.services.transfer.receiver;
 
-import android.util.Log;
-
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.google.gson.Gson;
