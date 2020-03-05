@@ -7,6 +7,7 @@ import com.afa.devicesfiletransfer.model.TransferFile;
 import com.google.gson.Gson;
 
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -52,6 +53,14 @@ public class FileSenderProtocol {
     }
 
     public void send() {
+        if (!file.exists()) {
+            transfer.setStatus(Transfer.TransferStatus.FAILED);
+            if (callback != null) {
+                callback.onFailure(
+                        new FileNotFoundException("File " + file.getPath() + " doesn´t exists"));
+            }
+            return;
+        }
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(remoteDevice.getAddress(), SOCKET_PORT), 3000);

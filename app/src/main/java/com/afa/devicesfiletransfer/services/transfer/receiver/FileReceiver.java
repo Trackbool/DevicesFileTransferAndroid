@@ -35,7 +35,7 @@ public class FileReceiver {
         return (int) ((receivedCount.get() * 100) / fileSize);
     }
 
-    public void receive(String fileName, long fileSize, InputStream inputStream) {
+    public void receive(File targetFile, long fileSize, InputStream inputStream) {
         if (receiving.get()) throw new IllegalStateException("Already receiving the file");
 
         this.fileSize = fileSize;
@@ -43,7 +43,7 @@ public class FileReceiver {
         if (callback != null) {
             callback.onStart();
         }
-        try (BufferedOutputStream fileWriter = new BufferedOutputStream(new FileOutputStream(fileName))) {
+        try (BufferedOutputStream fileWriter = new BufferedOutputStream(new FileOutputStream(targetFile))) {
             byte[] buffer = new byte[BUFFER_SIZE];
             receivedCount.set(0);
             int received;
@@ -61,7 +61,7 @@ public class FileReceiver {
             }
             if (callback != null) {
                 if (receivedCount.get() == fileSize) {
-                    callback.onSuccess(new File(fileName));
+                    callback.onSuccess(targetFile);
                 } else {
                     callback.onFailure(new Exception("The file has not been completely transferred"));
                 }

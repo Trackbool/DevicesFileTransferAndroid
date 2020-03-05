@@ -18,6 +18,13 @@ public class SystemUtils {
     }
 
     public static File getDownloadsDirectory() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        String appFolderName = "DevicesFileTransfer";
+
+        File f = new File(Environment.getExternalStorageDirectory(), appFolderName);
+        if (!f.exists()) {
+            f.mkdirs();
+        }
+
+        return f;
     }
 }

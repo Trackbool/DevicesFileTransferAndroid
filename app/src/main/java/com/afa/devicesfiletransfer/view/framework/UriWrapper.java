@@ -12,7 +12,6 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
 import java.io.File;
-import java.io.IOException;
 
 public class UriWrapper implements Parcelable {
     private Context context;
@@ -54,7 +53,7 @@ public class UriWrapper implements Parcelable {
                 .openFileDescriptor(uri, "r")) {
 
             length = fileDescriptor != null ? fileDescriptor.getStatSize() : -1;
-        } catch (IOException | SecurityException e) {
+        } catch (Exception e) {
             length = -1;
         }
     }
@@ -95,7 +94,7 @@ public class UriWrapper implements Parcelable {
                     cursor.moveToFirst();
                     realPath = cursor.getString(column_index);
                 }
-            } catch (SecurityException e) {
+            } catch (Exception e) {
                 realPath = null;
             }
         } finally {
@@ -136,7 +135,7 @@ public class UriWrapper implements Parcelable {
         try {
             cursor = context.getContentResolver()
                     .query(uri, new String[]{column}, null, null, null);
-        } catch (SecurityException e) {
+        } catch (Exception e) {
             return false;
         }
 

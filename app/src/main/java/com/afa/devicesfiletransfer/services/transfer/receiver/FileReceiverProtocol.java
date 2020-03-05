@@ -57,7 +57,8 @@ public class FileReceiverProtocol {
             long fileSize = dataInputStream.readLong();
             transfer = new Transfer(device, fileName, 0);
 
-            fileReceiver.receive(targetDirectory.getPath() + "/" + fileName, fileSize, inputStream);
+            File file = new File(targetDirectory.getAbsolutePath(), fileName);
+            fileReceiver.receive(file, fileSize, inputStream);
         } catch (IOException e) {
             if (callback != null)
                 callback.onFailure(e);
@@ -65,8 +66,17 @@ public class FileReceiverProtocol {
     }
 
     private String generateFileName(String fileNameWithExtension) {
+        if (fileNameWithExtension == null || fileNameWithExtension.isEmpty()) {
+            return String.valueOf(System.currentTimeMillis());
+        }
+
         String[] tokens = fileNameWithExtension.split("\\.(?=[^\\.]+$)");
-        return tokens[0] + "-" + System.currentTimeMillis() + "." + tokens[1];
+        String resultFileName = tokens[0] + "_" + System.currentTimeMillis();
+        if (tokens.length > 1) {
+            String extension = tokens[1];
+            resultFileName = resultFileName + "." + extension;
+        }
+        return resultFileName;
     }
 
     public void cancel() {
