@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.services;
+package com.afa.devicesfiletransfer.view.framework.services.sender;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,11 +9,11 @@ import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
 
-public class AndroidFileSenderServiceExecutorImpl implements FileSenderServiceExecutor {
+public class FileSenderServiceExecutorImpl implements FileSenderServiceExecutor {
 
     private final Context context;
 
-    public AndroidFileSenderServiceExecutorImpl(Context context) {
+    public FileSenderServiceExecutorImpl(Context context) {
         this.context = context;
     }
 

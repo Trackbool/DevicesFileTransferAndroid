@@ -24,8 +24,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".view.framework.services.FilesReceiverListenerService" />
-        <service android:name=".view.framework.services.FilesSenderService" />
+        <service android:name=".view.framework.services.receiver.FilesReceiverListenerService" />
+        <service android:name=".view.framework.services.sender.FilesSenderService" />
     </application>
 
 </manifest>

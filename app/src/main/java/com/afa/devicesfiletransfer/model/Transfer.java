@@ -1,6 +1,8 @@
 package com.afa.devicesfiletransfer.model;
 
-public class Transfer {
+import java.io.Serializable;
+
+public class Transfer implements Serializable {
     private Device device;
     private String fileName;
     private int progress;

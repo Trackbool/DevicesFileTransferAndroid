@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,14 +16,12 @@ import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
-import com.afa.devicesfiletransfer.util.SystemUtils;
 import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
-import com.afa.devicesfiletransfer.view.framework.services.AndroidFileSenderServiceExecutorImpl;
-import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferContract;
-import com.afa.devicesfiletransfer.view.transfer.sender.SendTransferPresenter;
+import com.afa.devicesfiletransfer.view.framework.services.sender.FileSenderServiceExecutorImpl;
+import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferContract;
+import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +42,7 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
                 getIntent().getExtras()).getParcelableArrayList("devicesList");
 
         FileSenderServiceExecutor fileSenderExecutor =
-                new AndroidFileSenderServiceExecutorImpl(getApplicationContext());
+                new FileSenderServiceExecutorImpl(getApplicationContext());
         sendTransferPresenter = new SendTransferPresenter(this, fileSenderExecutor);
         Button attachFileButton = findViewById(R.id.attachFileButton);
         attachFileButton.setOnClickListener(new View.OnClickListener() {

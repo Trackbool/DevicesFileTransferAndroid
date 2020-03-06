@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.discovery;
+package com.afa.devicesfiletransfer.view.presenters.discovery;
 
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.DeviceProperties;

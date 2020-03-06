@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.transfer.receiver;
+package com.afa.devicesfiletransfer.view.presenters.transfer.receiver;
 
 import com.afa.devicesfiletransfer.model.Transfer;
 

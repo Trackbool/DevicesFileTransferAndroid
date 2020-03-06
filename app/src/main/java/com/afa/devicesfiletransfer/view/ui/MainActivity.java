@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,11 +16,11 @@ import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.util.SystemUtils;
-import com.afa.devicesfiletransfer.view.discovery.DiscoveryContract;
-import com.afa.devicesfiletransfer.view.discovery.DiscoveryPresenter;
-import com.afa.devicesfiletransfer.view.framework.services.AndroidFilesReceiverListenerServiceExecutorImpl;
-import com.afa.devicesfiletransfer.view.transfer.receiver.ReceiveTransferContract;
-import com.afa.devicesfiletransfer.view.transfer.receiver.ReceiveTransferPresenter;
+import com.afa.devicesfiletransfer.view.presenters.discovery.DiscoveryContract;
+import com.afa.devicesfiletransfer.view.presenters.discovery.DiscoveryPresenter;
+import com.afa.devicesfiletransfer.view.framework.services.receiver.FilesReceiverListenerServiceExecutorImpl;
+import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferContract;
+import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         initializeViews();
         discoveryPresenter = new DiscoveryPresenter(this);
         FilesReceiverListenerServiceExecutor receiverServiceExecutor =
-                new AndroidFilesReceiverListenerServiceExecutorImpl(getApplicationContext());
+                new FilesReceiverListenerServiceExecutorImpl(getApplicationContext());
         receiveTransferPresenter = new ReceiveTransferPresenter(this, receiverServiceExecutor);
         requestStoragePermissions();
         discoveryPresenter.onViewLoaded();
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
 
     @Override
     public void addReceptionTransfer(Transfer transfer) {
-
+        Log.d("ADRI-DEBUG", "VIEW TRANSFER: " + transfer.getDeviceName());
     }
 
     @Override

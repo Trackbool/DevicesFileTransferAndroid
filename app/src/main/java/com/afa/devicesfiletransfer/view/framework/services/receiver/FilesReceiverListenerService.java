@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.services;
+package com.afa.devicesfiletransfer.view.framework.services.receiver;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -7,7 +7,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ResultReceiver;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -25,7 +27,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class FilesReceiverListenerService extends Service {
-    public static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
+    public static final int START = 0;
+    public static final int FAILURE = 1;
+    public static final int PROGRESS_UPDATED = 2;
+    public static final int SUCCESS = 3;
+    private ResultReceiver receiver;
+    private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final static int TRANSFER_SERVICE_PORT = 5001;
     private FilesReceiverListener filesReceiverListener;
     private ThreadPoolExecutor fileReceivingExecutor;
@@ -69,6 +76,8 @@ public class FilesReceiverListenerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        receiver = intent.getParcelableExtra("resultReceiver");
+
         createNotificationChannel();
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Receiver listener")
@@ -96,26 +105,34 @@ public class FilesReceiverListenerService extends Service {
 
     private FileReceiverProtocol createFileReceiver() {
         final FileReceiverProtocol fileReceiver = new FileReceiverProtocol(SystemUtils.getDownloadsDirectory());
+        final Bundle bundle = new Bundle();
         fileReceiver.setCallback(new FileReceiverProtocol.Callback() {
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Transfer received in notification
+                bundle.putSerializable("transfer", transfer);
+                receiver.send(START, bundle);
             }
 
             @Override
             public void onFailure(Exception e) {
                 //TODO: Transfer error in notification
+                bundle.putSerializable("exception", e);
+                receiver.send(FAILURE, bundle);
             }
 
             @Override
             public void onProgressUpdated() {
                 //TODO: Update progress in notification
+                receiver.send(PROGRESS_UPDATED, bundle);
             }
 
             @Override
             public void onSuccess(File file) {
-                //TODO: Transfer succeeded in notification
                 notifySystemAboutNewFile(file);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("file", file);
+                receiver.send(SUCCESS, bundle);
             }
         });
 

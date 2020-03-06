@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.services;
+package com.afa.devicesfiletransfer.view.framework.services.sender;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -13,6 +13,7 @@ import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
+import com.afa.devicesfiletransfer.view.framework.services.receiver.FilesReceiverListenerService;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
