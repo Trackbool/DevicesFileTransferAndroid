@@ -130,7 +130,6 @@ public class FilesReceiverListenerService extends Service {
             @Override
             public void onSuccess(File file) {
                 notifySystemAboutNewFile(file);
-                Bundle bundle = new Bundle();
                 bundle.putSerializable("file", file);
                 receiver.send(SUCCESS, bundle);
             }
