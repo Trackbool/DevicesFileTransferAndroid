@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class FilesSenderService extends Service {
-    public static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
+    private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
 
     public FilesSenderService() {
