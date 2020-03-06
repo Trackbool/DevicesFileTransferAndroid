@@ -16,7 +16,7 @@ import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
-import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
+import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
 import com.afa.devicesfiletransfer.view.framework.services.sender.FileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferContract;
 import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferPresenter;
@@ -103,7 +103,7 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                 Uri uri = data.getData();
                 if (uri != null) {
-                    TransferFile file = new AndroidTransferFileImpl(getApplicationContext(), uri);
+                    TransferFile file = new TransferFileImpl(getApplicationContext(), uri);
                     sendTransferPresenter.onFileAttached(file);
                 }
             }

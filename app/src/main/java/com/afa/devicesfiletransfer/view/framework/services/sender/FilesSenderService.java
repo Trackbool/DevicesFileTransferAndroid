@@ -12,7 +12,7 @@ import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
-import com.afa.devicesfiletransfer.view.framework.model.AndroidTransferFileImpl;
+import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
 import com.afa.devicesfiletransfer.view.framework.services.receiver.FilesReceiverListenerService;
 
 import java.util.concurrent.Executors;
@@ -38,7 +38,7 @@ public class FilesSenderService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Device device = intent.getParcelableExtra("device");
-        AndroidTransferFileImpl file = intent.getParcelableExtra("file");
+        TransferFileImpl file = intent.getParcelableExtra("file");
         file.setContext(getApplicationContext());
 
         final FileSenderProtocol fileSenderProtocol = createFileSender(device, file);

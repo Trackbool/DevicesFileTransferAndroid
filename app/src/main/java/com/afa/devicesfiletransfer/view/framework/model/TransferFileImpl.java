@@ -11,12 +11,12 @@ import com.afa.devicesfiletransfer.view.framework.UriWrapper;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class AndroidTransferFileImpl implements TransferFile, Parcelable {
+public class TransferFileImpl implements TransferFile, Parcelable {
     private Context context;
     private UriWrapper uriWrapper;
     private Uri uri;
 
-    public AndroidTransferFileImpl(Context context, Uri uri) {
+    public TransferFileImpl(Context context, Uri uri) {
         this.context = context;
         this.uri = uri;
         this.uriWrapper = new UriWrapper(context, uri);
@@ -66,19 +66,19 @@ public class AndroidTransferFileImpl implements TransferFile, Parcelable {
         dest.writeParcelable(uri, flags);
     }
 
-    private AndroidTransferFileImpl(Parcel in) {
+    private TransferFileImpl(Parcel in) {
         uri = in.readParcelable(Uri.class.getClassLoader());
     }
 
-    public static final Creator<AndroidTransferFileImpl> CREATOR = new Creator<AndroidTransferFileImpl>() {
+    public static final Creator<TransferFileImpl> CREATOR = new Creator<TransferFileImpl>() {
         @Override
-        public AndroidTransferFileImpl createFromParcel(Parcel in) {
-            return new AndroidTransferFileImpl(in);
+        public TransferFileImpl createFromParcel(Parcel in) {
+            return new TransferFileImpl(in);
         }
 
         @Override
-        public AndroidTransferFileImpl[] newArray(int size) {
-            return new AndroidTransferFileImpl[size];
+        public TransferFileImpl[] newArray(int size) {
+            return new TransferFileImpl[size];
         }
     };
 }
