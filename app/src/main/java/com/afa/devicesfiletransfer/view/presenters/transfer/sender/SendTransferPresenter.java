@@ -22,7 +22,7 @@ public class SendTransferPresenter implements SendTransferContract.Presenter {
 
             @Override
             public void onFailure(Exception e) {
-                view.showAlert("Sending error", e.getMessage());
+                view.showError("Sending error", e.getMessage());
             }
 
             @Override
