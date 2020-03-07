@@ -72,10 +72,6 @@ public class FileReceiver {
                 callback.onFailure(e);
         } finally {
             receiving.set(false);
-            try {
-                inputStream.close();
-            } catch (IOException ignored) {
-            }
         }
     }
 

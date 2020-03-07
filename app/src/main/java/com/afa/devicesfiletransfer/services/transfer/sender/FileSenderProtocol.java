@@ -61,8 +61,7 @@ public class FileSenderProtocol {
             }
             return;
         }
-        try {
-            Socket socket = new Socket();
+        try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(remoteDevice.getAddress(), SOCKET_PORT), 3000);
             InetAddress currentDeviceAddress = socket.getLocalAddress();
             OutputStream outputStream = socket.getOutputStream();

@@ -48,8 +48,7 @@ public class FileReceiverProtocol {
     }
 
     public void receive(InputStream inputStream) {
-        try {
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
+        try (DataInputStream dataInputStream = new DataInputStream(inputStream)) {
             String deviceJson = dataInputStream.readUTF();
             Device device = new Gson().fromJson(deviceJson, Device.class);
             String fileNameWithExtension = dataInputStream.readUTF();
