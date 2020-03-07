@@ -6,10 +6,13 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
@@ -22,6 +25,11 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class FilesSenderService extends Service {
+    public static final int START = 0;
+    public static final int FAILURE = 1;
+    public static final int PROGRESS_UPDATED = 2;
+    public static final int SUCCESS = 3;
+    private ResultReceiver receiver;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
 
@@ -37,6 +45,7 @@ public class FilesSenderService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        receiver = intent.getParcelableExtra("resultReceiver");
         Device device = intent.getParcelableExtra("device");
         TransferFileImpl file = intent.getParcelableExtra("file");
         file.setContext(getApplicationContext());
@@ -75,26 +84,34 @@ public class FilesSenderService extends Service {
 
     private FileSenderProtocol createFileSender(Device device, TransferFile file) {
         FileSenderProtocol fileSender = new FileSenderProtocol(device, file);
+        final Bundle bundle = new Bundle();
         fileSender.setCallback(new FileSenderProtocol.Callback() {
             @Override
-            public void onStart() {
+            public void onStart(Transfer transfer) {
                 //TODO: Notify the file is sending
+                bundle.putSerializable("transfer", transfer);
+                receiver.send(START, bundle);
             }
 
             @Override
             public void onFailure(Exception e) {
                 //TODO: Notify failure in transfer
+                bundle.putSerializable("exception", e);
+                receiver.send(FAILURE, bundle);
                 finishServiceIfThereAreNoMoreTransfers();
             }
 
             @Override
             public void onProgressUpdated() {
                 //TODO: Update the progress in notification
+                receiver.send(PROGRESS_UPDATED, bundle);
             }
 
             @Override
             public void onSuccess(TransferFile file) {
                 //TODO: Notify transfer succeeded
+                bundle.putParcelable("file", (TransferFileImpl) file);
+                receiver.send(SUCCESS, bundle);
                 finishServiceIfThereAreNoMoreTransfers();
             }
         });

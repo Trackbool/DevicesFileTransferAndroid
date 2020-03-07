@@ -11,9 +11,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
@@ -25,6 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 public class FilesReceiverListenerService extends Service {
     public static final int START = 0;

@@ -94,7 +94,7 @@ public class FileSenderProtocol {
             @Override
             public void onStart() {
                 transfer.setStatus(Transfer.TransferStatus.TRANSFERRING);
-                callback.onStart();
+                callback.onStart(transfer);
             }
 
             @Override
@@ -119,7 +119,7 @@ public class FileSenderProtocol {
     }
 
     public interface Callback {
-        void onStart();
+        void onStart(Transfer transfer);
 
         void onFailure(Exception e);
 
