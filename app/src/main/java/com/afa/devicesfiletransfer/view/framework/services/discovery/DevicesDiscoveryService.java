@@ -25,6 +25,7 @@ public class DevicesDiscoveryService extends Service {
     public static final int INITIALIZATION_FAILURE = 0;
     public static final int REQUEST_RECEIVED = 1;
     public static final int RESPONSE_RECEIVED = 2;
+    private final static int DISCOVERY_SERVICE_PORT = 5000;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private DiscoveryProtocolListener discoveryListener;
     private ResultReceiver receiver;
@@ -36,12 +37,15 @@ public class DevicesDiscoveryService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        int port = intent.getIntExtra("port", 5000);
-        receiver = intent.getParcelableExtra("resultReceiver");
-
-        discoveryListener = createDiscoveryListener(port);
+    public void onCreate() {
+        discoveryListener = createDiscoveryListener(DISCOVERY_SERVICE_PORT);
         discoveryListener.start();
+        super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        receiver = intent.getParcelableExtra("resultReceiver");
 
         createNotificationChannel();
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)

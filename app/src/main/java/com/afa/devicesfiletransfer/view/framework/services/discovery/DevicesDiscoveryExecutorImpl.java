@@ -66,7 +66,6 @@ public class DevicesDiscoveryExecutorImpl implements DevicesDiscoveryExecutor {
         };
 
         Intent serviceIntent = new Intent(context, DevicesDiscoveryService.class);
-        serviceIntent.putExtra("port", DISCOVERY_SERVICE_PORT);
         serviceIntent.putExtra("resultReceiver", resultReceiver);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);
