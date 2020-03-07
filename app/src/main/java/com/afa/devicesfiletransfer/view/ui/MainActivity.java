@@ -14,11 +14,13 @@ import android.view.MenuItem;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.util.SystemUtils;
+import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryExecutorImpl;
 import com.afa.devicesfiletransfer.view.presenters.discovery.DiscoveryContract;
 import com.afa.devicesfiletransfer.view.presenters.discovery.DiscoveryPresenter;
-import com.afa.devicesfiletransfer.view.framework.services.receiver.FilesReceiverListenerServiceExecutorImpl;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferContract;
 import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
@@ -52,7 +54,8 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         setContentView(R.layout.activity_main);
 
         initializeViews();
-        discoveryPresenter = new DiscoveryPresenter(this);
+        DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(getApplicationContext());
+        discoveryPresenter = new DiscoveryPresenter(this, devicesDiscoveryExecutor);
         FilesReceiverListenerServiceExecutor receiverServiceExecutor =
                 new FilesReceiverListenerServiceExecutorImpl(getApplicationContext());
         receiveTransferPresenter = new ReceiveTransferPresenter(this, receiverServiceExecutor);

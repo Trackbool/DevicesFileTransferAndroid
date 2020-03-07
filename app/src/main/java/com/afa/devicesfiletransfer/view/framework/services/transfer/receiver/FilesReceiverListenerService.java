@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.services.receiver;
+package com.afa.devicesfiletransfer.view.framework.services.transfer.receiver;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

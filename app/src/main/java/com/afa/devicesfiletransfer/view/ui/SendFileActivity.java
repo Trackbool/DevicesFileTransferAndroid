@@ -1,5 +1,6 @@
 package com.afa.devicesfiletransfer.view.ui;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,7 +18,7 @@ import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
-import com.afa.devicesfiletransfer.view.framework.services.sender.FileSenderServiceExecutorImpl;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferContract;
 import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferPresenter;
 import com.google.android.material.snackbar.Snackbar;
@@ -59,6 +60,18 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
                 sendTransferPresenter.onSendFileButtonClicked();
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString("attachedFileName", String.valueOf(attachedFileNameTextView.getText()));
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        attachedFileNameTextView.setText(savedInstanceState.getString("attachedFileName"));
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override

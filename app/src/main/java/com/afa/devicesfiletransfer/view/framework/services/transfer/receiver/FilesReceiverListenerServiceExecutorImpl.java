@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.services.receiver;
+package com.afa.devicesfiletransfer.view.framework.services.transfer.receiver;
 
 import android.content.Context;
 import android.content.Intent;

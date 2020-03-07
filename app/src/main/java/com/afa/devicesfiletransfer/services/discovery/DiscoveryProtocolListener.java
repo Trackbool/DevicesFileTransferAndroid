@@ -4,7 +4,10 @@ import com.afa.devicesfiletransfer.model.DeviceProperties;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,12 +35,19 @@ public class DiscoveryProtocolListener {
         this.callback = callback;
     }
 
-    public void start() throws SocketException {
+    public void start() {
         if (listening.get()) {
             throw new IllegalStateException("Listener already listening");
         }
 
-        serverSocket = new DatagramSocket(port);
+        try {
+            serverSocket = new DatagramSocket(port);
+        } catch (SocketException e) {
+            if (callback != null) {
+                callback.initializationFailure(e);
+            }
+            return;
+        }
         listening.set(true);
 
         new Thread(new Runnable() {
@@ -122,6 +132,8 @@ public class DiscoveryProtocolListener {
     }
 
     public interface Callback {
+        void initializationFailure(Exception e);
+
         void discoveryRequestReceived(InetAddress senderAddress, int senderPort);
 
         void discoveryResponseReceived(InetAddress senderAddress, int senderPort, DeviceProperties deviceProperties);
