@@ -87,7 +87,7 @@ public class FilesReceiverListenerService extends Service {
 
         startForeground(1, notification);
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private void createNotificationChannel() {

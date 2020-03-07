@@ -56,7 +56,7 @@ public class DevicesDiscoveryService extends Service {
 
         startForeground(3, notification);
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private void createNotificationChannel() {
