@@ -38,7 +38,7 @@ public class DevicesDiscoveryService extends Service {
 
     @Override
     public void onCreate() {
-        discoveryListener = createDiscoveryListener(DISCOVERY_SERVICE_PORT);
+        discoveryListener = createDiscoveryListener();
         discoveryListener.start();
         super.onCreate();
     }
@@ -72,10 +72,10 @@ public class DevicesDiscoveryService extends Service {
 
     }
 
-    private DiscoveryProtocolListener createDiscoveryListener(int port) {
+    private DiscoveryProtocolListener createDiscoveryListener() {
         final Bundle bundle = new Bundle();
         return DiscoveryProtocolListenerFactory
-                .getDefault(port, new DiscoveryProtocolListener.Callback() {
+                .getDefault(DISCOVERY_SERVICE_PORT, new DiscoveryProtocolListener.Callback() {
                     @Override
                     public void initializationFailure(Exception e) {
                         bundle.putSerializable("exception", e);
