@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.viewmodels;
+package com.afa.devicesfiletransfer.view.viewmodels.discovery;
 
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 

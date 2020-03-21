@@ -6,28 +6,24 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
-import com.afa.devicesfiletransfer.util.SystemUtils;
+import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryExecutorImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
-import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferContract;
-import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferPresenter;
-import com.afa.devicesfiletransfer.view.viewmodels.DiscoveryViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.DiscoveryViewModelFactory;
+import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModel;
+import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModelFactory;
+import com.afa.devicesfiletransfer.view.viewmodels.transfer.ReceiveTransferViewModel;
+import com.afa.devicesfiletransfer.view.viewmodels.transfer.ReceiveTransferViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,10 +38,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class MainActivity extends AppCompatActivity implements ReceiveTransferContract.View {
-
+public class MainActivity extends AppCompatActivity {
     private DiscoveryViewModel discoveryViewModel;
-    private ReceiveTransferPresenter receiveTransferPresenter;
+    private ReceiveTransferViewModel receiveTransferViewModel;
     private DevicesAdapter devicesAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private MenuItem sendMenuButton;
@@ -59,10 +54,8 @@ public class MainActivity extends AppCompatActivity implements ReceiveTransferCo
 
         initializeViews();
         initializeDiscoveryViewModel();
-        FilesReceiverListenerServiceExecutor receiverServiceExecutor =
-                new FilesReceiverListenerServiceExecutorImpl(getApplicationContext());
-        receiveTransferPresenter = new ReceiveTransferPresenter(this, receiverServiceExecutor);
         requestStoragePermissions();
+        initializeTransferReceiverViewModel();
     }
 
     private void requestStoragePermissions() {
@@ -86,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements ReceiveTransferCo
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_READ_WRITE_PERMISSION);
             }
-        } else {
-            receiveTransferPresenter.onViewLoaded();
         }
     }
 
@@ -98,8 +89,6 @@ public class MainActivity extends AppCompatActivity implements ReceiveTransferCo
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             requestStoragePermissions();
-        } else {
-            receiveTransferPresenter.onViewLoaded();
         }
     }
 
@@ -175,10 +164,31 @@ public class MainActivity extends AppCompatActivity implements ReceiveTransferCo
                 devicesAdapter.setDevices(devices);
             }
         });
-        discoveryViewModel.getErrorEvent().observe(this, new Observer<Pair<String, String>>() {
+        discoveryViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
             @Override
-            public void onChanged(Pair<String, String> error) {
-                showError(error.first, error.second);
+            public void onChanged(ErrorModel error) {
+                showError(error.getTitle(), error.getMessage());
+            }
+        });
+    }
+
+    private void initializeTransferReceiverViewModel() {
+        FilesReceiverListenerServiceExecutor receiverServiceExecutor =
+                new FilesReceiverListenerServiceExecutorImpl(getApplicationContext());
+        receiveTransferViewModel = new ViewModelProvider(this,
+                new ReceiveTransferViewModelFactory(receiverServiceExecutor))
+                .get(ReceiveTransferViewModel.class);
+        receiveTransferViewModel.getOnSuccessEvent().observe(this, new Observer<File>() {
+            @Override
+            public void onChanged(File file) {
+                showAlert("File received", "The file " +
+                        file.getName() + " has been received");
+            }
+        });
+        receiveTransferViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
+            @Override
+            public void onChanged(ErrorModel errorModel) {
+                showError(errorModel.getTitle(), errorModel.getMessage());
             }
         });
     }
@@ -189,52 +199,19 @@ public class MainActivity extends AppCompatActivity implements ReceiveTransferCo
         startActivity(intent);
     }
 
-    @Override
     public void showError(final String title, final String message) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Snackbar snackbar = Snackbar.make(MainActivity.this.findViewById(android.R.id.content),
-                        title + ". " + message,
-                        Snackbar.LENGTH_LONG);
-                snackbar.getView().setBackgroundColor(Color.RED);
-                snackbar.show();
-            }
-        });
+        Snackbar snackbar = Snackbar.make(MainActivity.this.findViewById(android.R.id.content),
+                title + ". " + message,
+                Snackbar.LENGTH_LONG);
+        snackbar.getView().setBackgroundColor(Color.RED);
+        snackbar.show();
     }
 
-    @Override
-    public void close() {
-        finish();
-    }
-
-    //Receiver listener
-    @Override
     public void showAlert(final String title, final String message) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Snackbar snackbar = Snackbar.make(MainActivity.this.findViewById(android.R.id.content),
-                        title + ". " + message,
-                        Snackbar.LENGTH_LONG);
-                snackbar.show();
-            }
-        });
-    }
-
-    @Override
-    public void addReceptionTransfer(Transfer transfer) {
-        Log.d("ADRI-DEBUG", "VIEW TRANSFER: " + transfer.getDeviceName());
-    }
-
-    @Override
-    public void refreshReceptionsData() {
-
-    }
-
-    @Override
-    public File getDownloadsDirectory() {
-        return SystemUtils.getDownloadsDirectory();
+        Snackbar snackbar = Snackbar.make(MainActivity.this.findViewById(android.R.id.content),
+                title + ". " + message,
+                Snackbar.LENGTH_LONG);
+        snackbar.show();
     }
 
     @Override
@@ -254,11 +231,5 @@ public class MainActivity extends AppCompatActivity implements ReceiveTransferCo
                     }
                 })
                 .show();
-    }
-
-    @Override
-    protected void onDestroy() {
-        receiveTransferPresenter.onDestroy();
-        super.onDestroy();
     }
 }

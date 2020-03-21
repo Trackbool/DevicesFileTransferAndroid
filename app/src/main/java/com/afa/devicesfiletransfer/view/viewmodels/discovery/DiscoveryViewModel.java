@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.viewmodels;
+package com.afa.devicesfiletransfer.view.viewmodels.discovery;
 
 import android.util.Pair;
 
@@ -7,6 +7,7 @@ import com.afa.devicesfiletransfer.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
+import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
 
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -20,7 +21,7 @@ public class DiscoveryViewModel extends ViewModel {
     private final List<Device> devices;
     private final MutableLiveData<List<Device>> devicesLiveData;
     private final LiveEvent<InetAddress> discoveryRequestReceivedEvent;
-    private final LiveEvent<Pair<String, String>> errorEvent;
+    private final LiveEvent<ErrorModel> errorEvent;
     private final DevicesDiscoveryExecutor devicesDiscoveryExecutor;
 
     public DiscoveryViewModel(DevicesDiscoveryExecutor devicesDiscoveryExecutor) {
@@ -62,7 +63,7 @@ public class DiscoveryViewModel extends ViewModel {
         return discoveryRequestReceivedEvent;
     }
 
-    public LiveEvent<Pair<String, String>> getErrorEvent() {
+    public LiveEvent<ErrorModel> getErrorEvent() {
         return errorEvent;
     }
 
@@ -77,6 +78,6 @@ public class DiscoveryViewModel extends ViewModel {
     }
 
     private void showError(String title, String message) {
-        errorEvent.postValue(new Pair<>(title, message));
+        errorEvent.postValue(new ErrorModel(title, message));
     }
 }
