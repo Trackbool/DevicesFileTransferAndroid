@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,14 +19,15 @@ import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.util.SystemUtils;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryExecutorImpl;
-import com.afa.devicesfiletransfer.view.presenters.discovery.DiscoveryContract;
-import com.afa.devicesfiletransfer.view.presenters.discovery.DiscoveryPresenter;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferContract;
 import com.afa.devicesfiletransfer.view.presenters.transfer.receiver.ReceiveTransferPresenter;
+import com.afa.devicesfiletransfer.view.viewmodels.DiscoveryViewModel;
+import com.afa.devicesfiletransfer.view.viewmodels.DiscoveryViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +36,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class MainActivity extends AppCompatActivity implements DiscoveryContract.View, ReceiveTransferContract.View {
+public class MainActivity extends AppCompatActivity implements ReceiveTransferContract.View {
 
-    private DiscoveryContract.Presenter discoveryPresenter;
+    private DiscoveryViewModel discoveryViewModel;
     private ReceiveTransferPresenter receiveTransferPresenter;
     private DevicesAdapter devicesAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -54,13 +58,11 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         setContentView(R.layout.activity_main);
 
         initializeViews();
-        DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(getApplicationContext());
-        discoveryPresenter = new DiscoveryPresenter(this, devicesDiscoveryExecutor);
+        initializeDiscoveryViewModel();
         FilesReceiverListenerServiceExecutor receiverServiceExecutor =
                 new FilesReceiverListenerServiceExecutorImpl(getApplicationContext());
         receiveTransferPresenter = new ReceiveTransferPresenter(this, receiverServiceExecutor);
         requestStoragePermissions();
-        discoveryPresenter.onViewLoaded();
     }
 
     private void requestStoragePermissions() {
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                discoveryPresenter.onDiscoverDevicesEvent();
+                discoveryViewModel.discoverDevices();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -161,20 +163,30 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
         devicesRecyclerView.setAdapter(devicesAdapter);
     }
 
+    private void initializeDiscoveryViewModel() {
+        DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(getApplicationContext());
+        discoveryViewModel = new ViewModelProvider(this,
+                new DiscoveryViewModelFactory(devicesDiscoveryExecutor))
+                .get(DiscoveryViewModel.class);
+
+        discoveryViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
+            @Override
+            public void onChanged(List<Device> devices) {
+                devicesAdapter.setDevices(devices);
+            }
+        });
+        discoveryViewModel.getErrorEvent().observe(this, new Observer<Pair<String, String>>() {
+            @Override
+            public void onChanged(Pair<String, String> error) {
+                showError(error.first, error.second);
+            }
+        });
+    }
+
     private void openSendFileActivity(List<Device> devices) {
         Intent intent = new Intent(this, SendFileActivity.class);
         intent.putParcelableArrayListExtra("devicesList", new ArrayList<>(devices));
         startActivity(intent);
-    }
-
-    @Override
-    public void addDevice(final Device device) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                devicesAdapter.addDevice(device);
-            }
-        });
     }
 
     @Override
@@ -187,21 +199,6 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
                         Snackbar.LENGTH_LONG);
                 snackbar.getView().setBackgroundColor(Color.RED);
                 snackbar.show();
-            }
-        });
-    }
-
-    @Override
-    public List<Device> getDevicesList() {
-        return devicesAdapter.getDevices();
-    }
-
-    @Override
-    public void clearDevicesList() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                devicesAdapter.clearDevices();
             }
         });
     }
@@ -261,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements DiscoveryContract
 
     @Override
     protected void onDestroy() {
-        discoveryPresenter.onDestroy();
         receiveTransferPresenter.onDestroy();
         super.onDestroy();
     }
