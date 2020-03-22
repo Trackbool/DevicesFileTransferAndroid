@@ -1,10 +1,11 @@
 package com.afa.devicesfiletransfer.view.viewmodels.discovery;
 
-import android.util.Pair;
+import android.util.Log;
 
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
+import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
@@ -23,14 +24,17 @@ public class DiscoveryViewModel extends ViewModel {
     private final LiveEvent<InetAddress> discoveryRequestReceivedEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private final DevicesDiscoveryExecutor devicesDiscoveryExecutor;
+    private final DevicesDiscoveryReceiver devicesDiscoveryReceiver;
 
-    public DiscoveryViewModel(DevicesDiscoveryExecutor devicesDiscoveryExecutor) {
+    public DiscoveryViewModel(DevicesDiscoveryExecutor devicesDiscoveryExecutor,
+                              DevicesDiscoveryReceiver devicesDiscoveryReceiver) {
         devices = new ArrayList<>();
         devicesLiveData = new MutableLiveData<>();
         discoveryRequestReceivedEvent = new LiveEvent<>();
         errorEvent = new LiveEvent<>();
-        this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
-        devicesDiscoveryExecutor.setCallback(new DiscoveryProtocolListener.Callback() {
+
+        this.devicesDiscoveryReceiver = devicesDiscoveryReceiver;
+        this.devicesDiscoveryReceiver.setCallback(new DiscoveryProtocolListener.Callback() {
             @Override
             public void initializationFailure(Exception e) {
                 showError("Initialization error", e.getMessage());
@@ -39,6 +43,7 @@ public class DiscoveryViewModel extends ViewModel {
             @Override
             public void discoveryRequestReceived(InetAddress senderAddress, int senderPort) {
                 discoveryRequestReceivedEvent.postValue(senderAddress);
+                Log.d("ADRI-DEBUG", "Request received");
             }
 
             @Override
@@ -47,11 +52,15 @@ public class DiscoveryViewModel extends ViewModel {
                 String os = deviceProperties.getOs();
                 Device device = new Device(deviceName, os, senderAddress);
 
+                Log.d("ADRI-DEBUG", deviceName);
                 devices.add(device);
                 devicesLiveData.postValue(devices);
             }
         });
-        devicesDiscoveryExecutor.start();
+        this.devicesDiscoveryReceiver.receive();
+
+        this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
+        this.devicesDiscoveryExecutor.start();
         discoverDevices();
     }
 
@@ -79,5 +88,11 @@ public class DiscoveryViewModel extends ViewModel {
 
     private void showError(String title, String message) {
         errorEvent.postValue(new ErrorModel(title, message));
+    }
+
+    @Override
+    protected void onCleared() {
+        this.devicesDiscoveryReceiver.stop();
+        super.onCleared();
     }
 }

@@ -15,8 +15,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".view.ui.SendFileActivity"></activity>
         <activity
-            android:name=".view.ui.MainActivity"
-            android:configChanges="orientation|screenSize">
+            android:name=".view.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,6 +18,8 @@ import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerF
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;
 
 import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Set;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -25,15 +28,24 @@ public class DevicesDiscoveryService extends Service {
     public static final int INITIALIZATION_FAILURE = 0;
     public static final int REQUEST_RECEIVED = 1;
     public static final int RESPONSE_RECEIVED = 2;
-    private final static int DISCOVERY_SERVICE_PORT = 5000;
+    private static final int DISCOVERY_SERVICE_PORT = 5000;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
+    private final IBinder binder = new LocalBinder();
     private DiscoveryProtocolListener discoveryListener;
-    private ResultReceiver receiver;
+    private Set<ResultReceiver> receivers = new HashSet<>();
+
+    public class LocalBinder extends Binder {
+        DevicesDiscoveryService getService() {
+            return DevicesDiscoveryService.this;
+        }
+    }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        ResultReceiver receiver = intent.getParcelableExtra("resultReceiver");
+        receivers.add(receiver);
+        return binder;
     }
 
     @Override
@@ -45,8 +57,6 @@ public class DevicesDiscoveryService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        receiver = intent.getParcelableExtra("resultReceiver");
-
         createNotificationChannel();
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Devices discovery")
@@ -69,7 +79,6 @@ public class DevicesDiscoveryService extends Service {
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
         }
-
     }
 
     private DiscoveryProtocolListener createDiscoveryListener() {
@@ -79,7 +88,7 @@ public class DevicesDiscoveryService extends Service {
                     @Override
                     public void initializationFailure(Exception e) {
                         bundle.putSerializable("exception", e);
-                        receiver.send(INITIALIZATION_FAILURE, bundle);
+                        sendToAllReceivers(INITIALIZATION_FAILURE, bundle);
                         stopSelf();
                     }
 
@@ -87,7 +96,7 @@ public class DevicesDiscoveryService extends Service {
                     public void discoveryRequestReceived(InetAddress senderAddress, int senderPort) {
                         bundle.putSerializable("senderAddress", senderAddress);
                         bundle.putInt("senderPort", senderPort);
-                        receiver.send(REQUEST_RECEIVED, bundle);
+                        sendToAllReceivers(REQUEST_RECEIVED, bundle);
                     }
 
                     @Override
@@ -96,9 +105,17 @@ public class DevicesDiscoveryService extends Service {
                         bundle.putSerializable("senderAddress", senderAddress);
                         bundle.putInt("senderPort", senderPort);
                         bundle.putSerializable("deviceProperties", deviceProperties);
-                        receiver.send(RESPONSE_RECEIVED, bundle);
+                        sendToAllReceivers(RESPONSE_RECEIVED, bundle);
                     }
                 });
+    }
+
+    private void sendToAllReceivers(int resultCode, Bundle resultData) {
+        for (ResultReceiver resultReceiver : receivers) {
+            if (resultReceiver != null) {
+                resultReceiver.send(resultCode, resultData);
+            }
+        }
     }
 
     @Override

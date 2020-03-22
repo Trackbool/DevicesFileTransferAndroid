@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,9 +14,11 @@ import android.view.MenuItem;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
+import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryExecutorImpl;
+import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModel;
 import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModelFactory;
@@ -154,13 +157,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeDiscoveryViewModel() {
         DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(getApplicationContext());
+        DevicesDiscoveryReceiver devicesDiscoveryReceiver = new DevicesDiscoveryReceiverImpl(getApplicationContext());
         discoveryViewModel = new ViewModelProvider(this,
-                new DiscoveryViewModelFactory(devicesDiscoveryExecutor))
+                new DiscoveryViewModelFactory(devicesDiscoveryExecutor, devicesDiscoveryReceiver))
                 .get(DiscoveryViewModel.class);
 
         discoveryViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
             @Override
             public void onChanged(List<Device> devices) {
+                Log.d("ADRI-DEBUG", "ACTIVITY: Hemos llegao");
                 devicesAdapter.setDevices(devices);
             }
         });
