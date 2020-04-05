@@ -46,8 +46,6 @@ import androidx.viewpager.widget.ViewPager;
 
 public class MainActivity extends AppCompatActivity {
 
-
-
     private static final int REQUEST_READ_WRITE_PERMISSION = 9;
 
     @Override
@@ -61,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         tabs.setupWithViewPager(viewPager);
 
         requestStoragePermissions();
-        //initializeTransferReceiverViewModel();
     }
 
     private void requestStoragePermissions() {
