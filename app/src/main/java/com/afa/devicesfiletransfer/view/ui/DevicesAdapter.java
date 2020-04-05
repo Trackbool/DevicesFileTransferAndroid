@@ -54,6 +54,11 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
         return devices;
     }
 
+    public void unselectDevices() {
+        selectedPositions.clear();
+        notifyDataSetChanged();
+    }
+
     public void clearDevices() {
         this.devices.clear();
         notifyDataSetChanged();
@@ -142,7 +147,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
         return R.drawable.pc_icon;
     }
 
-    interface Callback {
+    public interface Callback {
         void onClick(Device device);
 
         void onItemSelected(Device device);

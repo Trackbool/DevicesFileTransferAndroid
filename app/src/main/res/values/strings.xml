@@ -3,4 +3,10 @@
     <string name="device_icon_description">Device icon</string>
     <string name="devices_title">Devices</string>
     <string name="no_devices_found">No devices found</string>
+    <string name="tab_text_1">Devices</string>
+    <string name="tab_text_2">Transfers</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -61,7 +61,7 @@ public class DevicesDiscoveryService extends Service {
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Devices discovery")
                 .setContentText("Listening")
-                .setSmallIcon(R.drawable.send_icon)
+                .setSmallIcon(R.drawable.icon_send)
                 .build();
 
         startForeground(3, notification);

@@ -62,7 +62,7 @@ public class FilesSenderService extends Service {
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Sender")
                 .setContentText("Sending files...")
-                .setSmallIcon(R.drawable.send_icon)
+                .setSmallIcon(R.drawable.icon_send)
                 .build();
 
         startForeground(2, notification);

@@ -82,7 +82,7 @@ public class FilesReceiverListenerService extends Service {
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Receiver listener")
                 .setContentText("Listening for incoming files")
-                .setSmallIcon(R.drawable.send_icon)
+                .setSmallIcon(R.drawable.icon_send)
                 .build();
 
         startForeground(1, notification);
