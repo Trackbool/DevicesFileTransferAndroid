@@ -18,8 +18,8 @@ import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerF
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;
 
 import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -32,7 +32,7 @@ public class DevicesDiscoveryService extends Service {
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final IBinder binder = new LocalBinder();
     private DiscoveryProtocolListener discoveryListener;
-    private Set<ResultReceiver> receivers = new HashSet<>();
+    private List<ResultReceiver> receivers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
         DevicesDiscoveryService getService() {
@@ -40,11 +40,17 @@ public class DevicesDiscoveryService extends Service {
         }
     }
 
+    public void addResultReceiver(ResultReceiver resultReceiver) {
+        receivers.add(resultReceiver);
+    }
+
+    public void removeResultReceiver(ResultReceiver resultReceiver) {
+        receivers.remove(resultReceiver);
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        ResultReceiver receiver = intent.getParcelableExtra("resultReceiver");
-        receivers.add(receiver);
         return binder;
     }
 

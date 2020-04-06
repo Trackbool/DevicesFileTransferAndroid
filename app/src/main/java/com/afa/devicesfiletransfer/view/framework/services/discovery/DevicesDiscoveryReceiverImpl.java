@@ -20,6 +20,8 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
     private final Context context;
     private boolean mBound = false;
     private DiscoveryProtocolListener.Callback callback;
+    private DevicesDiscoveryService boundService;
+    private ResultReceiver resultReceiver;
 
     public DevicesDiscoveryReceiverImpl(Context context) {
         this.context = context;
@@ -32,7 +34,7 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
 
     @Override
     public void receive() {
-        ResultReceiver resultReceiver = new ResultReceiver(new Handler()) {
+        resultReceiver = new ResultReceiver(new Handler()) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
                 switch (resultCode) {
@@ -64,13 +66,16 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
         };
 
         Intent serviceIntent = new Intent(context, DevicesDiscoveryService.class);
-        serviceIntent.putExtra("resultReceiver", resultReceiver);
         context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     public void stop() {
-        context.unbindService(connection);
+        if (boundService != null)
+            boundService.removeResultReceiver(resultReceiver);
+        resultReceiver = null;
+        if (mBound)
+            context.unbindService(connection);
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -78,6 +83,9 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
+            DevicesDiscoveryService.LocalBinder binder = (DevicesDiscoveryService.LocalBinder) service;
+            boundService = binder.getService();
+            boundService.addResultReceiver(resultReceiver);
             mBound = true;
         }
 

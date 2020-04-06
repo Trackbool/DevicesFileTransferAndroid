@@ -1,5 +1,6 @@
 package com.afa.devicesfiletransfer.view.viewmodels.transfer;
 
+import com.afa.devicesfiletransfer.model.Pair;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
@@ -16,9 +17,9 @@ import androidx.lifecycle.ViewModel;
 public class ReceiveTransferViewModel extends ViewModel {
     private final List<Transfer> transfers;
     private final MutableLiveData<List<Transfer>> transferLiveData;
-    private final MutableLiveData<Void> onProgressUpdatedEvent;
-    private final MutableLiveData<File> onSuccessEvent;
-    private final LiveEvent<ErrorModel> errorEvent;
+    private final MutableLiveData<Transfer> onProgressUpdatedEvent;
+    private final MutableLiveData<Pair<Transfer, File>> onSuccessEvent;
+    private final LiveEvent<Pair<Transfer, ErrorModel>> errorEvent;
 
     public ReceiveTransferViewModel(FilesReceiverListenerServiceExecutor receiverServiceExecutor) {
         transfers = new ArrayList<>();
@@ -34,18 +35,19 @@ public class ReceiveTransferViewModel extends ViewModel {
             }
 
             @Override
-            public void onFailure(Exception e) {
-                errorEvent.postValue(new ErrorModel("Receiving error", e.getMessage()));
+            public void onFailure(Transfer transfer, Exception e) {
+                errorEvent.postValue(
+                        new Pair<>(transfer, new ErrorModel("Receiving error", e.getMessage())));
             }
 
             @Override
-            public void onProgressUpdated() {
+            public void onProgressUpdated(Transfer transfer) {
                 onProgressUpdatedEvent.postValue(null);
             }
 
             @Override
-            public void onSuccess(File file) {
-                onSuccessEvent.postValue(file);
+            public void onSuccess(Transfer transfer, File file) {
+                onSuccessEvent.postValue(new Pair<>(transfer, file));
             }
         });
         receiverServiceExecutor.start();
@@ -55,15 +57,15 @@ public class ReceiveTransferViewModel extends ViewModel {
         return transferLiveData;
     }
 
-    public MutableLiveData<Void> getOnProgressUpdatedEvent() {
+    public MutableLiveData<Transfer> getOnProgressUpdatedEvent() {
         return onProgressUpdatedEvent;
     }
 
-    public MutableLiveData<File> getOnSuccessEvent() {
+    public MutableLiveData<Pair<Transfer, File>> getOnSuccessEvent() {
         return onSuccessEvent;
     }
 
-    public LiveEvent<ErrorModel> getErrorEvent() {
+    public LiveEvent<Pair<Transfer, ErrorModel>> getErrorEvent() {
         return errorEvent;
     }
 }

@@ -80,7 +80,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
         holder.icon.setImageResource(getDeviceIcon(device));
         holder.name.setText(device.getName());
         holder.os.setText(device.getOs());
-        holder.ipAddress.setText(devices.get(position).getIpAddress());
+        holder.ipAddress.setText(device.getIpAddress());
     }
 
     @Override

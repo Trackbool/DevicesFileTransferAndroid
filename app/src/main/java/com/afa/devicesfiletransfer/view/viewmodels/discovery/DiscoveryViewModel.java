@@ -32,8 +32,11 @@ public class DiscoveryViewModel extends ViewModel {
         devicesLiveData = new MutableLiveData<>();
         discoveryRequestReceivedEvent = new LiveEvent<>();
         errorEvent = new LiveEvent<>();
-
         this.devicesDiscoveryReceiver = devicesDiscoveryReceiver;
+        this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
+    }
+
+    public void onStart() {
         this.devicesDiscoveryReceiver.setCallback(new DiscoveryProtocolListener.Callback() {
             @Override
             public void initializationFailure(Exception e) {
@@ -58,8 +61,6 @@ public class DiscoveryViewModel extends ViewModel {
             }
         });
         this.devicesDiscoveryReceiver.receive();
-
-        this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
         this.devicesDiscoveryExecutor.start();
         discoverDevices();
     }
@@ -90,9 +91,7 @@ public class DiscoveryViewModel extends ViewModel {
         errorEvent.postValue(new ErrorModel(title, message));
     }
 
-    @Override
-    protected void onCleared() {
+    public void onDestroy() {
         this.devicesDiscoveryReceiver.stop();
-        super.onCleared();
     }
 }

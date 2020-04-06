@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/transfersCardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/transferIconImageView"
+            android:layout_width="70dp"
+            android:layout_height="71dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="@string/device_icon_description"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/transferFileTextView"
+            android:layout_width="291dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_toEndOf="@+id/transferIconImageView"
+            android:textSize="20sp"
+            tools:text="IMG-001.png" />
+
+        <TextView
+            android:id="@+id/foreignDeviceTextView"
+            android:layout_width="308dp"
+            android:layout_height="19dp"
+            android:layout_below="@+id/transferFileTextView"
+            android:layout_alignParentEnd="true"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_toEndOf="@+id/transferIconImageView"
+            android:textSize="14sp"
+            tools:text="Xiaomi Redmi Note 3" />
+
+        <TextView
+            android:id="@+id/transferDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/foreignDeviceTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="0dp"
+            android:textSize="12sp"
+            tools:text="20/12/2020 15:20" />
+
+        <TextView
+            android:id="@+id/transferPercentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/foreignDeviceTextView"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="2dp"
+            android:layout_toEndOf="@+id/transferIconImageView"
+            android:textSize="14sp"
+            tools:text="100%" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

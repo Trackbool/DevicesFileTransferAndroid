@@ -1,6 +1,7 @@
 package com.afa.devicesfiletransfer.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Transfer implements Serializable {
     private Device device;
@@ -67,5 +68,19 @@ public class Transfer implements Serializable {
         TransferStatus(String value) {
             this.value = value;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transfer transfer = (Transfer) o;
+        return Objects.equals(device, transfer.device) &&
+                Objects.equals(fileName, transfer.fileName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(device, fileName);
     }
 }

@@ -44,19 +44,22 @@ public class FilesReceiverListenerServiceExecutorImpl implements FilesReceiverLi
                         break;
                     case FilesReceiverListenerService.PROGRESS_UPDATED:
                         if (callback != null) {
-                            callback.onProgressUpdated();
+                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
+                            callback.onProgressUpdated(transfer);
                         }
                         break;
                     case FilesReceiverListenerService.FAILURE:
                         if (callback != null) {
+                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
                             Exception exception = (Exception) resultData.getSerializable("exception");
-                            callback.onFailure(exception);
+                            callback.onFailure(transfer, exception);
                         }
                         break;
                     case FilesReceiverListenerService.SUCCESS:
                         if (callback != null) {
+                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
                             File file = (File) resultData.getSerializable("file");
-                            callback.onSuccess(file);
+                            callback.onSuccess(transfer, file);
                         }
                         break;
                 }

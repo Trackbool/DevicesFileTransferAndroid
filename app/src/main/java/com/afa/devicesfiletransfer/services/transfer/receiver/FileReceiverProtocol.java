@@ -60,7 +60,7 @@ public class FileReceiverProtocol {
             fileReceiver.receive(file, fileSize, inputStream);
         } catch (IOException e) {
             if (callback != null)
-                callback.onFailure(e);
+                callback.onFailure(transfer, e);
         }
     }
 
@@ -93,19 +93,19 @@ public class FileReceiverProtocol {
             @Override
             public void onFailure(Exception e) {
                 transfer.setStatus(Transfer.TransferStatus.FAILED);
-                callback.onFailure(e);
+                callback.onFailure(transfer, e);
             }
 
             @Override
             public void onProgressUpdated() {
                 transfer.setProgress(fileReceiver.getReceivedPercentage());
-                callback.onProgressUpdated();
+                callback.onProgressUpdated(transfer);
             }
 
             @Override
             public void onSuccess(File file) {
                 transfer.setStatus(Transfer.TransferStatus.SUCCEEDED);
-                callback.onSuccess(file);
+                callback.onSuccess(transfer, file);
             }
         };
         return new FileReceiver(fileReceiverCallback);
@@ -114,10 +114,10 @@ public class FileReceiverProtocol {
     public interface Callback {
         void onStart(Transfer transfer);
 
-        void onFailure(Exception e);
+        void onFailure(Transfer transfer, Exception e);
 
-        void onProgressUpdated();
+        void onProgressUpdated(Transfer transfer);
 
-        void onSuccess(File file);
+        void onSuccess(Transfer transfer, File file);
     }
 }

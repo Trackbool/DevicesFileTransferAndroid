@@ -115,21 +115,24 @@ public class FilesReceiverListenerService extends Service {
             }
 
             @Override
-            public void onFailure(Exception e) {
+            public void onFailure(Transfer transfer, Exception e) {
                 //TODO: Transfer error in notification
+                bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
                 receiver.send(FAILURE, bundle);
             }
 
             @Override
-            public void onProgressUpdated() {
+            public void onProgressUpdated(Transfer transfer) {
                 //TODO: Update progress in notification
+                bundle.putSerializable("transfer", transfer);
                 receiver.send(PROGRESS_UPDATED, bundle);
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(Transfer transfer, File file) {
                 notifySystemAboutNewFile(file);
+                bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("file", file);
                 receiver.send(SUCCESS, bundle);
             }

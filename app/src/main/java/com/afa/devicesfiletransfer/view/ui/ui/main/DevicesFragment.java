@@ -3,6 +3,7 @@ package com.afa.devicesfiletransfer.view.ui.ui.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,11 +44,6 @@ public class DevicesFragment extends BaseFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -65,31 +61,9 @@ public class DevicesFragment extends BaseFragment {
         });
         initializeViews();
         initializeDiscoveryViewModel();
+        discoveryViewModel.onStart();
 
         return root;
-    }
-
-    private void initializeDiscoveryViewModel() {
-        DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(
-                requireActivity().getApplicationContext());
-        DevicesDiscoveryReceiver devicesDiscoveryReceiver = new DevicesDiscoveryReceiverImpl(
-                requireActivity().getApplicationContext());
-        discoveryViewModel = new ViewModelProvider(requireActivity(),
-                new DiscoveryViewModelFactory(devicesDiscoveryExecutor, devicesDiscoveryReceiver))
-                .get(DiscoveryViewModel.class);
-
-        discoveryViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
-            @Override
-            public void onChanged(List<Device> devices) {
-                devicesAdapter.setDevices(devices);
-            }
-        });
-        discoveryViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
-            @Override
-            public void onChanged(ErrorModel error) {
-                showError(error.getTitle(), error.getMessage());
-            }
-        });
     }
 
     private void initializeViews() {
@@ -106,12 +80,6 @@ public class DevicesFragment extends BaseFragment {
             }
         });
         initializeRecyclerView();
-    }
-
-    private void discoverDevices() {
-        sendFilesButton.setVisibility(View.INVISIBLE);
-        devicesAdapter.unselectDevices();
-        discoveryViewModel.discoverDevices();
     }
 
     private void initializeRecyclerView() {
@@ -143,9 +111,44 @@ public class DevicesFragment extends BaseFragment {
         devicesRecyclerView.setAdapter(devicesAdapter);
     }
 
+    private void initializeDiscoveryViewModel() {
+        DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(
+                requireActivity().getApplicationContext());
+        DevicesDiscoveryReceiver devicesDiscoveryReceiver = new DevicesDiscoveryReceiverImpl(
+                requireActivity().getApplicationContext());
+        discoveryViewModel = new ViewModelProvider(this,
+                new DiscoveryViewModelFactory(devicesDiscoveryExecutor, devicesDiscoveryReceiver))
+                .get(DiscoveryViewModel.class);
+
+        discoveryViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
+            @Override
+            public void onChanged(List<Device> devices) {
+                devicesAdapter.setDevices(devices);
+            }
+        });
+        discoveryViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
+            @Override
+            public void onChanged(ErrorModel error) {
+                showError(error.getTitle(), error.getMessage());
+            }
+        });
+    }
+
+    private void discoverDevices() {
+        sendFilesButton.setVisibility(View.INVISIBLE);
+        devicesAdapter.unselectDevices();
+        discoveryViewModel.discoverDevices();
+    }
+
     private void openSendFileActivity(List<Device> devices) {
         Intent intent = new Intent(requireActivity(), SendFileActivity.class);
         intent.putParcelableArrayListExtra("devicesList", new ArrayList<>(devices));
         startActivity(intent);
+    }
+
+    @Override
+    public void onDestroyView() {
+        discoveryViewModel.onDestroy();
+        super.onDestroyView();
     }
 }
