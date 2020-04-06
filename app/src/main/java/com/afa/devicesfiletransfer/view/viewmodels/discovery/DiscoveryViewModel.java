@@ -46,7 +46,6 @@ public class DiscoveryViewModel extends ViewModel {
             @Override
             public void discoveryRequestReceived(InetAddress senderAddress, int senderPort) {
                 discoveryRequestReceivedEvent.postValue(senderAddress);
-                Log.d("ADRI-DEBUG", "Request received");
             }
 
             @Override
@@ -55,7 +54,6 @@ public class DiscoveryViewModel extends ViewModel {
                 String os = deviceProperties.getOs();
                 Device device = new Device(deviceName, os, senderAddress);
 
-                Log.d("ADRI-DEBUG", deviceName);
                 devices.add(device);
                 devicesLiveData.postValue(devices);
             }
