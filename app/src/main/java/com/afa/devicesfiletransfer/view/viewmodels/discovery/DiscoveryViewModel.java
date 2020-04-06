@@ -1,7 +1,5 @@
 package com.afa.devicesfiletransfer.view.viewmodels.discovery;
 
-import android.util.Log;
-
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
@@ -34,9 +32,7 @@ public class DiscoveryViewModel extends ViewModel {
         errorEvent = new LiveEvent<>();
         this.devicesDiscoveryReceiver = devicesDiscoveryReceiver;
         this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
-    }
-
-    public void onStart() {
+        this.devicesDiscoveryExecutor.start();
         this.devicesDiscoveryReceiver.setCallback(new DiscoveryProtocolListener.Callback() {
             @Override
             public void initializationFailure(Exception e) {
@@ -58,8 +54,10 @@ public class DiscoveryViewModel extends ViewModel {
                 devicesLiveData.postValue(devices);
             }
         });
+    }
+
+    public void onStart() {
         this.devicesDiscoveryReceiver.receive();
-        this.devicesDiscoveryExecutor.start();
         discoverDevices();
     }
 

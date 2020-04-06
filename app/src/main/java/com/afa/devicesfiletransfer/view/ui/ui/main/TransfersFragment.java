@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Pair;
 import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.TransfersAdapter;
@@ -43,6 +45,7 @@ public class TransfersFragment extends BaseFragment {
         transfersRecyclerView = root.findViewById(R.id.transfersRecyclerView);
         initializeTransferReceiverViewModel();
         initializeRecyclerView();
+        receiveTransferViewModel.onStart();
 
         return root;
     }
@@ -50,13 +53,14 @@ public class TransfersFragment extends BaseFragment {
     private void initializeTransferReceiverViewModel() {
         FilesReceiverListenerServiceExecutor receiverServiceExecutor =
                 new FilesReceiverListenerServiceExecutorImpl(requireActivity().getApplicationContext());
+        FilesReceiverListenerReceiver filesReceiverListenerReceiver =
+                new FilesReceiverListenerReceiverImpl(requireActivity().getApplicationContext());
         receiveTransferViewModel = new ViewModelProvider(this,
-                new ReceiveTransferViewModelFactory(receiverServiceExecutor))
+                new ReceiveTransferViewModelFactory(receiverServiceExecutor, filesReceiverListenerReceiver))
                 .get(ReceiveTransferViewModel.class);
         receiveTransferViewModel.getOnSuccessEvent().observe(this, new Observer<Pair<Transfer, File>>() {
             @Override
             public void onChanged(Pair<Transfer, File> transferFilePair) {
-                Transfer transfer = transferFilePair.getLeft();
                 File file = transferFilePair.getRight();
 
                 showAlert("File received", "The file " +
@@ -66,7 +70,6 @@ public class TransfersFragment extends BaseFragment {
         receiveTransferViewModel.getErrorEvent().observe(this, new Observer<Pair<Transfer, ErrorModel>>() {
             @Override
             public void onChanged(Pair<Transfer, ErrorModel> transferErrorModelPair) {
-                Transfer transfer = transferErrorModelPair.getLeft();
                 ErrorModel errorModel = transferErrorModelPair.getRight();
 
                 showError(errorModel.getTitle(), errorModel.getMessage());
@@ -92,5 +95,11 @@ public class TransfersFragment extends BaseFragment {
         transfersRecyclerView.setLayoutManager(linearLayoutManager);
         transfersAdapter = new TransfersAdapter();
         transfersRecyclerView.setAdapter(transfersAdapter);
+    }
+
+    @Override
+    public void onDestroyView() {
+        receiveTransferViewModel.onDestroy();
+        super.onDestroyView();
     }
 }

@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaScannerConnection;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,6 +21,8 @@ import com.afa.devicesfiletransfer.util.SystemUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -31,20 +34,35 @@ public class FilesReceiverListenerService extends Service {
     public static final int FAILURE = 1;
     public static final int PROGRESS_UPDATED = 2;
     public static final int SUCCESS = 3;
-    private ResultReceiver receiver;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final static int TRANSFER_SERVICE_PORT = 5001;
     private FilesReceiverListener filesReceiverListener;
     private ThreadPoolExecutor fileReceivingExecutor;
+    private final IBinder binder = new FilesReceiverListenerService.LocalBinder();
+    private List<ResultReceiver> receivers = new ArrayList<>();
+
+    public class LocalBinder extends Binder {
+        FilesReceiverListenerService getService() {
+            return FilesReceiverListenerService.this;
+        }
+    }
 
     public FilesReceiverListenerService() {
         fileReceivingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
     }
 
+    public void addResultReceiver(ResultReceiver resultReceiver) {
+        receivers.add(resultReceiver);
+    }
+
+    public void removeResultReceiver(ResultReceiver resultReceiver) {
+        receivers.remove(resultReceiver);
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
@@ -76,8 +94,6 @@ public class FilesReceiverListenerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        receiver = intent.getParcelableExtra("resultReceiver");
-
         createNotificationChannel();
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Receiver listener")
@@ -111,7 +127,7 @@ public class FilesReceiverListenerService extends Service {
             public void onStart(Transfer transfer) {
                 //TODO: Transfer received in notification
                 bundle.putSerializable("transfer", transfer);
-                receiver.send(START, bundle);
+                sendToAllReceivers(START, bundle);
             }
 
             @Override
@@ -119,14 +135,14 @@ public class FilesReceiverListenerService extends Service {
                 //TODO: Transfer error in notification
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
-                receiver.send(FAILURE, bundle);
+                sendToAllReceivers(FAILURE, bundle);
             }
 
             @Override
             public void onProgressUpdated(Transfer transfer) {
                 //TODO: Update progress in notification
                 bundle.putSerializable("transfer", transfer);
-                receiver.send(PROGRESS_UPDATED, bundle);
+                sendToAllReceivers(PROGRESS_UPDATED, bundle);
             }
 
             @Override
@@ -134,7 +150,7 @@ public class FilesReceiverListenerService extends Service {
                 notifySystemAboutNewFile(file);
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("file", file);
-                receiver.send(SUCCESS, bundle);
+                sendToAllReceivers(SUCCESS, bundle);
             }
         });
 
@@ -146,6 +162,14 @@ public class FilesReceiverListenerService extends Service {
                 new String[]{file.toString()},
                 new String[]{file.getName()},
                 null);
+    }
+
+    private void sendToAllReceivers(int resultCode, Bundle resultData) {
+        for (ResultReceiver resultReceiver : receivers) {
+            if (resultReceiver != null) {
+                resultReceiver.send(resultCode, resultData);
+            }
+        }
     }
 
     @Override

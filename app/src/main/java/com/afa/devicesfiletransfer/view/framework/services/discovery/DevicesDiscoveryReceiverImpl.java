@@ -74,7 +74,6 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
         if (boundService != null)
             boundService.removeResultReceiver(resultReceiver);
         resultReceiver = null;
-        callback = null;
         if (mBound)
             context.unbindService(connection);
     }

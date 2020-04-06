@@ -3,6 +3,7 @@ package com.afa.devicesfiletransfer.view.viewmodels.transfer;
 import com.afa.devicesfiletransfer.model.Pair;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
@@ -20,14 +21,20 @@ public class ReceiveTransferViewModel extends ViewModel {
     private final MutableLiveData<Transfer> onProgressUpdatedEvent;
     private final MutableLiveData<Pair<Transfer, File>> onSuccessEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> errorEvent;
+    private FilesReceiverListenerServiceExecutor receiverServiceExecutor;
+    private FilesReceiverListenerReceiver receiverListenerReceiver;
 
-    public ReceiveTransferViewModel(FilesReceiverListenerServiceExecutor receiverServiceExecutor) {
+    public ReceiveTransferViewModel(FilesReceiverListenerServiceExecutor receiverServiceExecutor,
+                                    FilesReceiverListenerReceiver receiverListenerReceiver) {
         transfers = new ArrayList<>();
         transferLiveData = new MutableLiveData<>();
         onProgressUpdatedEvent = new MutableLiveData<>();
         onSuccessEvent = new MutableLiveData<>();
         errorEvent = new LiveEvent<>();
-        receiverServiceExecutor.setCallback(new FileReceiverProtocol.Callback() {
+        this.receiverServiceExecutor = receiverServiceExecutor;
+        this.receiverListenerReceiver = receiverListenerReceiver;
+        this.receiverServiceExecutor.start();
+        this.receiverListenerReceiver.setCallback(new FileReceiverProtocol.Callback() {
             @Override
             public void onStart(Transfer transfer) {
                 transfers.add(transfer);
@@ -50,7 +57,10 @@ public class ReceiveTransferViewModel extends ViewModel {
                 onSuccessEvent.postValue(new Pair<>(transfer, file));
             }
         });
-        receiverServiceExecutor.start();
+    }
+
+    public void onStart() {
+        this.receiverListenerReceiver.receive();
     }
 
     public MutableLiveData<List<Transfer>> getTransferLiveData() {
@@ -67,5 +77,10 @@ public class ReceiveTransferViewModel extends ViewModel {
 
     public LiveEvent<Pair<Transfer, ErrorModel>> getErrorEvent() {
         return errorEvent;
+    }
+
+
+    public void onDestroy() {
+        this.receiverListenerReceiver.stop();
     }
 }
