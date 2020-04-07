@@ -36,7 +36,7 @@ public class DiscoveryViewModel extends ViewModel {
         this.devicesDiscoveryReceiver.setCallback(new DiscoveryProtocolListener.Callback() {
             @Override
             public void initializationFailure(Exception e) {
-                showError("Initialization error", e.getMessage());
+                triggerErrorEvent("Initialization error", e.getMessage());
             }
 
             @Override
@@ -79,11 +79,11 @@ public class DiscoveryViewModel extends ViewModel {
             devices.clear();
             devicesLiveData.postValue(devices);
         } catch (SocketException e) {
-            showError("Discover error", e.getMessage());
+            triggerErrorEvent("Discover error", e.getMessage());
         }
     }
 
-    private void showError(String title, String message) {
+    private void triggerErrorEvent(String title, String message) {
         errorEvent.postValue(new ErrorModel(title, message));
     }
 

@@ -4,7 +4,5 @@ import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.TransferFile;
 
 public interface FileSenderServiceExecutor {
-    void setCallback(FileSenderProtocol.Callback callback);
-
     void send(Device device, TransferFile file);
 }

@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.viewmodels.transfer;
+package com.afa.devicesfiletransfer.view.viewmodels.transfer.receiver;
 
 import com.afa.devicesfiletransfer.model.Pair;
 import com.afa.devicesfiletransfer.model.Transfer;
@@ -18,8 +18,8 @@ import androidx.lifecycle.ViewModel;
 public class ReceiveTransferViewModel extends ViewModel {
     private final List<Transfer> transfers;
     private final MutableLiveData<List<Transfer>> transferLiveData;
-    private final MutableLiveData<Transfer> onProgressUpdatedEvent;
-    private final MutableLiveData<Pair<Transfer, File>> onSuccessEvent;
+    private final MutableLiveData<Transfer> onTransferProgressUpdatedEvent;
+    private final MutableLiveData<Pair<Transfer, File>> onTransferSucceededEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> errorEvent;
     private FilesReceiverListenerServiceExecutor receiverServiceExecutor;
     private FilesReceiverListenerReceiver receiverListenerReceiver;
@@ -28,8 +28,8 @@ public class ReceiveTransferViewModel extends ViewModel {
                                     FilesReceiverListenerReceiver receiverListenerReceiver) {
         transfers = new ArrayList<>();
         transferLiveData = new MutableLiveData<>();
-        onProgressUpdatedEvent = new MutableLiveData<>();
-        onSuccessEvent = new MutableLiveData<>();
+        onTransferProgressUpdatedEvent = new MutableLiveData<>();
+        onTransferSucceededEvent = new MutableLiveData<>();
         errorEvent = new LiveEvent<>();
         this.receiverServiceExecutor = receiverServiceExecutor;
         this.receiverListenerReceiver = receiverListenerReceiver;
@@ -43,18 +43,18 @@ public class ReceiveTransferViewModel extends ViewModel {
 
             @Override
             public void onFailure(Transfer transfer, Exception e) {
-                errorEvent.postValue(
-                        new Pair<>(transfer, new ErrorModel("Receiving error", e.getMessage())));
+                errorEvent.postValue(new Pair<>(transfer,
+                        new ErrorModel("Receiving error", e.getMessage())));
             }
 
             @Override
             public void onProgressUpdated(Transfer transfer) {
-                onProgressUpdatedEvent.postValue(null);
+                onTransferProgressUpdatedEvent.postValue(transfer);
             }
 
             @Override
             public void onSuccess(Transfer transfer, File file) {
-                onSuccessEvent.postValue(new Pair<>(transfer, file));
+                onTransferSucceededEvent.postValue(new Pair<>(transfer, file));
             }
         });
     }
@@ -67,12 +67,12 @@ public class ReceiveTransferViewModel extends ViewModel {
         return transferLiveData;
     }
 
-    public MutableLiveData<Transfer> getOnProgressUpdatedEvent() {
-        return onProgressUpdatedEvent;
+    public MutableLiveData<Transfer> getOnTransferProgressUpdatedEvent() {
+        return onTransferProgressUpdatedEvent;
     }
 
-    public MutableLiveData<Pair<Transfer, File>> getOnSuccessEvent() {
-        return onSuccessEvent;
+    public MutableLiveData<Pair<Transfer, File>> getOnTransferSucceededEvent() {
+        return onTransferSucceededEvent;
     }
 
     public LiveEvent<Pair<Transfer, ErrorModel>> getErrorEvent() {

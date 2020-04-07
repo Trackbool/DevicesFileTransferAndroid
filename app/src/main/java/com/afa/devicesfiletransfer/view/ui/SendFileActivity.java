@@ -1,9 +1,5 @@
 package com.afa.devicesfiletransfer.view.ui;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,21 +10,30 @@ import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.model.Pair;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
+import com.afa.devicesfiletransfer.view.framework.model.AlertModel;
+import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceExecutorImpl;
-import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferContract;
-import com.afa.devicesfiletransfer.view.presenters.transfer.sender.SendTransferPresenter;
+import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModel;
+import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 import java.util.Objects;
 
-public class SendFileActivity extends AppCompatActivity implements SendTransferContract.View {
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
-    private SendTransferContract.Presenter sendTransferPresenter;
+public class SendFileActivity extends AppCompatActivity {
+    private SendTransferViewModel sendTransferViewModel;
     private List<Device> devices;
     private TextView attachedFileNameTextView;
 
@@ -42,14 +47,11 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
         devices = Objects.requireNonNull(
                 getIntent().getExtras()).getParcelableArrayList("devicesList");
 
-        FileSenderServiceExecutor fileSenderExecutor =
-                new FileSenderServiceExecutorImpl(getApplicationContext());
-        sendTransferPresenter = new SendTransferPresenter(this, fileSenderExecutor);
         Button attachFileButton = findViewById(R.id.attachFileButton);
         attachFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendTransferPresenter.onBrowseFileButtonClicked();
+                browseFile();
             }
         });
         attachedFileNameTextView = findViewById(R.id.attachedFileNameTextView);
@@ -57,52 +59,52 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
         sendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendTransferPresenter.onSendFileButtonClicked();
+                sendTransferViewModel.sendFile(devices);
             }
         });
+
+        initializeSendTransferViewModel();
+        sendTransferViewModel.onStart();
     }
 
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putString("attachedFileName", String.valueOf(attachedFileNameTextView.getText()));
-        super.onSaveInstanceState(outState);
-    }
+    private void initializeSendTransferViewModel() {
+        FileSenderServiceExecutor fileSenderExecutor =
+                new FileSenderServiceExecutorImpl(getApplicationContext());
+        FileSenderReceiver fileSenderReceiver =
+                new FileSenderReceiverImpl(getApplicationContext());
+        sendTransferViewModel = new ViewModelProvider(this,
+                new SendTransferViewModelFactory(fileSenderExecutor, fileSenderReceiver))
+                .get(SendTransferViewModel.class);
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        attachedFileNameTextView.setText(savedInstanceState.getString("attachedFileName"));
-        super.onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    public void showError(final String title, final String message) {
-        runOnUiThread(new Runnable() {
+        sendTransferViewModel.getAttachedFile().observe(this, new Observer<TransferFile>() {
             @Override
-            public void run() {
-                Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
-                        title + ". " + message,
-                        Snackbar.LENGTH_LONG);
-                snackbar.getView().setBackgroundColor(Color.RED);
-                snackbar.show();
+            public void onChanged(TransferFile transferFile) {
+                attachedFileNameTextView.setText(transferFile.getName());
             }
         });
-    }
-
-    @Override
-    public void showAlert(final String title, final String message) {
-        runOnUiThread(new Runnable() {
+        sendTransferViewModel.getAlertEvent().observe(this, new Observer<AlertModel>() {
             @Override
-            public void run() {
-                Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
-                        title + ". " + message,
-                        Snackbar.LENGTH_LONG);
-                snackbar.show();
+            public void onChanged(AlertModel alertModel) {
+                showAlert(alertModel.getTitle(), alertModel.getMessage());
             }
         });
+        sendTransferViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
+            @Override
+            public void onChanged(ErrorModel errorModel) {
+                showError(errorModel.getTitle(), errorModel.getMessage());
+            }
+        });
+        sendTransferViewModel.getOnTransferSucceededEvent().observe(this,
+                new Observer<Pair<Transfer, TransferFile>>() {
+                    @Override
+                    public void onChanged(Pair<Transfer, TransferFile> transferTransferFilePair) {
+                        Transfer transfer = transferTransferFilePair.getLeft();
+                        showAlert("File sent", "The file " + transfer.getFileName());
+                    }
+                });
     }
 
-    @Override
-    public void browseFile() {
+    private void browseFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         intent = Intent.createChooser(intent, "Choose a file");
@@ -117,45 +119,30 @@ public class SendFileActivity extends AppCompatActivity implements SendTransferC
                 Uri uri = data.getData();
                 if (uri != null) {
                     TransferFile file = new TransferFileImpl(getApplicationContext(), uri);
-                    sendTransferPresenter.onFileAttached(file);
+                    sendTransferViewModel.attachFile(file);
                 }
             }
         }
     }
 
-    @Override
-    public void showFileAttachedName(String name) {
-        attachedFileNameTextView.setText(name);
+    public void showError(final String title, final String message) {
+        Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
+                title + ". " + message,
+                Snackbar.LENGTH_LONG);
+        snackbar.getView().setBackgroundColor(Color.RED);
+        snackbar.show();
     }
 
-    @Override
-    public Device[] getSelectedDevices() {
-        return devices.toArray(new Device[0]);
-    }
-
-    @Override
-    public void addSendingTransfer(Transfer transfer) {
-
-    }
-
-    @Override
-    public void refreshSendingData() {
-
-    }
-
-    @Override
-    public void close() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                sendTransferPresenter.onDestroy();
-            }
-        });
+    public void showAlert(final String title, final String message) {
+        Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
+                title + ". " + message,
+                Snackbar.LENGTH_LONG);
+        snackbar.show();
     }
 
     @Override
     protected void onDestroy() {
-        sendTransferPresenter.onDestroy();
+        sendTransferViewModel.onDestroy();
         super.onDestroy();
     }
 }

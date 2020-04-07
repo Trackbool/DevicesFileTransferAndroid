@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.viewmodels.transfer;
+package com.afa.devicesfiletransfer.view.viewmodels.transfer.receiver;
 
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;

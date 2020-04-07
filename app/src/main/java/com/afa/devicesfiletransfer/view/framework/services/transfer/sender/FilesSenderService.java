@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,8 +17,11 @@ import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
+import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryService;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -30,8 +34,23 @@ public class FilesSenderService extends Service {
     public static final int PROGRESS_UPDATED = 2;
     public static final int SUCCESS = 3;
     private ResultReceiver receiver;
-    private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
+    private static final String CHANNEL_ID = FilesSenderService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
+    private List<ResultReceiver> receivers = new ArrayList<>();
+
+    public class LocalBinder extends Binder {
+        FilesSenderService getService() {
+            return FilesSenderService.this;
+        }
+    }
+
+    public void addResultReceiver(ResultReceiver resultReceiver) {
+        receivers.add(resultReceiver);
+    }
+
+    public void removeResultReceiver(ResultReceiver resultReceiver) {
+        receivers.remove(resultReceiver);
+    }
 
     public FilesSenderService() {
         fileSendingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
@@ -90,28 +109,31 @@ public class FilesSenderService extends Service {
             public void onStart(Transfer transfer) {
                 //TODO: Notify the file is sending
                 bundle.putSerializable("transfer", transfer);
-                receiver.send(START, bundle);
+                sendToAllReceivers(START, bundle);
             }
 
             @Override
-            public void onFailure(Exception e) {
+            public void onFailure(Transfer transfer, Exception e) {
                 //TODO: Notify failure in transfer
+                bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
-                receiver.send(FAILURE, bundle);
+                sendToAllReceivers(FAILURE, bundle);
                 finishServiceIfThereAreNoMoreTransfers();
             }
 
             @Override
-            public void onProgressUpdated() {
+            public void onProgressUpdated(Transfer transfer) {
                 //TODO: Update the progress in notification
-                receiver.send(PROGRESS_UPDATED, bundle);
+                bundle.putSerializable("transfer", transfer);
+                sendToAllReceivers(PROGRESS_UPDATED, bundle);
             }
 
             @Override
-            public void onSuccess(TransferFile file) {
+            public void onSuccess(Transfer transfer, TransferFile file) {
                 //TODO: Notify transfer succeeded
+                bundle.putSerializable("transfer", transfer);
                 bundle.putParcelable("file", (TransferFileImpl) file);
-                receiver.send(SUCCESS, bundle);
+                sendToAllReceivers(SUCCESS, bundle);
                 finishServiceIfThereAreNoMoreTransfers();
             }
         });
@@ -122,6 +144,14 @@ public class FilesSenderService extends Service {
     private void finishServiceIfThereAreNoMoreTransfers() {
         if (fileSendingExecutor.getActiveCount() == 1) {
             stopSelf();
+        }
+    }
+
+    private void sendToAllReceivers(int resultCode, Bundle resultData) {
+        for (ResultReceiver resultReceiver : receivers) {
+            if (resultReceiver != null) {
+                resultReceiver.send(resultCode, resultData);
+            }
         }
     }
 

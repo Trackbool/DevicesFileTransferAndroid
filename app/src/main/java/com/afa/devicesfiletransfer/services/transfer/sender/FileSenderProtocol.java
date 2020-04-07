@@ -56,7 +56,7 @@ public class FileSenderProtocol {
         if (!file.exists()) {
             transfer.setStatus(Transfer.TransferStatus.FAILED);
             if (callback != null) {
-                callback.onFailure(
+                callback.onFailure(transfer,
                         new FileNotFoundException("File " + file.getPath() + " doesn´t exists"));
             }
             return;
@@ -71,7 +71,7 @@ public class FileSenderProtocol {
         } catch (IOException e) {
             if (callback != null) {
                 transfer.setStatus(Transfer.TransferStatus.FAILED);
-                callback.onFailure(e);
+                callback.onFailure(transfer, e);
             }
         }
     }
@@ -99,19 +99,19 @@ public class FileSenderProtocol {
             @Override
             public void onFailure(Exception e) {
                 transfer.setStatus(Transfer.TransferStatus.FAILED);
-                callback.onFailure(e);
+                callback.onFailure(transfer, e);
             }
 
             @Override
             public void onProgressUpdated() {
                 transfer.setProgress(fileSender.getSentPercentage());
-                callback.onProgressUpdated();
+                callback.onProgressUpdated(transfer);
             }
 
             @Override
             public void onSuccess(TransferFile file) {
                 transfer.setStatus(Transfer.TransferStatus.SUCCEEDED);
-                callback.onSuccess(file);
+                callback.onSuccess(transfer, file);
             }
         };
         return new FileSender(file, fileSenderCallback);
@@ -120,10 +120,10 @@ public class FileSenderProtocol {
     public interface Callback {
         void onStart(Transfer transfer);
 
-        void onFailure(Exception e);
+        void onFailure(Transfer transfer, Exception e);
 
-        void onProgressUpdated();
+        void onProgressUpdated(Transfer transfer);
 
-        void onSuccess(TransferFile file);
+        void onSuccess(Transfer transfer, TransferFile file);
     }
 }

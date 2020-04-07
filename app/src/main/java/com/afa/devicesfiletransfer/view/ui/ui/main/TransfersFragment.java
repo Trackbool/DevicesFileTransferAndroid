@@ -15,8 +15,8 @@ import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.Fil
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.TransfersAdapter;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.ReceiveTransferViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.ReceiveTransferViewModelFactory;
+import com.afa.devicesfiletransfer.view.viewmodels.transfer.receiver.ReceiveTransferViewModel;
+import com.afa.devicesfiletransfer.view.viewmodels.transfer.receiver.ReceiveTransferViewModelFactory;
 
 import java.io.File;
 import java.util.List;
@@ -58,7 +58,7 @@ public class TransfersFragment extends BaseFragment {
         receiveTransferViewModel = new ViewModelProvider(this,
                 new ReceiveTransferViewModelFactory(receiverServiceExecutor, filesReceiverListenerReceiver))
                 .get(ReceiveTransferViewModel.class);
-        receiveTransferViewModel.getOnSuccessEvent().observe(this, new Observer<Pair<Transfer, File>>() {
+        receiveTransferViewModel.getOnTransferSucceededEvent().observe(this, new Observer<Pair<Transfer, File>>() {
             @Override
             public void onChanged(Pair<Transfer, File> transferFilePair) {
                 File file = transferFilePair.getRight();
@@ -81,7 +81,7 @@ public class TransfersFragment extends BaseFragment {
                 transfersAdapter.setTransfers(transfers);
             }
         });
-        receiveTransferViewModel.getOnProgressUpdatedEvent().observe(this, new Observer<Transfer>() {
+        receiveTransferViewModel.getOnTransferProgressUpdatedEvent().observe(this, new Observer<Transfer>() {
             @Override
             public void onChanged(Transfer transfer) {
                 transfersAdapter.refreshData();

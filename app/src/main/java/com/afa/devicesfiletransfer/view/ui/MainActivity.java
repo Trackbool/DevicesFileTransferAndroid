@@ -2,46 +2,18 @@ package com.afa.devicesfiletransfer.view.ui;
 
 import android.Manifest;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
-import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
-import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
-import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
-import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryExecutorImpl;
-import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryReceiverImpl;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.ui.ui.main.SectionsPagerAdapter;
-import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModelFactory;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.ReceiveTransferViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.ReceiveTransferViewModelFactory;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 public class MainActivity extends AppCompatActivity {
