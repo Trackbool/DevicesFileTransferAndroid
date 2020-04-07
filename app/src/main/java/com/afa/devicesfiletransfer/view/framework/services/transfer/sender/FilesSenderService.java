@@ -33,9 +33,9 @@ public class FilesSenderService extends Service {
     public static final int FAILURE = 1;
     public static final int PROGRESS_UPDATED = 2;
     public static final int SUCCESS = 3;
-    private ResultReceiver receiver;
     private static final String CHANNEL_ID = FilesSenderService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
+    private final IBinder binder = new FilesSenderService.LocalBinder();
     private List<ResultReceiver> receivers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
@@ -59,12 +59,11 @@ public class FilesSenderService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        receiver = intent.getParcelableExtra("resultReceiver");
         Device device = intent.getParcelableExtra("device");
         TransferFileImpl file = intent.getParcelableExtra("file");
         file.setContext(getApplicationContext());
