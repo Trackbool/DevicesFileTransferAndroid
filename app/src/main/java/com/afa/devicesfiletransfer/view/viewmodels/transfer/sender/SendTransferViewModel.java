@@ -100,7 +100,7 @@ public class SendTransferViewModel extends ViewModel {
     }
 
     public void sendFile(List<Device> devices) {
-        if (attachedFile == null) {
+        if (attachedFile.getValue() == null) {
             triggerErrorEvent("No file attached", "You must attach a file");
             return;
         }
