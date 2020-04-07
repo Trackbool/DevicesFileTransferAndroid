@@ -25,8 +25,9 @@ public class SendTransferViewModel extends ViewModel {
     private final MutableLiveData<TransferFile> attachedFile;
     private final LiveEvent<AlertModel> alertEvent;
     private final LiveEvent<ErrorModel> errorEvent;
-    private final FileSenderServiceExecutor fileSenderExecutor;
-    private final FileSenderReceiver fileSenderReceiver;
+    private FileSenderServiceExecutor fileSenderExecutor;
+    private FileSenderProtocol.Callback fileSenderCallback;
+    private FileSenderReceiver fileSenderReceiver;
 
     public SendTransferViewModel(FileSenderServiceExecutor fileSenderExecutor,
                                  FileSenderReceiver fileSenderReceiver) {
@@ -40,7 +41,7 @@ public class SendTransferViewModel extends ViewModel {
 
         this.fileSenderExecutor = fileSenderExecutor;
         this.fileSenderReceiver = fileSenderReceiver;
-        this.fileSenderReceiver.setCallback(new FileSenderProtocol.Callback() {
+        fileSenderCallback = new FileSenderProtocol.Callback() {
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Store in database
@@ -62,7 +63,8 @@ public class SendTransferViewModel extends ViewModel {
             public void onSuccess(Transfer transfer, TransferFile file) {
                 onTransferSucceededEvent.postValue(new Pair<>(transfer, file));
             }
-        });
+        };
+        this.fileSenderReceiver.setCallback(fileSenderCallback);
     }
 
     public void onStart() {
@@ -127,6 +129,13 @@ public class SendTransferViewModel extends ViewModel {
     }
 
     public void onDestroy() {
-        fileSenderReceiver.stop();
+        if (fileSenderReceiver != null)
+            fileSenderReceiver.stop();
+    }
+
+    @Override
+    protected void onCleared() {
+        fileSenderReceiver.setCallback(null);
+        super.onCleared();
     }
 }

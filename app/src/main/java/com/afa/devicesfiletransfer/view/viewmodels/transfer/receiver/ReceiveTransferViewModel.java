@@ -22,6 +22,7 @@ public class ReceiveTransferViewModel extends ViewModel {
     private final MutableLiveData<Pair<Transfer, File>> onTransferSucceededEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> errorEvent;
     private FilesReceiverListenerServiceExecutor receiverServiceExecutor;
+    private FileReceiverProtocol.Callback fileReceiverCallback;
     private FilesReceiverListenerReceiver receiverListenerReceiver;
 
     public ReceiveTransferViewModel(FilesReceiverListenerServiceExecutor receiverServiceExecutor,
@@ -34,7 +35,7 @@ public class ReceiveTransferViewModel extends ViewModel {
         this.receiverServiceExecutor = receiverServiceExecutor;
         this.receiverListenerReceiver = receiverListenerReceiver;
         this.receiverServiceExecutor.start();
-        this.receiverListenerReceiver.setCallback(new FileReceiverProtocol.Callback() {
+        fileReceiverCallback = new FileReceiverProtocol.Callback() {
             @Override
             public void onStart(Transfer transfer) {
                 transfers.add(transfer);
@@ -56,7 +57,8 @@ public class ReceiveTransferViewModel extends ViewModel {
             public void onSuccess(Transfer transfer, File file) {
                 onTransferSucceededEvent.postValue(new Pair<>(transfer, file));
             }
-        });
+        };
+        this.receiverListenerReceiver.setCallback(fileReceiverCallback);
     }
 
     public void onStart() {
@@ -79,8 +81,14 @@ public class ReceiveTransferViewModel extends ViewModel {
         return errorEvent;
     }
 
-
     public void onDestroy() {
-        this.receiverListenerReceiver.stop();
+        if (receiverListenerReceiver != null)
+            this.receiverListenerReceiver.stop();
+    }
+
+    @Override
+    protected void onCleared() {
+        receiverListenerReceiver.setCallback(null);
+        super.onCleared();
     }
 }

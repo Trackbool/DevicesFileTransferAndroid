@@ -21,8 +21,9 @@ public class DiscoveryViewModel extends ViewModel {
     private final MutableLiveData<List<Device>> devicesLiveData;
     private final LiveEvent<InetAddress> discoveryRequestReceivedEvent;
     private final LiveEvent<ErrorModel> errorEvent;
-    private final DevicesDiscoveryExecutor devicesDiscoveryExecutor;
-    private final DevicesDiscoveryReceiver devicesDiscoveryReceiver;
+    private DevicesDiscoveryExecutor devicesDiscoveryExecutor;
+    private DiscoveryProtocolListener.Callback discoveryProtocolCallback;
+    private DevicesDiscoveryReceiver devicesDiscoveryReceiver;
 
     public DiscoveryViewModel(DevicesDiscoveryExecutor devicesDiscoveryExecutor,
                               DevicesDiscoveryReceiver devicesDiscoveryReceiver) {
@@ -33,7 +34,7 @@ public class DiscoveryViewModel extends ViewModel {
         this.devicesDiscoveryReceiver = devicesDiscoveryReceiver;
         this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
         this.devicesDiscoveryExecutor.start();
-        this.devicesDiscoveryReceiver.setCallback(new DiscoveryProtocolListener.Callback() {
+        discoveryProtocolCallback = new DiscoveryProtocolListener.Callback() {
             @Override
             public void initializationFailure(Exception e) {
                 triggerErrorEvent("Initialization error", e.getMessage());
@@ -53,7 +54,8 @@ public class DiscoveryViewModel extends ViewModel {
                 devices.add(device);
                 devicesLiveData.postValue(devices);
             }
-        });
+        };
+        this.devicesDiscoveryReceiver.setCallback(discoveryProtocolCallback);
     }
 
     public void onStart() {
@@ -88,6 +90,13 @@ public class DiscoveryViewModel extends ViewModel {
     }
 
     public void onDestroy() {
-        this.devicesDiscoveryReceiver.stop();
+        if (devicesDiscoveryReceiver != null)
+            this.devicesDiscoveryReceiver.stop();
+    }
+
+    @Override
+    protected void onCleared() {
+        devicesDiscoveryReceiver.setCallback(null);
+        super.onCleared();
     }
 }
