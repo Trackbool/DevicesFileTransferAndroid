@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -40,6 +41,7 @@ public class FilesReceiverListenerService extends Service {
     private ThreadPoolExecutor fileReceivingExecutor;
     private final IBinder binder = new FilesReceiverListenerService.LocalBinder();
     private List<ResultReceiver> receivers = new ArrayList<>();
+    private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
         FilesReceiverListenerService getService() {
@@ -57,6 +59,10 @@ public class FilesReceiverListenerService extends Service {
 
     public void removeResultReceiver(ResultReceiver resultReceiver) {
         receivers.remove(resultReceiver);
+    }
+
+    public List<Transfer> getInProgressTransfers() {
+        return Collections.unmodifiableList(inProgressTransfers);
     }
 
     @Nullable
@@ -126,6 +132,7 @@ public class FilesReceiverListenerService extends Service {
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Transfer received in notification
+                inProgressTransfers.add(transfer);
                 bundle.putSerializable("transfer", transfer);
                 sendToAllReceivers(START, bundle);
             }
@@ -133,6 +140,7 @@ public class FilesReceiverListenerService extends Service {
             @Override
             public void onFailure(Transfer transfer, Exception e) {
                 //TODO: Transfer error in notification
+                inProgressTransfers.remove(transfer);
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
                 sendToAllReceivers(FAILURE, bundle);
@@ -148,6 +156,7 @@ public class FilesReceiverListenerService extends Service {
             @Override
             public void onSuccess(Transfer transfer, File file) {
                 notifySystemAboutNewFile(file);
+                inProgressTransfers.remove(transfer);
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("file", file);
                 sendToAllReceivers(SUCCESS, bundle);

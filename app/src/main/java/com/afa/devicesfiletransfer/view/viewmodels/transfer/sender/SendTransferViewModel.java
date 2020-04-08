@@ -135,6 +135,7 @@ public class SendTransferViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
+        fileSenderReceiver.setServiceConnectionCallback(null);
         fileSenderReceiver.setCallback(null);
         super.onCleared();
     }

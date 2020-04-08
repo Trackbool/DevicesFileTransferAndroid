@@ -3,6 +3,7 @@ package com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel;
 import com.afa.devicesfiletransfer.model.Pair;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
@@ -33,8 +34,8 @@ public class TransfersViewModel extends ViewModel {
     private final FileSenderReceiver fileSenderReceiver;
 
     public TransfersViewModel(FilesReceiverListenerServiceExecutor receiverServiceExecutor,
-                              FilesReceiverListenerReceiver receiverListenerReceiver,
-                              FileSenderReceiver fileSenderReceiver) {
+                              final FilesReceiverListenerReceiver receiverListenerReceiver,
+                              final FileSenderReceiver fileSenderReceiver) {
         transfers = new ArrayList<Transfer>() {
             @Override
             public boolean add(Transfer transfer) {
@@ -53,9 +54,35 @@ public class TransfersViewModel extends ViewModel {
         this.receiverListenerReceiver = receiverListenerReceiver;
         this.fileSenderReceiver = fileSenderReceiver;
 
+        this.receiverListenerReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
+            @Override
+            public void onConnect() {
+                List<Transfer> inProgressTransfers =
+                        receiverListenerReceiver.getInProgressTransfers();
+                addInProgressTransfersIfThereAreNotAdded(inProgressTransfers);
+            }
+
+            @Override
+            public void onDisconnect() {
+
+            }
+        });
         final FileReceiverProtocol.Callback fileReceiverCallback = createFileReceiverCallback();
         this.receiverListenerReceiver.setCallback(fileReceiverCallback);
 
+        this.fileSenderReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
+            @Override
+            public void onConnect() {
+                List<Transfer> inProgressTransfers =
+                        fileSenderReceiver.getInProgressTransfers();
+                addInProgressTransfersIfThereAreNotAdded(inProgressTransfers);
+            }
+
+            @Override
+            public void onDisconnect() {
+
+            }
+        });
         final FileSenderProtocol.Callback fileSenderCallback = createFileSenderCallback();
         this.fileSenderReceiver.setCallback(fileSenderCallback);
 
@@ -144,6 +171,15 @@ public class TransfersViewModel extends ViewModel {
         this.fileSenderReceiver.receive();
     }
 
+    private void addInProgressTransfersIfThereAreNotAdded(List<Transfer> inProgressTransfers) {
+        for (Transfer t : inProgressTransfers) {
+            if (!transfers.contains(t)) {
+                transfers.add(t);
+            }
+        }
+        transfersLiveData.postValue(transfers);
+    }
+
     private void triggerSendTransferErrorEvent(Transfer transfer, ErrorModel error) {
         onSendTransferErrorEvent.postValue(new Pair<>(transfer, error));
     }
@@ -162,6 +198,7 @@ public class TransfersViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
+        receiverListenerReceiver.setServiceConnectionCallback(null);
         receiverListenerReceiver.setCallback(null);
         fileSenderReceiver.setCallback(null);
         super.onCleared();

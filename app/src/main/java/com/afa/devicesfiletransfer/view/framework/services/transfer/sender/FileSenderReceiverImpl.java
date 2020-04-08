@@ -11,12 +11,16 @@ import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+
+import java.util.List;
 
 public class FileSenderReceiverImpl implements FileSenderReceiver {
     private final Context context;
     private boolean mBound = false;
+    private ServiceConnectionCallback serviceConnectionCallback;
     private FileSenderProtocol.Callback callback;
     private FilesSenderService boundService;
     private ResultReceiver resultReceiver;
@@ -26,8 +30,22 @@ public class FileSenderReceiverImpl implements FileSenderReceiver {
     }
 
     @Override
+    public void setServiceConnectionCallback(ServiceConnectionCallback callback) {
+        this.serviceConnectionCallback = callback;
+    }
+
+    @Override
     public void setCallback(FileSenderProtocol.Callback callback) {
         this.callback = callback;
+    }
+
+    @Override
+    public List<Transfer> getInProgressTransfers() {
+        if (!mBound) {
+            throw new IllegalStateException("The service has not been started");
+        }
+
+        return boundService.getInProgressTransfers();
     }
 
     @Override
@@ -90,11 +108,19 @@ public class FileSenderReceiverImpl implements FileSenderReceiver {
             boundService = binder.getService();
             boundService.addResultReceiver(resultReceiver);
             mBound = true;
+
+            if (serviceConnectionCallback != null) {
+                serviceConnectionCallback.onConnect();
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+
+            if (serviceConnectionCallback != null) {
+                serviceConnectionCallback.onDisconnect();
+            }
         }
     };
 }

@@ -19,6 +19,7 @@ import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,6 +36,7 @@ public class FilesSenderService extends Service {
     private ThreadPoolExecutor fileSendingExecutor;
     private final IBinder binder = new FilesSenderService.LocalBinder();
     private List<ResultReceiver> receivers = new ArrayList<>();
+    private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
         FilesSenderService getService() {
@@ -48,6 +50,10 @@ public class FilesSenderService extends Service {
 
     public void removeResultReceiver(ResultReceiver resultReceiver) {
         receivers.remove(resultReceiver);
+    }
+
+    public List<Transfer> getInProgressTransfers() {
+        return Collections.unmodifiableList(inProgressTransfers);
     }
 
     public FilesSenderService() {
@@ -105,6 +111,7 @@ public class FilesSenderService extends Service {
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Notify the file is sending
+                inProgressTransfers.add(transfer);
                 bundle.putSerializable("transfer", transfer);
                 sendToAllReceivers(START, bundle);
             }
@@ -112,6 +119,7 @@ public class FilesSenderService extends Service {
             @Override
             public void onFailure(Transfer transfer, Exception e) {
                 //TODO: Notify failure in transfer
+                inProgressTransfers.remove(transfer);
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
                 sendToAllReceivers(FAILURE, bundle);
@@ -128,6 +136,7 @@ public class FilesSenderService extends Service {
             @Override
             public void onSuccess(Transfer transfer, TransferFile file) {
                 //TODO: Notify transfer succeeded
+                inProgressTransfers.remove(transfer);
                 bundle.putSerializable("transfer", transfer);
                 bundle.putParcelable("file", (TransferFileImpl) file);
                 sendToAllReceivers(SUCCESS, bundle);

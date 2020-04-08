@@ -87,11 +87,12 @@ public class Transfer implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Transfer transfer = (Transfer) o;
         return Objects.equals(device, transfer.device) &&
-                Objects.equals(fileName, transfer.fileName);
+                Objects.equals(fileName, transfer.fileName) &&
+                Objects.equals(date, transfer.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(device, fileName);
+        return Objects.hash(device, fileName, date);
     }
 }
