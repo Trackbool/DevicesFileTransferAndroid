@@ -2,6 +2,7 @@ package com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel;
 
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.DeviceProperties;
+import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
@@ -33,6 +34,17 @@ public class DevicesViewModel extends ViewModel {
         this.devicesDiscoveryReceiver = devicesDiscoveryReceiver;
         this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
         this.devicesDiscoveryExecutor.start();
+        this.devicesDiscoveryReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
+            @Override
+            public void onConnect() {
+                discoverDevices();
+            }
+
+            @Override
+            public void onDisconnect() {
+
+            }
+        });
         DiscoveryProtocolListener.Callback discoveryProtocolCallback = new DiscoveryProtocolListener.Callback() {
             @Override
             public void initializationFailure(Exception e) {
@@ -59,7 +71,6 @@ public class DevicesViewModel extends ViewModel {
 
     public void onStart() {
         this.devicesDiscoveryReceiver.receive();
-        discoverDevices();
     }
 
     public MutableLiveData<List<Device>> getDevicesLiveData() {
@@ -95,6 +106,7 @@ public class DevicesViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
+        devicesDiscoveryReceiver.setServiceConnectionCallback(null);
         devicesDiscoveryReceiver.setCallback(null);
         super.onCleared();
     }

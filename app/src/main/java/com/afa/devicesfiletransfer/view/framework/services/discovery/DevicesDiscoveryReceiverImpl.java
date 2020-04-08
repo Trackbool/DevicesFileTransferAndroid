@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.model.DeviceProperties;
+import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 
@@ -19,12 +20,18 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
 
     private final Context context;
     private boolean mBound = false;
+    private ServiceConnectionCallback serviceConnectionCallback;
     private DiscoveryProtocolListener.Callback callback;
     private DevicesDiscoveryService boundService;
     private ResultReceiver resultReceiver;
 
     public DevicesDiscoveryReceiverImpl(Context context) {
         this.context = context;
+    }
+
+    @Override
+    public void setServiceConnectionCallback(ServiceConnectionCallback callback) {
+        this.serviceConnectionCallback = callback;
     }
 
     @Override
@@ -87,11 +94,19 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
             boundService = binder.getService();
             boundService.addResultReceiver(resultReceiver);
             mBound = true;
+
+            if (serviceConnectionCallback != null) {
+                serviceConnectionCallback.onConnect();
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+
+            if (serviceConnectionCallback != null) {
+                serviceConnectionCallback.onDisconnect();
+            }
         }
     };
 }
