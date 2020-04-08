@@ -54,7 +54,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
         return devices;
     }
 
-    public void unselectDevices() {
+    public void deselectDevices() {
         selectedPositions.clear();
         notifyDataSetChanged();
     }

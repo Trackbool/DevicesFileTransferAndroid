@@ -134,7 +134,7 @@ public class DevicesFragment extends BaseFragment {
 
     private void discoverDevices() {
         sendFilesButton.setVisibility(View.INVISIBLE);
-        devicesAdapter.unselectDevices();
+        devicesAdapter.deselectDevices();
         devicesViewModel.discoverDevices();
     }
 
