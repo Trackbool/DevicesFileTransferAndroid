@@ -68,17 +68,19 @@ public class FilesSenderService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Device device = intent.getParcelableExtra("device");
-        TransferFileImpl file = intent.getParcelableExtra("file");
+        final List<Device> devices = intent.getParcelableArrayListExtra("devices");
+        final TransferFileImpl file = intent.getParcelableExtra("file");
         file.setContext(getApplicationContext());
 
-        final FileSenderProtocol fileSenderProtocol = createFileSender(device, file);
-        fileSendingExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                fileSenderProtocol.send();
-            }
-        });
+        for (final Device device : devices) {
+            fileSendingExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    final FileSenderProtocol fileSenderProtocol = createFileSender(device, file);
+                    fileSenderProtocol.send();
+                }
+            });
+        }
 
         createNotificationChannel();
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)

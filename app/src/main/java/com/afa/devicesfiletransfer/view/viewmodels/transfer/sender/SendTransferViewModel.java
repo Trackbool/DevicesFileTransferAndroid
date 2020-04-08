@@ -111,13 +111,7 @@ public class SendTransferViewModel extends ViewModel {
             return;
         }
 
-        for (Device device : devices) {
-            sendFile(device);
-        }
-    }
-
-    private void sendFile(Device device) {
-        fileSenderExecutor.send(device, attachedFile.getValue());
+        fileSenderExecutor.send(devices, attachedFile.getValue());
     }
 
     private void triggerErrorEvent(String title, String message) {

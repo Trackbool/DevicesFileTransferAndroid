@@ -9,6 +9,9 @@ import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FileSenderServiceExecutorImpl implements FileSenderServiceExecutor {
     private final Context context;
 
@@ -17,9 +20,9 @@ public class FileSenderServiceExecutorImpl implements FileSenderServiceExecutor 
     }
 
     @Override
-    public void send(Device device, TransferFile file) {
+    public void send(List<Device> devices, TransferFile file) {
         Intent serviceIntent = new Intent(context, FilesSenderService.class);
-        serviceIntent.putExtra("device", device);
+        serviceIntent.putParcelableArrayListExtra("devices", new ArrayList<>(devices));
         serviceIntent.putExtra("file", (TransferFileImpl) file);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);
