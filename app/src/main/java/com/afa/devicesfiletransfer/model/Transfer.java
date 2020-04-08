@@ -1,18 +1,21 @@
 package com.afa.devicesfiletransfer.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 public class Transfer implements Serializable {
     private Device device;
     private String fileName;
     private int progress;
+    private Date date;
     private TransferStatus status;
 
     public Transfer(Device device, String fileName, int progress) {
         this.device = device;
         this.fileName = fileName;
         this.progress = progress;
+        date = new Date();
         status = TransferStatus.NOT_STARTED;
     }
 
@@ -46,6 +49,14 @@ public class Transfer implements Serializable {
 
     public TransferStatus getStatus() {
         return status;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
     public void setStatus(TransferStatus status) {

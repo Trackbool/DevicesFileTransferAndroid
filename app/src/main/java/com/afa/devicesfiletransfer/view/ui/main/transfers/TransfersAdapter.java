@@ -10,8 +10,10 @@ import android.widget.TextView;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Transfer;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -51,7 +53,9 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
         holder.fileName.setText(transfer.getFileName());
         holder.foreignDevice.setText(transfer.getDeviceName());
         holder.percentage.setText(transfer.getProgressPercentage());
-        holder.date.setText("12/05/2020 20:87");
+        SimpleDateFormat simpleDateFormat =
+                new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
+        holder.date.setText(simpleDateFormat.format(transfer.getDate()));
     }
 
     @Override
