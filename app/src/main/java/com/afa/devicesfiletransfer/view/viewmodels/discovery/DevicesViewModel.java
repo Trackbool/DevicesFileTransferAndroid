@@ -16,17 +16,16 @@ import java.util.List;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class DiscoveryViewModel extends ViewModel {
+public class DevicesViewModel extends ViewModel {
     private final List<Device> devices;
     private final MutableLiveData<List<Device>> devicesLiveData;
     private final LiveEvent<InetAddress> discoveryRequestReceivedEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private DevicesDiscoveryExecutor devicesDiscoveryExecutor;
-    private DiscoveryProtocolListener.Callback discoveryProtocolCallback;
     private DevicesDiscoveryReceiver devicesDiscoveryReceiver;
 
-    public DiscoveryViewModel(DevicesDiscoveryExecutor devicesDiscoveryExecutor,
-                              DevicesDiscoveryReceiver devicesDiscoveryReceiver) {
+    public DevicesViewModel(DevicesDiscoveryExecutor devicesDiscoveryExecutor,
+                            DevicesDiscoveryReceiver devicesDiscoveryReceiver) {
         devices = new ArrayList<>();
         devicesLiveData = new MutableLiveData<>();
         discoveryRequestReceivedEvent = new LiveEvent<>();
@@ -34,7 +33,7 @@ public class DiscoveryViewModel extends ViewModel {
         this.devicesDiscoveryReceiver = devicesDiscoveryReceiver;
         this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
         this.devicesDiscoveryExecutor.start();
-        discoveryProtocolCallback = new DiscoveryProtocolListener.Callback() {
+        DiscoveryProtocolListener.Callback discoveryProtocolCallback = new DiscoveryProtocolListener.Callback() {
             @Override
             public void initializationFailure(Exception e) {
                 triggerErrorEvent("Initialization error", e.getMessage());

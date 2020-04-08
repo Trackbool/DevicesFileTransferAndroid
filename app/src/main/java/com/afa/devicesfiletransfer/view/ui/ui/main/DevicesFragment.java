@@ -3,7 +3,6 @@ package com.afa.devicesfiletransfer.view.ui.ui.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +17,8 @@ import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDisc
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.DevicesAdapter;
 import com.afa.devicesfiletransfer.view.ui.SendFileActivity;
-import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.discovery.DiscoveryViewModelFactory;
+import com.afa.devicesfiletransfer.view.viewmodels.discovery.DevicesViewModel;
+import com.afa.devicesfiletransfer.view.viewmodels.discovery.DevicesViewModelFactory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class DevicesFragment extends BaseFragment {
-    private DiscoveryViewModel discoveryViewModel;
+    private DevicesViewModel devicesViewModel;
     private DevicesAdapter devicesAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView devicesRecyclerView;
@@ -60,8 +59,8 @@ public class DevicesFragment extends BaseFragment {
             }
         });
         initializeViews();
-        initializeDiscoveryViewModel();
-        discoveryViewModel.onStart();
+        initializeDevicesViewModel();
+        devicesViewModel.onStart();
 
         return root;
     }
@@ -111,22 +110,22 @@ public class DevicesFragment extends BaseFragment {
         devicesRecyclerView.setAdapter(devicesAdapter);
     }
 
-    private void initializeDiscoveryViewModel() {
+    private void initializeDevicesViewModel() {
         DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(
                 requireActivity().getApplicationContext());
         DevicesDiscoveryReceiver devicesDiscoveryReceiver = new DevicesDiscoveryReceiverImpl(
                 requireActivity().getApplicationContext());
-        discoveryViewModel = new ViewModelProvider(this,
-                new DiscoveryViewModelFactory(devicesDiscoveryExecutor, devicesDiscoveryReceiver))
-                .get(DiscoveryViewModel.class);
+        devicesViewModel = new ViewModelProvider(this,
+                new DevicesViewModelFactory(devicesDiscoveryExecutor, devicesDiscoveryReceiver))
+                .get(DevicesViewModel.class);
 
-        discoveryViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
+        devicesViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
             @Override
             public void onChanged(List<Device> devices) {
                 devicesAdapter.setDevices(devices);
             }
         });
-        discoveryViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
+        devicesViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
             @Override
             public void onChanged(ErrorModel error) {
                 showError(error.getTitle(), error.getMessage());
@@ -137,7 +136,7 @@ public class DevicesFragment extends BaseFragment {
     private void discoverDevices() {
         sendFilesButton.setVisibility(View.INVISIBLE);
         devicesAdapter.unselectDevices();
-        discoveryViewModel.discoverDevices();
+        devicesViewModel.discoverDevices();
     }
 
     private void openSendFileActivity(List<Device> devices) {
@@ -148,7 +147,7 @@ public class DevicesFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        discoveryViewModel.onDestroy();
+        devicesViewModel.onDestroy();
         super.onDestroyView();
     }
 }
