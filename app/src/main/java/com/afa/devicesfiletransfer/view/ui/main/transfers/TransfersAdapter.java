@@ -46,7 +46,7 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
 
     @Override
     public void onBindViewHolder(@NonNull TransfersViewHolder holder, int position) {
-        holder.itemView.setBackgroundResource(Color.TRANSPARENT);
+        holder.itemView.setBackgroundColor(Color.TRANSPARENT);
 
         Transfer transfer = transfers.get(position);
         holder.icon.setImageResource(R.drawable.mobile_icon);
