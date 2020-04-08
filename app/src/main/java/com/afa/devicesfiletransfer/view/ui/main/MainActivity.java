@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.ui;
+package com.afa.devicesfiletransfer.view.ui.main;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.view.ui.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;

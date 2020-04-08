@@ -8,8 +8,8 @@ import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
-import com.afa.devicesfiletransfer.view.framework.model.AlertModel;
-import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
+import com.afa.devicesfiletransfer.view.model.AlertModel;
+import com.afa.devicesfiletransfer.view.model.ErrorModel;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -16,9 +16,7 @@ import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
-import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
-import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryService;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;
+import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
 
 import java.util.ArrayList;
 import java.util.List;

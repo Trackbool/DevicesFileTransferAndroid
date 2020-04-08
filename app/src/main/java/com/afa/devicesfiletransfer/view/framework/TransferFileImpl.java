@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.model;
+package com.afa.devicesfiletransfer.view.framework;
 
 import android.content.Context;
 import android.net.Uri;
@@ -6,7 +6,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.afa.devicesfiletransfer.model.TransferFile;
-import com.afa.devicesfiletransfer.view.framework.UriWrapper;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;

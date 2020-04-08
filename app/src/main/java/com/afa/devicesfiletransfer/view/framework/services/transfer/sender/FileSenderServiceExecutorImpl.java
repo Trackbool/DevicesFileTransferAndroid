@@ -3,16 +3,11 @@ package com.afa.devicesfiletransfer.view.framework.services.transfer.sender;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.model.TransferFile;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
-import com.afa.devicesfiletransfer.view.framework.model.TransferFileImpl;
+import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
 
 public class FileSenderServiceExecutorImpl implements FileSenderServiceExecutor {
     private final Context context;

@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.ui.ui.main;
+package com.afa.devicesfiletransfer.view.ui.main.transfers;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,13 +10,14 @@ import com.afa.devicesfiletransfer.model.Pair;
 import com.afa.devicesfiletransfer.model.Transfer;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
-import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderReceiverImpl;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
-import com.afa.devicesfiletransfer.view.ui.TransfersAdapter;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.receiver.ReceiveTransferViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.receiver.ReceiveTransferViewModelFactory;
+import com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel.TransfersViewModel;
+import com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel.TransfersViewModelFactory;
 
 import java.io.File;
 import java.util.List;
@@ -28,7 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class TransfersFragment extends BaseFragment {
-    private ReceiveTransferViewModel receiveTransferViewModel;
+    private TransfersViewModel transfersViewModel;
     private TransfersAdapter transfersAdapter;
     private RecyclerView transfersRecyclerView;
 
@@ -45,48 +46,66 @@ public class TransfersFragment extends BaseFragment {
         transfersRecyclerView = root.findViewById(R.id.transfersRecyclerView);
         initializeTransferReceiverViewModel();
         initializeRecyclerView();
-        receiveTransferViewModel.onStart();
 
         return root;
     }
 
     private void initializeTransferReceiverViewModel() {
-        FilesReceiverListenerServiceExecutor receiverServiceExecutor =
+        final FilesReceiverListenerServiceExecutor receiverServiceExecutor =
                 new FilesReceiverListenerServiceExecutorImpl(requireActivity().getApplicationContext());
-        FilesReceiverListenerReceiver filesReceiverListenerReceiver =
+        final FilesReceiverListenerReceiver filesReceiverListenerReceiver =
                 new FilesReceiverListenerReceiverImpl(requireActivity().getApplicationContext());
-        receiveTransferViewModel = new ViewModelProvider(this,
-                new ReceiveTransferViewModelFactory(receiverServiceExecutor, filesReceiverListenerReceiver))
-                .get(ReceiveTransferViewModel.class);
-        receiveTransferViewModel.getOnTransferSucceededEvent().observe(this, new Observer<Pair<Transfer, File>>() {
-            @Override
-            public void onChanged(Pair<Transfer, File> transferFilePair) {
-                File file = transferFilePair.getRight();
+        final FileSenderReceiver fileSenderReceiver =
+                new FileSenderReceiverImpl(requireActivity().getApplicationContext());
+        transfersViewModel = new ViewModelProvider(this,
+                new TransfersViewModelFactory(receiverServiceExecutor,
+                        filesReceiverListenerReceiver,
+                        fileSenderReceiver))
+                .get(TransfersViewModel.class);
 
-                showAlert("File received", "The file " +
-                        file.getName() + " has been received");
-            }
-        });
-        receiveTransferViewModel.getErrorEvent().observe(this, new Observer<Pair<Transfer, ErrorModel>>() {
-            @Override
-            public void onChanged(Pair<Transfer, ErrorModel> transferErrorModelPair) {
-                ErrorModel errorModel = transferErrorModelPair.getRight();
-
-                showError(errorModel.getTitle(), errorModel.getMessage());
-            }
-        });
-        receiveTransferViewModel.getTransferLiveData().observe(this, new Observer<List<Transfer>>() {
+        transfersViewModel.getTransfersLiveData().observe(this, new Observer<List<Transfer>>() {
             @Override
             public void onChanged(List<Transfer> transfers) {
                 transfersAdapter.setTransfers(transfers);
             }
         });
-        receiveTransferViewModel.getOnTransferProgressUpdatedEvent().observe(this, new Observer<Transfer>() {
+        transfersViewModel.getOnReceiveTransferSucceededEvent().observe(this, new Observer<Pair<Transfer, File>>() {
+            @Override
+            public void onChanged(Pair<Transfer, File> transferFilePair) {
+                File file = transferFilePair.getRight();
+                showAlert("File received", "The file " +
+                        file.getName() + " has been received");
+            }
+        });
+        transfersViewModel.getOnSendTransferSucceededEvent().observe(this, new Observer<Pair<Transfer, File>>() {
+            @Override
+            public void onChanged(Pair<Transfer, File> transferFilePair) {
+                File file = transferFilePair.getRight();
+                showAlert("File sent", "The file " +
+                        file.getName() + " has sent");
+            }
+        });
+        transfersViewModel.getOnReceiveTransferErrorEvent().observe(this, new Observer<Pair<Transfer, ErrorModel>>() {
+            @Override
+            public void onChanged(Pair<Transfer, ErrorModel> transferErrorModelPair) {
+                ErrorModel error = transferErrorModelPair.getRight();
+                showError("Receiving error", error.getMessage());
+            }
+        });
+        transfersViewModel.getOnSendTransferErrorEvent().observe(this, new Observer<Pair<Transfer, ErrorModel>>() {
+            @Override
+            public void onChanged(Pair<Transfer, ErrorModel> transferErrorModelPair) {
+                ErrorModel error = transferErrorModelPair.getRight();
+                showError("Sending error", error.getMessage());
+            }
+        });
+        transfersViewModel.getOnTransferProgressUpdatedEvent().observe(this, new Observer<Transfer>() {
             @Override
             public void onChanged(Transfer transfer) {
                 transfersAdapter.refreshData();
             }
         });
+        transfersViewModel.onStart();
     }
 
     private void initializeRecyclerView() {
@@ -99,7 +118,7 @@ public class TransfersFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        receiveTransferViewModel.onDestroy();
+        transfersViewModel.onDestroy();
         super.onDestroyView();
     }
 }

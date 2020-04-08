@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.model;
+package com.afa.devicesfiletransfer.view.model;
 
 public class AlertModel {
     private String title;

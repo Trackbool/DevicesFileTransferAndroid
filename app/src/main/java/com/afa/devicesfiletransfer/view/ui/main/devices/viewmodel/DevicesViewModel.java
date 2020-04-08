@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.viewmodels.discovery;
+package com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel;
 
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.model.DeviceProperties;
@@ -6,7 +6,7 @@ import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
-import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
+import com.afa.devicesfiletransfer.view.model.ErrorModel;
 
 import java.net.InetAddress;
 import java.net.SocketException;

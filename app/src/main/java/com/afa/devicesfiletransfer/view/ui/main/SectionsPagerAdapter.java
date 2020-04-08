@@ -1,8 +1,10 @@
-package com.afa.devicesfiletransfer.view.ui.ui.main;
+package com.afa.devicesfiletransfer.view.ui.main;
 
 import android.content.Context;
 
 import com.afa.devicesfiletransfer.R;
+import com.afa.devicesfiletransfer.view.ui.main.devices.DevicesFragment;
+import com.afa.devicesfiletransfer.view.ui.main.transfers.TransfersFragment;
 
 import org.jetbrains.annotations.NotNull;
 

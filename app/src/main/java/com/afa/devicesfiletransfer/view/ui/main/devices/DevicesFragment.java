@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.ui.ui.main;
+package com.afa.devicesfiletransfer.view.ui.main.devices;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,14 +11,13 @@ import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.model.Device;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
-import com.afa.devicesfiletransfer.view.framework.model.ErrorModel;
+import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryExecutorImpl;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryReceiverImpl;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
-import com.afa.devicesfiletransfer.view.ui.DevicesAdapter;
 import com.afa.devicesfiletransfer.view.ui.SendFileActivity;
-import com.afa.devicesfiletransfer.view.viewmodels.discovery.DevicesViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.discovery.DevicesViewModelFactory;
+import com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel.DevicesViewModel;
+import com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel.DevicesViewModelFactory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;

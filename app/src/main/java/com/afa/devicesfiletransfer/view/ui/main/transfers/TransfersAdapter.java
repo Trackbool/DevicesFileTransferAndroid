@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.ui;
+package com.afa.devicesfiletransfer.view.ui.main.transfers;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
