@@ -8,11 +8,13 @@ import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListe
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.util.TransferDateComparator;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import androidx.lifecycle.MutableLiveData;
@@ -33,7 +35,14 @@ public class TransfersViewModel extends ViewModel {
     public TransfersViewModel(FilesReceiverListenerServiceExecutor receiverServiceExecutor,
                               FilesReceiverListenerReceiver receiverListenerReceiver,
                               FileSenderReceiver fileSenderReceiver) {
-        transfers = new ArrayList<>();
+        transfers = new ArrayList<Transfer>() {
+            @Override
+            public boolean add(Transfer transfer) {
+                super.add(transfer);
+                Collections.sort(transfers, new TransferDateComparator(true));
+                return true;
+            }
+        };
         transfersLiveData = new MutableLiveData<>();
         onTransferProgressUpdatedEvent = new MutableLiveData<>();
         onSendTransferSucceededEvent = new MutableLiveData<>();
@@ -83,7 +92,6 @@ public class TransfersViewModel extends ViewModel {
         return new FileSenderProtocol.Callback() {
             @Override
             public void onStart(Transfer transfer) {
-                //TODO: Store in database
                 transfers.add(transfer);
                 transfersLiveData.postValue(transfers);
             }
