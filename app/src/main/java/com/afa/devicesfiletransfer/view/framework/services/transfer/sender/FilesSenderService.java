@@ -10,12 +10,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.Transfer;
-import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.framework.repository.TransfersRoomDatabaseRepository;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
+import com.afa.devicesfiletransfer.usecases.SaveTransferUseCase;
 import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
 
 import java.util.ArrayList;
@@ -34,6 +37,7 @@ public class FilesSenderService extends Service {
     public static final int SUCCESS = 3;
     private static final String CHANNEL_ID = FilesSenderService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
+    private SaveTransferUseCase saveTransferUseCase;
     private final IBinder binder = new FilesSenderService.LocalBinder();
     private List<ResultReceiver> receivers = new ArrayList<>();
     private List<Transfer> inProgressTransfers = new ArrayList<>();
@@ -42,6 +46,10 @@ public class FilesSenderService extends Service {
         FilesSenderService getService() {
             return FilesSenderService.this;
         }
+    }
+
+    public FilesSenderService() {
+        fileSendingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
     }
 
     public void addResultReceiver(ResultReceiver resultReceiver) {
@@ -56,14 +64,17 @@ public class FilesSenderService extends Service {
         return Collections.unmodifiableList(inProgressTransfers);
     }
 
-    public FilesSenderService() {
-        fileSendingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
+    }
+
+    @Override
+    public void onCreate() {
+        saveTransferUseCase = new SaveTransferUseCase(
+                new TransfersRoomDatabaseRepository(getApplicationContext()));
+        super.onCreate();
     }
 
     @Override
@@ -125,7 +136,7 @@ public class FilesSenderService extends Service {
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
                 sendToAllReceivers(FAILURE, bundle);
-                finishServiceIfThereAreNoMoreTransfers();
+                persistTransfer(transfer);
             }
 
             @Override
@@ -142,11 +153,32 @@ public class FilesSenderService extends Service {
                 bundle.putSerializable("transfer", transfer);
                 bundle.putParcelable("file", (TransferFileImpl) file);
                 sendToAllReceivers(SUCCESS, bundle);
-                finishServiceIfThereAreNoMoreTransfers();
+                persistTransfer(transfer);
             }
         });
 
         return fileSender;
+    }
+
+    private void persistTransfer(final Transfer transfer) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                saveTransferUseCase.execute(transfer, new SaveTransferUseCase.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d("Transfers", "Received Transfer persisted");
+                        finishServiceIfThereAreNoMoreTransfers();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.d("Transfers", "Could not persist received transfer: " + e.getMessage());
+                        finishServiceIfThereAreNoMoreTransfers();
+                    }
+                });
+            }
+        }).start();
     }
 
     private void finishServiceIfThereAreNoMoreTransfers() {

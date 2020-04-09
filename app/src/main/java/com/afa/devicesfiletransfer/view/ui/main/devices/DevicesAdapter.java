@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.domain.model.Device;
 
 import java.util.ArrayList;
 import java.util.HashSet;

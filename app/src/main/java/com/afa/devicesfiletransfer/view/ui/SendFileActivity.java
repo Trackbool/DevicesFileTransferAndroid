@@ -9,10 +9,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.Pair;
-import com.afa.devicesfiletransfer.model.Transfer;
-import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.Pair;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;

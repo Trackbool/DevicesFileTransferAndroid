@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
 

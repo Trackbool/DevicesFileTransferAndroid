@@ -1,6 +1,6 @@
 package com.afa.devicesfiletransfer.services.transfer.sender;
 
-import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 
 import java.io.*;
 import java.util.concurrent.atomic.AtomicBoolean;

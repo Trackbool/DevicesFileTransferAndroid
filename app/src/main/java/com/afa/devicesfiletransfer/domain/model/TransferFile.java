@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.model;
+package com.afa.devicesfiletransfer.domain.model;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;

@@ -1,7 +1,7 @@
 package com.afa.devicesfiletransfer.services.transfer.receiver;
 
-import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.google.gson.Gson;
 
 import java.io.DataInputStream;

@@ -1,6 +1,6 @@
 package com.afa.devicesfiletransfer.services.discovery;
 
-import com.afa.devicesfiletransfer.model.DeviceProperties;
+import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
 import com.google.gson.Gson;
 
 import java.io.IOException;

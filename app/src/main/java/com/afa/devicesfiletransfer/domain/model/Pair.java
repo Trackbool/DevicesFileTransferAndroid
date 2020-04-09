@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.model;
+package com.afa.devicesfiletransfer.domain.model;
 
 public class Pair<L, R> {
     private L left;

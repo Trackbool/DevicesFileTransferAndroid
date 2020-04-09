@@ -1,9 +1,9 @@
 package com.afa.devicesfiletransfer.view.viewmodels.transfer.sender;
 
-import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.Pair;
-import com.afa.devicesfiletransfer.model.Transfer;
-import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.Pair;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;

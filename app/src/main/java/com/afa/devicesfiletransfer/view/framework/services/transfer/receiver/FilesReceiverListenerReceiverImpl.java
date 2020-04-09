@@ -9,7 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 
-import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;

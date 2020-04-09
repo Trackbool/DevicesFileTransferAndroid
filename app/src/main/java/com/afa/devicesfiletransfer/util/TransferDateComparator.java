@@ -1,6 +1,6 @@
 package com.afa.devicesfiletransfer.util;
 
-import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
 
 import java.util.Comparator;
 import java.util.Date;

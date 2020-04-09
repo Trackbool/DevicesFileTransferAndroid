@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;

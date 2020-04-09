@@ -1,7 +1,7 @@
 package com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel;
 
-import com.afa.devicesfiletransfer.model.Device;
-import com.afa.devicesfiletransfer.model.DeviceProperties;
+import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;

@@ -1,14 +1,15 @@
 package com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel;
 
-import com.afa.devicesfiletransfer.model.Pair;
-import com.afa.devicesfiletransfer.model.Transfer;
-import com.afa.devicesfiletransfer.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.Pair;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.usecases.GetLastTransfersUseCase;
 import com.afa.devicesfiletransfer.util.TransferDateComparator;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
@@ -29,11 +30,13 @@ public class TransfersViewModel extends ViewModel {
     private final MutableLiveData<Pair<Transfer, File>> onReceiveTransferSucceededEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onSendTransferErrorEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onReceiveTransferErrorEvent;
+    private final GetLastTransfersUseCase getLastTransfersUseCase;
     private final FilesReceiverListenerServiceExecutor receiverServiceExecutor;
     private final FilesReceiverListenerReceiver receiverListenerReceiver;
     private final FileSenderReceiver fileSenderReceiver;
 
-    public TransfersViewModel(FilesReceiverListenerServiceExecutor receiverServiceExecutor,
+    public TransfersViewModel(final GetLastTransfersUseCase getLastTransfersUseCase,
+                              final FilesReceiverListenerServiceExecutor receiverServiceExecutor,
                               final FilesReceiverListenerReceiver receiverListenerReceiver,
                               final FileSenderReceiver fileSenderReceiver) {
         transfers = new ArrayList<Transfer>() {
@@ -53,13 +56,14 @@ public class TransfersViewModel extends ViewModel {
         this.receiverServiceExecutor = receiverServiceExecutor;
         this.receiverListenerReceiver = receiverListenerReceiver;
         this.fileSenderReceiver = fileSenderReceiver;
+        this.getLastTransfersUseCase = getLastTransfersUseCase;
 
         this.receiverListenerReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
             @Override
             public void onConnect() {
                 List<Transfer> inProgressTransfers =
                         receiverListenerReceiver.getInProgressTransfers();
-                addInProgressTransfersIfThereAreNotAdded(inProgressTransfers);
+                addNewTransfers(inProgressTransfers);
             }
 
             @Override
@@ -75,7 +79,7 @@ public class TransfersViewModel extends ViewModel {
             public void onConnect() {
                 List<Transfer> inProgressTransfers =
                         fileSenderReceiver.getInProgressTransfers();
-                addInProgressTransfersIfThereAreNotAdded(inProgressTransfers);
+                addNewTransfers(inProgressTransfers);
             }
 
             @Override
@@ -87,6 +91,7 @@ public class TransfersViewModel extends ViewModel {
         this.fileSenderReceiver.setCallback(fileSenderCallback);
 
         this.receiverServiceExecutor.start();
+        callGetLastTransfersUseCase();
     }
 
     private FileReceiverProtocol.Callback createFileReceiverCallback() {
@@ -171,8 +176,28 @@ public class TransfersViewModel extends ViewModel {
         this.fileSenderReceiver.receive();
     }
 
-    private void addInProgressTransfersIfThereAreNotAdded(List<Transfer> inProgressTransfers) {
-        for (Transfer t : inProgressTransfers) {
+    private void callGetLastTransfersUseCase() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int maxResults = 20;
+                getLastTransfersUseCase.execute(maxResults, new GetLastTransfersUseCase.Callback() {
+                    @Override
+                    public void onSuccess(List<Transfer> transfers) {
+                        addNewTransfers(transfers);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        //triggerErrorEvent("Error retrieving stored transfers", e.getMessage());
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void addNewTransfers(List<Transfer> newTransfers) {
+        for (Transfer t : newTransfers) {
             if (!transfers.contains(t)) {
                 transfers.add(t);
             }

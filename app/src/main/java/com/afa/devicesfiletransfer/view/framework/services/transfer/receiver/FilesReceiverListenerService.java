@@ -11,11 +11,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.framework.repository.TransfersRoomDatabaseRepository;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListener;
+import com.afa.devicesfiletransfer.usecases.SaveTransferUseCase;
 import com.afa.devicesfiletransfer.util.SystemUtils;
 
 import java.io.File;
@@ -37,6 +40,7 @@ public class FilesReceiverListenerService extends Service {
     public static final int SUCCESS = 3;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final static int TRANSFER_SERVICE_PORT = 5001;
+    private SaveTransferUseCase saveTransferUseCase;
     private FilesReceiverListener filesReceiverListener;
     private ThreadPoolExecutor fileReceivingExecutor;
     private final IBinder binder = new FilesReceiverListenerService.LocalBinder();
@@ -73,6 +77,9 @@ public class FilesReceiverListenerService extends Service {
 
     @Override
     public void onCreate() {
+        saveTransferUseCase = new SaveTransferUseCase(
+                new TransfersRoomDatabaseRepository(getApplicationContext()));
+
         filesReceiverListener = new FilesReceiverListener(TRANSFER_SERVICE_PORT, new FilesReceiverListener.Callback() {
             @Override
             public void onTransferReceived(final InputStream inputStream) {
@@ -144,6 +151,7 @@ public class FilesReceiverListenerService extends Service {
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
                 sendToAllReceivers(FAILURE, bundle);
+                persistTransfer(transfer);
             }
 
             @Override
@@ -160,10 +168,30 @@ public class FilesReceiverListenerService extends Service {
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("file", file);
                 sendToAllReceivers(SUCCESS, bundle);
+                persistTransfer(transfer);
             }
         });
 
         return fileReceiver;
+    }
+
+    private void persistTransfer(final Transfer transfer) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                saveTransferUseCase.execute(transfer, new SaveTransferUseCase.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d("Transfers", "Received Transfer persisted");
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.d("Transfers", "Could not persist received transfer: " + e.getMessage());
+                    }
+                });
+            }
+        }).start();
     }
 
     private void notifySystemAboutNewFile(File file) {

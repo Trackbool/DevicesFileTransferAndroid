@@ -12,7 +12,7 @@ import android.os.IBinder;
 import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.DeviceProperties;
+import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerFactory;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;

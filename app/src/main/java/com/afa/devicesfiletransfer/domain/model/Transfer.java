@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.model;
+package com.afa.devicesfiletransfer.domain.model;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,12 +11,20 @@ public class Transfer implements Serializable {
     private Date date;
     private TransferStatus status;
 
+    public Transfer() {
+        date = new Date();
+        status = TransferStatus.NOT_STARTED;
+    }
+
     public Transfer(Device device, String fileName, int progress) {
+        this();
         this.device = device;
         this.fileName = fileName;
         this.progress = progress;
-        date = new Date();
-        status = TransferStatus.NOT_STARTED;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
     }
 
     public Device getDevice() {
@@ -31,12 +39,16 @@ public class Transfer implements Serializable {
         return device.getIpAddress();
     }
 
-    public void setProgress(int progress) {
-        this.progress = progress;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getFileName() {
         return fileName;
+    }
+
+    public void setProgress(int progress) {
+        this.progress = progress;
     }
 
     public int getProgress() {
@@ -45,6 +57,10 @@ public class Transfer implements Serializable {
 
     public String getProgressPercentage() {
         return progress + "%";
+    }
+
+    public void setStatus(TransferStatus status) {
+        this.status = status;
     }
 
     public TransferStatus getStatus() {
@@ -57,10 +73,6 @@ public class Transfer implements Serializable {
 
     public Date getDate() {
         return date;
-    }
-
-    public void setStatus(TransferStatus status) {
-        this.status = status;
     }
 
     public String getStatusValue() {

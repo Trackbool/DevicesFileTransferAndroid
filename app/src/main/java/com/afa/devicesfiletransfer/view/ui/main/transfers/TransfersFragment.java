@@ -6,15 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Pair;
-import com.afa.devicesfiletransfer.model.Transfer;
-import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
-import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.domain.model.Pair;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerReceiverImpl;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerServiceExecutorImpl;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderReceiverImpl;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel.TransfersViewModel;
 import com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel.TransfersViewModelFactory;
@@ -51,16 +45,8 @@ public class TransfersFragment extends BaseFragment {
     }
 
     private void initializeTransferReceiverViewModel() {
-        final FilesReceiverListenerServiceExecutor receiverServiceExecutor =
-                new FilesReceiverListenerServiceExecutorImpl(requireActivity().getApplicationContext());
-        final FilesReceiverListenerReceiver filesReceiverListenerReceiver =
-                new FilesReceiverListenerReceiverImpl(requireActivity().getApplicationContext());
-        final FileSenderReceiver fileSenderReceiver =
-                new FileSenderReceiverImpl(requireActivity().getApplicationContext());
         transfersViewModel = new ViewModelProvider(this,
-                new TransfersViewModelFactory(receiverServiceExecutor,
-                        filesReceiverListenerReceiver,
-                        fileSenderReceiver))
+                new TransfersViewModelFactory(requireActivity().getApplicationContext()))
                 .get(TransfersViewModel.class);
 
         transfersViewModel.getTransfersLiveData().observe(this, new Observer<List<Transfer>>() {

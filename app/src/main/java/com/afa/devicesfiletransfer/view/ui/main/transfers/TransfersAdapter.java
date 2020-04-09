@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

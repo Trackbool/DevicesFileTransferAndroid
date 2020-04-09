@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.model.Device;
+import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
