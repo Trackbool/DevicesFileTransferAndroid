@@ -182,7 +182,7 @@ public class FilesSenderService extends Service {
     }
 
     private void finishServiceIfThereAreNoMoreTransfers() {
-        if (fileSendingExecutor.getActiveCount() == 1) {
+        if (inProgressTransfers.size() == 0) {
             stopSelf();
         }
     }
