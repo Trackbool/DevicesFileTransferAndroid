@@ -26,7 +26,7 @@ public class FileSenderProtocol {
         this.remoteDevice = remoteDevice;
         this.file = file;
         this.fileSender = new FileSender(file);
-        transfer = new Transfer(remoteDevice, file.getName(), 0);
+        transfer = new Transfer(remoteDevice, file.getName(), 0, false);
     }
 
     public FileSenderProtocol(Device remoteDevice, TransferFile file, Callback callback) {

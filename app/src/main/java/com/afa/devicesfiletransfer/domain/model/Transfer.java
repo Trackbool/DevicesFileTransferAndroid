@@ -9,6 +9,7 @@ public class Transfer implements Serializable {
     private String fileName;
     private int progress;
     private Date date;
+    private boolean incoming;
     private TransferStatus status;
 
     public Transfer() {
@@ -16,11 +17,12 @@ public class Transfer implements Serializable {
         status = TransferStatus.NOT_STARTED;
     }
 
-    public Transfer(Device device, String fileName, int progress) {
+    public Transfer(Device device, String fileName, int progress, boolean incoming) {
         this();
         this.device = device;
         this.fileName = fileName;
         this.progress = progress;
+        this.incoming = incoming;
     }
 
     public void setDevice(Device device) {
@@ -79,6 +81,14 @@ public class Transfer implements Serializable {
         return status.value;
     }
 
+    public boolean isIncoming() {
+        return incoming;
+    }
+
+    public void setIncoming(boolean incoming) {
+        this.incoming = incoming;
+    }
+
     public enum TransferStatus {
         NOT_STARTED("Not started"),
         TRANSFERRING("Transferring"),
@@ -100,11 +110,12 @@ public class Transfer implements Serializable {
         Transfer transfer = (Transfer) o;
         return Objects.equals(device, transfer.device) &&
                 Objects.equals(fileName, transfer.fileName) &&
-                Objects.equals(date, transfer.date);
+                Objects.equals(date, transfer.date) &&
+                Objects.equals(incoming, transfer.incoming);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(device, fileName, date);
+        return Objects.hash(device, fileName, date, incoming);
     }
 }

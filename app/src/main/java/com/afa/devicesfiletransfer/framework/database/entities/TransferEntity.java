@@ -16,12 +16,19 @@ public class TransferEntity {
     @PrimaryKey
     @NotNull
     private String id;
+    @NotNull
     @Embedded(prefix = "device_")
     private DeviceEntity device;
+    @NotNull
     private String fileName;
+    @NotNull
     private int progress;
+    @NotNull
     private Date date;
+    @NotNull
     private String status;
+    @NotNull
+    private boolean incoming;
 
     public TransferEntity() {
         id = UUID.randomUUID().toString();
@@ -36,19 +43,21 @@ public class TransferEntity {
         this.id = id;
     }
 
+    @NotNull
     public DeviceEntity getDevice() {
         return device;
     }
 
-    public void setDevice(DeviceEntity device) {
+    public void setDevice(@NotNull DeviceEntity device) {
         this.device = device;
     }
 
+    @NotNull
     public String getFileName() {
         return fileName;
     }
 
-    public void setFileName(String fileName) {
+    public void setFileName(@NotNull String fileName) {
         this.fileName = fileName;
     }
 
@@ -60,19 +69,29 @@ public class TransferEntity {
         this.progress = progress;
     }
 
+    @NotNull
     public Date getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(@NotNull Date date) {
         this.date = date;
     }
 
+    @NotNull
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(@NotNull String status) {
         this.status = status;
+    }
+
+    public boolean isIncoming() {
+        return incoming;
+    }
+
+    public void setIncoming(boolean incoming) {
+        this.incoming = incoming;
     }
 }

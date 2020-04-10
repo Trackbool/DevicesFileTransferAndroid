@@ -54,7 +54,7 @@ public class FileReceiverProtocol {
             String fileNameWithExtension = dataInputStream.readUTF();
             String fileName = generateFileName(fileNameWithExtension);
             long fileSize = dataInputStream.readLong();
-            transfer = new Transfer(device, fileName, 0);
+            transfer = new Transfer(device, fileName, 0, true);
 
             File file = new File(targetDirectory.getAbsolutePath(), fileName);
             fileReceiver.receive(file, fileSize, inputStream);

@@ -56,6 +56,8 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
         SimpleDateFormat simpleDateFormat =
                 new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());
         holder.date.setText(simpleDateFormat.format(transfer.getDate()));
+        holder.inOutArrow.setImageResource(
+                transfer.isIncoming() ? R.drawable.incoming_arrow : R.drawable.outgoing_arrow);
     }
 
     @Override
@@ -73,6 +75,7 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
         TextView foreignDevice;
         TextView date;
         TextView percentage;
+        ImageView inOutArrow;
 
         TransfersViewHolder(View itemView) {
             super(itemView);
@@ -82,6 +85,7 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
             foreignDevice = itemView.findViewById(R.id.foreignDeviceTextView);
             date = itemView.findViewById(R.id.transferDate);
             percentage = itemView.findViewById(R.id.transferPercentage);
+            inOutArrow = itemView.findViewById(R.id.inOutArrowImageView);
         }
     }
 }
