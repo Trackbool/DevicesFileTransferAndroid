@@ -1,8 +1,8 @@
 package com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel;
 
 import com.afa.devicesfiletransfer.domain.model.Pair;
-import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class TransfersViewModel extends ViewModel {
+    private final MutableLiveData<Boolean> loading;
     private final List<Transfer> transfers;
     private final MutableLiveData<List<Transfer>> transfersLiveData;
     private final MutableLiveData<Transfer> onTransferProgressUpdatedEvent;
@@ -39,6 +40,7 @@ public class TransfersViewModel extends ViewModel {
                               final FilesReceiverListenerServiceExecutor receiverServiceExecutor,
                               final FilesReceiverListenerReceiver receiverListenerReceiver,
                               final FileSenderReceiver fileSenderReceiver) {
+        loading = new MutableLiveData<>();
         transfers = new ArrayList<Transfer>() {
             @Override
             public boolean add(Transfer transfer) {
@@ -68,7 +70,6 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onDisconnect() {
-
             }
         });
         final FileReceiverProtocol.Callback fileReceiverCallback = createFileReceiverCallback();
@@ -84,7 +85,6 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onDisconnect() {
-
             }
         });
         final FileSenderProtocol.Callback fileSenderCallback = createFileSenderCallback();
@@ -147,6 +147,10 @@ public class TransfersViewModel extends ViewModel {
         };
     }
 
+    public MutableLiveData<Boolean> getLoading() {
+        return loading;
+    }
+
     public MutableLiveData<List<Transfer>> getTransfersLiveData() {
         return transfersLiveData;
     }
@@ -177,6 +181,7 @@ public class TransfersViewModel extends ViewModel {
     }
 
     private void callGetLastTransfersUseCase() {
+        loading.postValue(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -185,11 +190,13 @@ public class TransfersViewModel extends ViewModel {
                     @Override
                     public void onSuccess(List<Transfer> transfers) {
                         addNewTransfers(transfers);
+                        loading.postValue(false);
                     }
 
                     @Override
                     public void onError(Exception e) {
                         //triggerErrorEvent("Error retrieving stored transfers", e.getMessage());
+                        loading.postValue(false);
                     }
                 });
             }

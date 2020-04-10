@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Pair;
@@ -26,6 +27,7 @@ public class TransfersFragment extends BaseFragment {
     private TransfersViewModel transfersViewModel;
     private TransfersAdapter transfersAdapter;
     private RecyclerView transfersRecyclerView;
+    private ProgressBar progressBar;
 
     public static TransfersFragment newInstance() {
         return new TransfersFragment();
@@ -38,6 +40,7 @@ public class TransfersFragment extends BaseFragment {
         View root = inflater.inflate(R.layout.fragment_transfers, container, false);
 
         transfersRecyclerView = root.findViewById(R.id.transfersRecyclerView);
+        progressBar = root.findViewById(R.id.progressBar);
         initializeTransferReceiverViewModel();
         initializeRecyclerView();
 
@@ -49,6 +52,16 @@ public class TransfersFragment extends BaseFragment {
                 new TransfersViewModelFactory(requireActivity().getApplicationContext()))
                 .get(TransfersViewModel.class);
 
+        transfersViewModel.getLoading().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean loading) {
+                if (loading) {
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
         transfersViewModel.getTransfersLiveData().observe(this, new Observer<List<Transfer>>() {
             @Override
             public void onChanged(List<Transfer> transfers) {
