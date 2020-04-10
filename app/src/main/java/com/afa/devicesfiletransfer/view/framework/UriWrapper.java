@@ -21,7 +21,7 @@ public class UriWrapper implements Parcelable {
     private String realPath;
 
     public UriWrapper(Context context, Uri uri) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.uri = uri;
         setUpFileName();
         setUpLength();

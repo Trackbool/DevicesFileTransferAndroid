@@ -16,13 +16,13 @@ public class TransferFileImpl implements TransferFile, Parcelable {
     private Uri uri;
 
     public TransferFileImpl(Context context, Uri uri) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.uri = uri;
         this.uriWrapper = new UriWrapper(context, uri);
     }
 
     public void setContext(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         uriWrapper = new UriWrapper(context, uri);
     }
 
