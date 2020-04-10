@@ -84,6 +84,12 @@ public class TransfersFragment extends BaseFragment {
                         file.getName() + " has sent");
             }
         });
+        transfersViewModel.getOnErrorEvent().observe(this, new Observer<ErrorModel>() {
+            @Override
+            public void onChanged(ErrorModel error) {
+                showError(error.getTitle(), error.getMessage());
+            }
+        });
         transfersViewModel.getOnReceiveTransferErrorEvent().observe(this, new Observer<Pair<Transfer, ErrorModel>>() {
             @Override
             public void onChanged(Pair<Transfer, ErrorModel> transferErrorModelPair) {

@@ -34,23 +34,35 @@ public class TransfersRoomDatabaseRepository implements TransfersRepository {
 
     @Override
     public void getTransfers(GetTransfersCallback callback) {
-        List<TransferEntity> transferEntities = transferDao.getTransfers();
-        List<Transfer> transfers = convertTransferEntityList(transferEntities);
-        callback.onSuccess(transfers);
+        try {
+            List<TransferEntity> transferEntities = transferDao.getTransfers();
+            List<Transfer> transfers = convertTransferEntityList(transferEntities);
+            callback.onSuccess(transfers);
+        } catch (Exception e) {
+            callback.onError(e);
+        }
     }
 
     @Override
     public void getLastTransfers(int max, GetTransfersCallback callback) {
-        List<TransferEntity> transferEntities = transferDao.getLastTransfers(max);
-        List<Transfer> transfers = convertTransferEntityList(transferEntities);
-        callback.onSuccess(transfers);
+        try {
+            List<TransferEntity> transferEntities = transferDao.getLastTransfers(max);
+            List<Transfer> transfers = convertTransferEntityList(transferEntities);
+            callback.onSuccess(transfers);
+        } catch (Exception e) {
+            callback.onError(e);
+        }
     }
 
     @Override
     public void saveTransfer(Transfer transfer, AddTransferCallback callback) {
         TransferEntity transferEntity = modelMapper.map(transfer, TransferEntity.class);
-        transferDao.addTransfer(transferEntity);
-        callback.onSuccess();
+        try {
+            transferDao.addTransfer(transferEntity);
+            callback.onSuccess();
+        } catch (Exception e) {
+            callback.onError(e);
+        }
     }
 
     private List<Transfer> convertTransferEntityList(List<TransferEntity> transferEntities) {

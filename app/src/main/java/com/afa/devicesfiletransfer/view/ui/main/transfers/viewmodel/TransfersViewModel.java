@@ -26,11 +26,13 @@ public class TransfersViewModel extends ViewModel {
     private final MutableLiveData<Boolean> loading;
     private final List<Transfer> transfers;
     private final MutableLiveData<List<Transfer>> transfersLiveData;
-    private final MutableLiveData<Transfer> onTransferProgressUpdatedEvent;
-    private final MutableLiveData<Pair<Transfer, File>> onSendTransferSucceededEvent;
-    private final MutableLiveData<Pair<Transfer, File>> onReceiveTransferSucceededEvent;
+    private final LiveEvent<Transfer> onTransferProgressUpdatedEvent;
+    private final LiveEvent<Pair<Transfer, File>> onSendTransferSucceededEvent;
+    private final LiveEvent<Pair<Transfer, File>> onReceiveTransferSucceededEvent;
+    private final LiveEvent<ErrorModel> onErrorEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onSendTransferErrorEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onReceiveTransferErrorEvent;
+
     private final GetLastTransfersUseCase getLastTransfersUseCase;
     private final FilesReceiverListenerServiceExecutor receiverServiceExecutor;
     private final FilesReceiverListenerReceiver receiverListenerReceiver;
@@ -50,15 +52,16 @@ public class TransfersViewModel extends ViewModel {
             }
         };
         transfersLiveData = new MutableLiveData<>();
-        onTransferProgressUpdatedEvent = new MutableLiveData<>();
-        onSendTransferSucceededEvent = new MutableLiveData<>();
-        onReceiveTransferSucceededEvent = new MutableLiveData<>();
+        onTransferProgressUpdatedEvent = new LiveEvent<>();
+        onSendTransferSucceededEvent = new LiveEvent<>();
+        onReceiveTransferSucceededEvent = new LiveEvent<>();
+        onErrorEvent = new LiveEvent<>();
         onSendTransferErrorEvent = new LiveEvent<>();
         onReceiveTransferErrorEvent = new LiveEvent<>();
+        this.getLastTransfersUseCase = getLastTransfersUseCase;
         this.receiverServiceExecutor = receiverServiceExecutor;
         this.receiverListenerReceiver = receiverListenerReceiver;
         this.fileSenderReceiver = fileSenderReceiver;
-        this.getLastTransfersUseCase = getLastTransfersUseCase;
 
         this.receiverListenerReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
             @Override
@@ -167,6 +170,10 @@ public class TransfersViewModel extends ViewModel {
         return onReceiveTransferSucceededEvent;
     }
 
+    public LiveEvent<ErrorModel> getOnErrorEvent() {
+        return onErrorEvent;
+    }
+
     public LiveEvent<Pair<Transfer, ErrorModel>> getOnSendTransferErrorEvent() {
         return onSendTransferErrorEvent;
     }
@@ -195,7 +202,7 @@ public class TransfersViewModel extends ViewModel {
 
                     @Override
                     public void onError(Exception e) {
-                        //triggerErrorEvent("Error retrieving stored transfers", e.getMessage());
+                        triggerErrorEvent("Error retrieving stored transfers", e.getMessage());
                         loading.postValue(false);
                     }
                 });
@@ -210,6 +217,10 @@ public class TransfersViewModel extends ViewModel {
             }
         }
         transfersLiveData.postValue(transfers);
+    }
+
+    private void triggerErrorEvent(String title, String message) {
+        onErrorEvent.postValue(new ErrorModel(title, message));
     }
 
     private void triggerSendTransferErrorEvent(Transfer transfer, ErrorModel error) {
