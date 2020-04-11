@@ -110,7 +110,7 @@ public class FileSenderProtocol {
 
             @Override
             public void onSuccess(TransferFile file) {
-                transfer.setStatus(Transfer.TransferStatus.SUCCEEDED);
+                transfer.setStatus(Transfer.TransferStatus.COMPLETED);
                 callback.onSuccess(transfer, file);
             }
         };

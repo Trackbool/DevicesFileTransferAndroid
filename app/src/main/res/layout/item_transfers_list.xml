@@ -29,26 +29,24 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:maxLines="2"
-            android:ellipsize="end"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_toEndOf="@+id/transferIconImageView"
-            android:textSize="20sp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textSize="18sp"
             tools:text="IMG-001.png" />
 
         <TextView
             android:id="@+id/foreignDeviceTextView"
-            android:layout_width="308dp"
+            android:layout_width="155dp"
             android:layout_height="19dp"
             android:layout_below="@+id/transferFileTextView"
-            android:layout_alignParentEnd="true"
-            android:maxLines="2"
-            android:ellipsize="end"
             android:layout_marginStart="1dp"
             android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
             android:layout_toEndOf="@+id/transferIconImageView"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:textSize="14sp"
             tools:text="Xiaomi Redmi Note 3" />
 
@@ -58,10 +56,25 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/foreignDeviceTextView"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="0dp"
             android:textSize="12sp"
-            tools:text="20/12/2020 15:20" />
+            tools:text="20-12-2020 15:20:24" />
+
+        <TextView
+            android:id="@+id/transferStatus"
+            android:layout_width="101dp"
+            android:layout_height="19dp"
+            android:layout_below="@+id/transferFileTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_toEndOf="@+id/foreignDeviceTextView"
+            android:textAlignment="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="Not Started" />
 
         <TextView
             android:id="@+id/transferPercentage"
@@ -82,8 +95,8 @@
             android:layout_marginStart="9dp"
             android:layout_marginTop="2dp"
             android:layout_toEndOf="@+id/transferPercentage"
-            app:srcCompat="@drawable/incoming_arrow"
-            android:contentDescription="@string/incoming_outgoing_icon_description" />
+            android:contentDescription="@string/incoming_outgoing_icon_description"
+            app:srcCompat="@drawable/incoming_arrow" />
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

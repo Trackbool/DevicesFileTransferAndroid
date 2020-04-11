@@ -104,7 +104,7 @@ public class FileReceiverProtocol {
 
             @Override
             public void onSuccess(File file) {
-                transfer.setStatus(Transfer.TransferStatus.SUCCEEDED);
+                transfer.setStatus(Transfer.TransferStatus.COMPLETED);
                 callback.onSuccess(transfer, file);
             }
         };

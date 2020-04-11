@@ -93,13 +93,17 @@ public class Transfer implements Serializable {
         NOT_STARTED("Not started"),
         TRANSFERRING("Transferring"),
         FAILED("Failed"),
-        SUCCEEDED("Succeeded"),
+        COMPLETED("Completed"),
         CANCELED("Canceled");
 
         private String value;
 
         TransferStatus(String value) {
             this.value = value;
+        }
+
+        public String getValue() {
+            return value;
         }
     }
 

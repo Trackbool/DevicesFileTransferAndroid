@@ -107,6 +107,7 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onFailure(Transfer transfer, Exception e) {
+                transfersLiveData.postValue(transfers);
                 triggerReceiveTransferErrorEvent(transfer,
                         new ErrorModel("Receiving error", e.getMessage()));
             }
@@ -118,6 +119,7 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onSuccess(Transfer transfer, File file) {
+                transfersLiveData.postValue(transfers);
                 onReceiveTransferSucceededEvent.postValue(new Pair<>(transfer, file));
             }
         };
@@ -133,6 +135,7 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onFailure(Transfer transfer, Exception e) {
+                transfersLiveData.postValue(transfers);
                 triggerSendTransferErrorEvent(transfer,
                         new ErrorModel("Sending error", e.getMessage()));
             }
@@ -144,6 +147,7 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onSuccess(Transfer transfer, TransferFile file) {
+                transfersLiveData.postValue(transfers);
                 File transferFile = new File(file.getPath());
                 onSendTransferSucceededEvent.postValue(new Pair<>(transfer, transferFile));
             }
