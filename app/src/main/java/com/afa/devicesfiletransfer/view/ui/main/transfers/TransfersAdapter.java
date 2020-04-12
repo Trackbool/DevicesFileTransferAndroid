@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.util.file.FileType;
+import com.afa.devicesfiletransfer.util.file.FileUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
         holder.itemView.setBackgroundColor(Color.TRANSPARENT);
 
         Transfer transfer = transfers.get(position);
-        holder.icon.setImageResource(R.drawable.mobile_icon);
+        holder.icon.setImageResource(getMediaIcon(transfer.getFileName()));
         holder.fileName.setText(transfer.getFileName());
         holder.foreignDevice.setText(transfer.getDeviceName());
         holder.percentage.setText(transfer.getProgressPercentage());
@@ -59,6 +61,21 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
         holder.status.setText(transfer.getStatus().getValue());
         holder.inOutArrow.setImageResource(
                 transfer.isIncoming() ? R.drawable.incoming_arrow : R.drawable.outgoing_arrow);
+    }
+
+    private int getMediaIcon(String fileName) {
+        FileType fileType = FileUtils.getFileType(fileName);
+
+        switch (fileType) {
+            case AUDIO:
+                return R.drawable.audio_icon;
+            case IMAGE:
+                return R.drawable.image_icon;
+            case VIDEO:
+                return R.drawable.video_icon;
+            default:
+                return R.drawable.file_icon;
+        }
     }
 
     @Override
