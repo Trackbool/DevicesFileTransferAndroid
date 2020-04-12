@@ -20,9 +20,10 @@ import androidx.lifecycle.ViewModel;
 public class SendTransferViewModel extends ViewModel {
     private final List<Transfer> transfers;
     private final MutableLiveData<List<Transfer>> transfersLiveData;
-    private final MutableLiveData<Transfer> onTransferProgressUpdatedEvent;
-    private final MutableLiveData<Pair<Transfer, TransferFile>> onTransferSucceededEvent;
     private final MutableLiveData<TransferFile> attachedFile;
+    private final LiveEvent<Transfer> onTransferProgressUpdatedEvent;
+    private final LiveEvent<Pair<Transfer, TransferFile>> onTransferSucceededEvent;
+    private final LiveEvent<Pair<Transfer, ErrorModel>> onSendTransferErrorEvent;
     private final LiveEvent<AlertModel> alertEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private FileSenderServiceExecutor fileSenderExecutor;
@@ -33,9 +34,10 @@ public class SendTransferViewModel extends ViewModel {
                                  FileSenderReceiver fileSenderReceiver) {
         transfers = new ArrayList<>();
         transfersLiveData = new MutableLiveData<>();
-        onTransferProgressUpdatedEvent = new MutableLiveData<>();
-        onTransferSucceededEvent = new MutableLiveData<>();
+        onTransferProgressUpdatedEvent = new LiveEvent<>();
+        onTransferSucceededEvent = new LiveEvent<>();
         attachedFile = new MutableLiveData<>();
+        onSendTransferErrorEvent = new LiveEvent<>();
         alertEvent = new LiveEvent<>();
         errorEvent = new LiveEvent<>();
 
@@ -44,7 +46,8 @@ public class SendTransferViewModel extends ViewModel {
         fileSenderCallback = new FileSenderProtocol.Callback() {
             @Override
             public void onInitializationFailure(Transfer transfer, Exception e) {
-
+                triggerSendTransferErrorEvent(transfer,
+                        new ErrorModel("Sending error", e.getMessage()));
             }
 
             @Override
@@ -116,6 +119,10 @@ public class SendTransferViewModel extends ViewModel {
         }
 
         fileSenderExecutor.send(devices, attachedFile.getValue());
+    }
+
+    private void triggerSendTransferErrorEvent(Transfer transfer, ErrorModel error) {
+        onSendTransferErrorEvent.postValue(new Pair<>(transfer, error));
     }
 
     private void triggerErrorEvent(String title, String message) {

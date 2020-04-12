@@ -129,7 +129,8 @@ public class TransfersViewModel extends ViewModel {
         return new FileSenderProtocol.Callback() {
             @Override
             public void onInitializationFailure(Transfer transfer, Exception e) {
-
+                triggerSendTransferErrorEvent(transfer,
+                        new ErrorModel("Sending error", e.getMessage()));
             }
 
             @Override
