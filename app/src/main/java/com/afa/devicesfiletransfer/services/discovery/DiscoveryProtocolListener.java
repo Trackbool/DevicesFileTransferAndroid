@@ -1,6 +1,9 @@
 package com.afa.devicesfiletransfer.services.discovery;
 
+import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.DeviceFactory;
 import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
+import com.afa.devicesfiletransfer.domain.model.DiscoveryOperation;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -13,25 +16,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DiscoveryProtocolListener {
     private final NetworkDataProvider networkDataProvider;
-    private final String devicePropertiesJson;
     private final int port;
     private Callback callback;
     private DatagramSocket serverSocket;
     private AtomicBoolean listening;
 
     public DiscoveryProtocolListener(NetworkDataProvider networkDataProvider,
-                                     DeviceProperties deviceProperties,
                                      int port) {
         this.networkDataProvider = networkDataProvider;
-        this.devicePropertiesJson = new Gson().toJson(deviceProperties);
         this.port = port;
         this.listening = new AtomicBoolean(false);
     }
 
     public DiscoveryProtocolListener(NetworkDataProvider networkDataProvider,
-                                     DeviceProperties deviceProperties,
                                      int port, Callback callback) {
-        this(networkDataProvider, deviceProperties, port);
+        this(networkDataProvider, port);
         this.callback = callback;
     }
 
@@ -68,7 +67,6 @@ public class DiscoveryProtocolListener {
             try {
                 DatagramPacket receivePacket = receiveRequest();
                 InetAddress senderAddress = receivePacket.getAddress();
-                int senderPort = receivePacket.getPort();
                 String receivedMessage = new String(receivePacket.getData(),
                         receivePacket.getOffset(),
                         receivePacket.getLength());
@@ -77,14 +75,17 @@ public class DiscoveryProtocolListener {
                     continue;
                 }
 
-                if (isDiscoveryMessage(receivedMessage)) {
+                DiscoveryOperation discoveryOperation = new Gson()
+                        .fromJson(receivedMessage, DiscoveryOperation.class);
+
+                if (discoveryOperation.getName().equals("discovery")) {
                     if (callback != null) {
-                        callback.discoveryRequestReceived(senderAddress, senderPort);
+                        notifyDiscoveryRequest(senderAddress, discoveryOperation.getDeviceProperties());
                     }
                     sendResponse(senderAddress);
                 } else {
                     if (callback != null) {
-                        notifyDiscoveryResponse(senderAddress, senderPort, receivedMessage);
+                        notifyDiscoveryResponse(senderAddress, discoveryOperation.getDeviceProperties());
                     }
                 }
             } catch (IOException ignored) {
@@ -100,7 +101,9 @@ public class DiscoveryProtocolListener {
     }
 
     private void sendResponse(InetAddress senderAddress) throws IOException {
-        byte[] sendData = devicePropertiesJson.getBytes();
+        DiscoveryOperation discoveryOperation =
+                new DiscoveryOperation("response", DeviceFactory.getCurrentDeviceProperties());
+        byte[] sendData = new Gson().toJson(discoveryOperation).getBytes();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, senderAddress, port);
         serverSocket.send(sendPacket);
     }
@@ -117,25 +120,25 @@ public class DiscoveryProtocolListener {
         return false;
     }
 
-    private boolean isDiscoveryMessage(String message) {
-        return message.equals("discovery");
+    private void notifyDiscoveryRequest(InetAddress senderAddress, DeviceProperties deviceProperties) {
+        String name = deviceProperties.getName();
+        String os = deviceProperties.getOs();
+        Device device = new Device(name, os, senderAddress);
+        callback.discoveryRequestReceived(device);
     }
 
-    private void notifyDiscoveryResponse(InetAddress senderAddress, int senderPort, String message) {
-        try {
-            DeviceProperties deviceProperties = new Gson()
-                    .fromJson(message, DeviceProperties.class);
-            callback.discoveryResponseReceived(senderAddress, senderPort, deviceProperties);
-        } catch (Exception e) {
-            System.err.println("Protocol message error: " + e.getMessage());
-        }
+    private void notifyDiscoveryResponse(InetAddress senderAddress, DeviceProperties deviceProperties) {
+        String name = deviceProperties.getName();
+        String os = deviceProperties.getOs();
+        Device device = new Device(name, os, senderAddress);
+        callback.discoveryResponseReceived(device);
     }
 
     public interface Callback {
         void initializationFailure(Exception e);
 
-        void discoveryRequestReceived(InetAddress senderAddress, int senderPort);
+        void discoveryRequestReceived(Device device);
 
-        void discoveryResponseReceived(InetAddress senderAddress, int senderPort, DeviceProperties deviceProperties);
+        void discoveryResponseReceived(Device device);
     }
 }

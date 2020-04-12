@@ -10,4 +10,10 @@ public class DeviceFactory {
         String os = SystemUtils.getOs();
         return new Device(name, os, deviceAddress);
     }
+
+    public static DeviceProperties getCurrentDeviceProperties() {
+        String name = SystemUtils.getSystemName();
+        String os = SystemUtils.getOs();
+        return new DeviceProperties(name, os);
+    }
 }

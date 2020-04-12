@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.R;
+import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerFactory;
@@ -99,18 +100,14 @@ public class DevicesDiscoveryService extends Service {
                     }
 
                     @Override
-                    public void discoveryRequestReceived(InetAddress senderAddress, int senderPort) {
-                        bundle.putSerializable("senderAddress", senderAddress);
-                        bundle.putInt("senderPort", senderPort);
+                    public void discoveryRequestReceived(Device device) {
+                        bundle.putParcelable("device", device);
                         sendToAllReceivers(REQUEST_RECEIVED, bundle);
                     }
 
                     @Override
-                    public void discoveryResponseReceived(InetAddress senderAddress, int senderPort,
-                                                          DeviceProperties deviceProperties) {
-                        bundle.putSerializable("senderAddress", senderAddress);
-                        bundle.putInt("senderPort", senderPort);
-                        bundle.putSerializable("deviceProperties", deviceProperties);
+                    public void discoveryResponseReceived(Device device) {
+                        bundle.putParcelable("device", device);
                         sendToAllReceivers(RESPONSE_RECEIVED, bundle);
                     }
                 });

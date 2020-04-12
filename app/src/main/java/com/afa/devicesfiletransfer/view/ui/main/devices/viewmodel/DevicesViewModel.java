@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModel;
 public class DevicesViewModel extends ViewModel {
     private final List<Device> devices;
     private final MutableLiveData<List<Device>> devicesLiveData;
-    private final LiveEvent<InetAddress> discoveryRequestReceivedEvent;
+    private final LiveEvent<Device> discoveryRequestReceivedEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private DevicesDiscoveryExecutor devicesDiscoveryExecutor;
     private DevicesDiscoveryReceiver devicesDiscoveryReceiver;
@@ -52,18 +52,13 @@ public class DevicesViewModel extends ViewModel {
             }
 
             @Override
-            public void discoveryRequestReceived(InetAddress senderAddress, int senderPort) {
-                discoveryRequestReceivedEvent.postValue(senderAddress);
+            public void discoveryRequestReceived(Device device) {
+                addDeviceIfNotAlreadyInTheList(device);
             }
 
             @Override
-            public void discoveryResponseReceived(InetAddress senderAddress, int senderPort, DeviceProperties deviceProperties) {
-                String deviceName = deviceProperties.getName();
-                String os = deviceProperties.getOs();
-                Device device = new Device(deviceName, os, senderAddress);
-
-                devices.add(device);
-                devicesLiveData.postValue(devices);
+            public void discoveryResponseReceived(Device device) {
+                addDeviceIfNotAlreadyInTheList(device);
             }
         };
         this.devicesDiscoveryReceiver.setCallback(discoveryProtocolCallback);
@@ -77,7 +72,7 @@ public class DevicesViewModel extends ViewModel {
         return devicesLiveData;
     }
 
-    public LiveEvent<InetAddress> getDiscoveryRequestReceivedEvent() {
+    public LiveEvent<Device> getDiscoveryRequestReceivedEvent() {
         return discoveryRequestReceivedEvent;
     }
 
@@ -92,6 +87,13 @@ public class DevicesViewModel extends ViewModel {
             devicesLiveData.postValue(devices);
         } catch (SocketException e) {
             triggerErrorEvent("Discover error", e.getMessage());
+        }
+    }
+
+    private void addDeviceIfNotAlreadyInTheList(Device device) {
+        if (!devices.contains(device)) {
+            devices.add(device);
+            devicesLiveData.postValue(devices);
         }
     }
 

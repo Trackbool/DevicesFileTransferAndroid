@@ -1,5 +1,9 @@
 package com.afa.devicesfiletransfer.services.discovery;
 
+import com.afa.devicesfiletransfer.domain.model.DeviceFactory;
+import com.afa.devicesfiletransfer.domain.model.DiscoveryOperation;
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -33,12 +37,15 @@ public class DiscoveryProtocolSender {
         for (InetAddress a : addresses) {
             try {
                 sendDiscovery(a);
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
     }
 
     private void sendDiscovery(InetAddress address) throws IOException {
-        byte[] sendData = "discovery".getBytes();
+        DiscoveryOperation discoveryOperation =
+                new DiscoveryOperation("discovery", DeviceFactory.getCurrentDeviceProperties());
+        byte[] sendData = new Gson().toJson(discoveryOperation).getBytes();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
         socket.send(sendPacket);
     }

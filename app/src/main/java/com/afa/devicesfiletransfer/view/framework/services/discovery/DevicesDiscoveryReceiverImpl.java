@@ -9,12 +9,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 
-import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
+import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
-
-import java.net.InetAddress;
 
 public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
 
@@ -53,18 +51,14 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
                         break;
                     case DevicesDiscoveryService.REQUEST_RECEIVED:
                         if (callback != null) {
-                            InetAddress senderAddress = (InetAddress) resultData.getSerializable("senderAddress");
-                            int senderPort = resultData.getInt("senderPort");
-                            callback.discoveryRequestReceived(senderAddress, senderPort);
+                            Device device = resultData.getParcelable("device");
+                            callback.discoveryRequestReceived(device);
                         }
                         break;
                     case DevicesDiscoveryService.RESPONSE_RECEIVED:
                         if (callback != null) {
-                            InetAddress senderAddress = (InetAddress) resultData.getSerializable("senderAddress");
-                            int senderPort = resultData.getInt("senderPort");
-                            DeviceProperties deviceProperties = (DeviceProperties)
-                                    resultData.getSerializable("deviceProperties");
-                            callback.discoveryResponseReceived(senderAddress, senderPort, deviceProperties);
+                            Device device = resultData.getParcelable("device");
+                            callback.discoveryResponseReceived(device);
                         }
                         break;
                 }
