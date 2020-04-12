@@ -2,6 +2,7 @@ package com.afa.devicesfiletransfer.services.transfer.receiver;
 
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.google.gson.Gson;
 
 import java.io.DataInputStream;
@@ -69,13 +70,9 @@ public class FileReceiverProtocol {
             return String.valueOf(System.currentTimeMillis());
         }
 
-        String[] tokens = fileNameWithExtension.split("\\.(?=[^\\.]+$)");
-        String resultFileName = tokens[0] + "_" + System.currentTimeMillis();
-        if (tokens.length > 1) {
-            String extension = tokens[1];
-            resultFileName = resultFileName + "." + extension;
-        }
-        return resultFileName;
+        return FileUtils.getFileNameWithoutExtension(fileNameWithExtension) +
+                "_" + System.currentTimeMillis() + "." +
+                FileUtils.getFileExtension(fileNameWithExtension);
     }
 
     public void cancel() {

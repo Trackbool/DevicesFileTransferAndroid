@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FileUtils {
-    public static final String EXTENSION_REGEX = "\\.(?=[^.]+$)";
+    private static final String EXTENSION_REGEX = "\\.(?=[^.]+$)";
 
     private static final List<String> audioExtensions =
             Arrays.asList("wav", "aiff", "mp3", "aac", "ogg", "wma", "flac", "alac");
@@ -28,6 +28,13 @@ public class FileUtils {
         }
 
         return FileType.OTHER;
+    }
+
+    public static String getFileNameWithoutExtension(String fileName) {
+        if (fileName == null || fileName.isEmpty())
+            return "";
+
+        return fileName.split(EXTENSION_REGEX)[0];
     }
 
     public static String getFileExtension(String fileName) {
