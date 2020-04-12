@@ -128,6 +128,11 @@ public class TransfersViewModel extends ViewModel {
     private FileSenderProtocol.Callback createFileSenderCallback() {
         return new FileSenderProtocol.Callback() {
             @Override
+            public void onInitializationFailure(Transfer transfer, Exception e) {
+
+            }
+
+            @Override
             public void onStart(Transfer transfer) {
                 transfers.add(transfer);
                 transfersLiveData.postValue(transfers);

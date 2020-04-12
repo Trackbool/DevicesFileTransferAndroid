@@ -54,6 +54,13 @@ public class FileSenderReceiverImpl implements FileSenderReceiver {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
                 switch (resultCode) {
+                    case FilesSenderService.INITIALIZATION_FAILURE:
+                        if (callback != null) {
+                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
+                            Exception exception = (Exception) resultData.getSerializable("exception");
+                            callback.onInitializationFailure(transfer, exception);
+                        }
+                        break;
                     case FilesSenderService.START:
                         if (callback != null) {
                             Transfer transfer = (Transfer) resultData.getSerializable("transfer");

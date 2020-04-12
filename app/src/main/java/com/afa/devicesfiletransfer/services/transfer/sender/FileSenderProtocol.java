@@ -56,7 +56,7 @@ public class FileSenderProtocol {
         if (!file.exists()) {
             transfer.setStatus(Transfer.TransferStatus.FAILED);
             if (callback != null) {
-                callback.onFailure(transfer,
+                callback.onInitializationFailure(transfer,
                         new FileNotFoundException("File " + file.getPath() + " doesn´t exists"));
             }
             return;
@@ -71,7 +71,7 @@ public class FileSenderProtocol {
         } catch (IOException e) {
             if (callback != null) {
                 transfer.setStatus(Transfer.TransferStatus.FAILED);
-                callback.onFailure(transfer, e);
+                callback.onInitializationFailure(transfer, e);
             }
         }
     }
@@ -118,6 +118,8 @@ public class FileSenderProtocol {
     }
 
     public interface Callback {
+        void onInitializationFailure(Transfer transfer, Exception e);
+
         void onStart(Transfer transfer);
 
         void onFailure(Transfer transfer, Exception e);

@@ -43,8 +43,12 @@ public class SendTransferViewModel extends ViewModel {
         this.fileSenderReceiver = fileSenderReceiver;
         fileSenderCallback = new FileSenderProtocol.Callback() {
             @Override
+            public void onInitializationFailure(Transfer transfer, Exception e) {
+
+            }
+
+            @Override
             public void onStart(Transfer transfer) {
-                //TODO: Store in database
                 transfers.add(transfer);
                 transfersLiveData.postValue(transfers);
             }

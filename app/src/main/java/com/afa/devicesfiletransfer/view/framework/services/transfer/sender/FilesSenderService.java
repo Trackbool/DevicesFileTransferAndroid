@@ -31,10 +31,11 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class FilesSenderService extends Service {
-    public static final int START = 0;
-    public static final int FAILURE = 1;
-    public static final int PROGRESS_UPDATED = 2;
-    public static final int SUCCESS = 3;
+    public static final int INITIALIZATION_FAILURE = 0;
+    public static final int START = 1;
+    public static final int FAILURE = 2;
+    public static final int PROGRESS_UPDATED = 3;
+    public static final int SUCCESS = 4;
     private static final String CHANNEL_ID = FilesSenderService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
     private SaveTransferUseCase saveTransferUseCase;
@@ -121,6 +122,13 @@ public class FilesSenderService extends Service {
         FileSenderProtocol fileSender = new FileSenderProtocol(device, file);
         final Bundle bundle = new Bundle();
         fileSender.setCallback(new FileSenderProtocol.Callback() {
+            @Override
+            public void onInitializationFailure(Transfer transfer, Exception e) {
+                bundle.putSerializable("transfer", transfer);
+                bundle.putSerializable("exception", e);
+                sendToAllReceivers(FAILURE, bundle);
+            }
+
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Notify the file is sending
