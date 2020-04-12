@@ -60,6 +60,12 @@ public class DevicesViewModel extends ViewModel {
             public void discoveryResponseReceived(Device device) {
                 addDeviceIfNotAlreadyInTheList(device);
             }
+
+            @Override
+            public void discoveryDisconnect(Device device) {
+                devices.remove(device);
+                devicesLiveData.postValue(devices);
+            }
         };
         this.devicesDiscoveryReceiver.setCallback(discoveryProtocolCallback);
     }

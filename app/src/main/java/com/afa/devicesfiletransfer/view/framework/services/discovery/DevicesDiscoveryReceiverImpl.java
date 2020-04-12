@@ -61,6 +61,12 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
                             callback.discoveryResponseReceived(device);
                         }
                         break;
+                    case DevicesDiscoveryService.DISCONNECT:
+                        if (callback != null) {
+                            Device device = resultData.getParcelable("device");
+                            callback.discoveryDisconnect(device);
+                        }
+                        break;
                 }
                 super.onReceiveResult(resultCode, resultData);
             }

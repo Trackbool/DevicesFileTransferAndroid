@@ -32,6 +32,17 @@ public class DiscoveryProtocolSender {
         }).start();
     }
 
+    public void noticeDisconnect() throws SocketException {
+        socket = new DatagramSocket();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                broadcastDisconnect();
+                socket.close();
+            }
+        }).start();
+    }
+
     private void broadcastDiscovery() {
         Set<InetAddress> addresses = network.getIpv4BroadcastAddresses();
         for (InetAddress a : addresses) {
@@ -42,9 +53,27 @@ public class DiscoveryProtocolSender {
         }
     }
 
+    private void broadcastDisconnect() {
+        Set<InetAddress> addresses = network.getIpv4BroadcastAddresses();
+        for (InetAddress a : addresses) {
+            try {
+                sendDisconnect(a);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
     private void sendDiscovery(InetAddress address) throws IOException {
+        sendOperation("discovery", address);
+    }
+
+    private void sendDisconnect(InetAddress address) throws IOException {
+        sendOperation("disconnect", address);
+    }
+
+    private void sendOperation(String operation, InetAddress address) throws IOException {
         DiscoveryOperation discoveryOperation =
-                new DiscoveryOperation("discovery", DeviceFactory.getCurrentDeviceProperties());
+                new DiscoveryOperation(operation, DeviceFactory.getCurrentDeviceProperties());
         byte[] sendData = new Gson().toJson(discoveryOperation).getBytes();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, address, port);
         socket.send(sendPacket);

@@ -13,12 +13,13 @@ import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
-import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerFactory;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSender;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSenderFactory;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;
 
-import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +30,11 @@ public class DevicesDiscoveryService extends Service {
     public static final int INITIALIZATION_FAILURE = 0;
     public static final int REQUEST_RECEIVED = 1;
     public static final int RESPONSE_RECEIVED = 2;
+    public static final int DISCONNECT = 3;
     private static final int DISCOVERY_SERVICE_PORT = 5000;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final IBinder binder = new LocalBinder();
+    private DiscoveryProtocolSender discoverySender;
     private DiscoveryProtocolListener discoveryListener;
     private List<ResultReceiver> receivers = new ArrayList<>();
 
@@ -57,6 +60,7 @@ public class DevicesDiscoveryService extends Service {
 
     @Override
     public void onCreate() {
+        discoverySender = DiscoveryProtocolSenderFactory.getDefault(DISCOVERY_SERVICE_PORT);
         discoveryListener = createDiscoveryListener();
         discoveryListener.start();
         super.onCreate();
@@ -110,6 +114,12 @@ public class DevicesDiscoveryService extends Service {
                         bundle.putParcelable("device", device);
                         sendToAllReceivers(RESPONSE_RECEIVED, bundle);
                     }
+
+                    @Override
+                    public void discoveryDisconnect(Device device) {
+                        bundle.putParcelable("device", device);
+                        sendToAllReceivers(DISCONNECT, bundle);
+                    }
                 });
     }
 
@@ -128,7 +138,15 @@ public class DevicesDiscoveryService extends Service {
 
     @Override
     public void onDestroy() {
+        noticeDisconnected();
         discoveryListener.stop();
         super.onDestroy();
+    }
+
+    private void noticeDisconnected() {
+        try {
+            discoverySender.noticeDisconnect();
+        } catch (SocketException ignored) {
+        }
     }
 }

@@ -78,14 +78,20 @@ public class DiscoveryProtocolListener {
                 DiscoveryOperation discoveryOperation = new Gson()
                         .fromJson(receivedMessage, DiscoveryOperation.class);
 
-                if (discoveryOperation.getName().equals("discovery")) {
+                String operation = discoveryOperation.getName();
+                DeviceProperties deviceProperties = discoveryOperation.getDeviceProperties();
+                if (operation.equals("discovery")) {
                     if (callback != null) {
-                        notifyDiscoveryRequest(senderAddress, discoveryOperation.getDeviceProperties());
+                        notifyDiscoveryRequest(senderAddress, deviceProperties);
                     }
                     sendResponse(senderAddress);
+                } else if (operation.equals("response")) {
+                    if (callback != null) {
+                        notifyDiscoveryResponse(senderAddress, deviceProperties);
+                    }
                 } else {
                     if (callback != null) {
-                        notifyDiscoveryResponse(senderAddress, discoveryOperation.getDeviceProperties());
+                        notifyDiscoveryDisconnect(senderAddress, deviceProperties);
                     }
                 }
             } catch (IOException ignored) {
@@ -134,11 +140,20 @@ public class DiscoveryProtocolListener {
         callback.discoveryResponseReceived(device);
     }
 
+    private void notifyDiscoveryDisconnect(InetAddress senderAddress, DeviceProperties deviceProperties) {
+        String name = deviceProperties.getName();
+        String os = deviceProperties.getOs();
+        Device device = new Device(name, os, senderAddress);
+        callback.discoveryDisconnect(device);
+    }
+
     public interface Callback {
         void initializationFailure(Exception e);
 
         void discoveryRequestReceived(Device device);
 
         void discoveryResponseReceived(Device device);
+
+        void discoveryDisconnect(Device device);
     }
 }
