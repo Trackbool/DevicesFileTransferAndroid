@@ -75,8 +75,13 @@ public class DiscoveryProtocolListener {
                     continue;
                 }
 
-                DiscoveryOperation discoveryOperation = new Gson()
-                        .fromJson(receivedMessage, DiscoveryOperation.class);
+                DiscoveryOperation discoveryOperation;
+                try {
+                    discoveryOperation = new Gson()
+                            .fromJson(receivedMessage, DiscoveryOperation.class);
+                } catch (Exception e) {
+                    continue;
+                }
 
                 String operation = discoveryOperation.getName();
                 DeviceProperties deviceProperties = discoveryOperation.getDeviceProperties();
