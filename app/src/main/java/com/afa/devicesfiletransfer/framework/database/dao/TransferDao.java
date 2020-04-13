@@ -13,7 +13,7 @@ public interface TransferDao {
     @Query("SELECT * FROM transfer")
     List<TransferEntity> getTransfers();
 
-    @Query("SELECT * FROM transfer ORDER BY dateTime(date) DESC LIMIT :max")
+    @Query("SELECT * FROM transfer ORDER BY date DESC LIMIT :max")
     List<TransferEntity> getLastTransfers(int max);
 
     @Insert
