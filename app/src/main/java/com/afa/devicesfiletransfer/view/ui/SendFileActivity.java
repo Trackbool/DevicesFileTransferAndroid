@@ -13,9 +13,9 @@ import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.Pair;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
-import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.model.AlertModel;
@@ -99,7 +99,7 @@ public class SendFileActivity extends AppCompatActivity {
                     @Override
                     public void onChanged(Pair<Transfer, TransferFile> transferTransferFilePair) {
                         Transfer transfer = transferTransferFilePair.getLeft();
-                        showAlert("File sent", "The file " + transfer.getFileName());
+                        showAlert("File sent", "The file " + transfer.getFile().getName());
                     }
                 });
     }
@@ -118,7 +118,7 @@ public class SendFileActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                 Uri uri = data.getData();
                 if (uri != null) {
-                    TransferFile file = new TransferFileImpl(getApplicationContext(), uri);
+                    TransferFile file = TransferFileFactory.getFromUri(getApplicationContext(), uri);
                     sendTransferViewModel.attachFile(file);
                 }
             }

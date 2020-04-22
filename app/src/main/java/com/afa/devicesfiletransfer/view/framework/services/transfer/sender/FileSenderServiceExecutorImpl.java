@@ -7,7 +7,7 @@ import android.os.Build;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
-import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
+import com.afa.devicesfiletransfer.framework.TransferFileUri;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class FileSenderServiceExecutorImpl implements FileSenderServiceExecutor 
     public void send(List<Device> devices, TransferFile file) {
         Intent serviceIntent = new Intent(context, FilesSenderService.class);
         serviceIntent.putParcelableArrayListExtra("devices", new ArrayList<>(devices));
-        serviceIntent.putExtra("file", (TransferFileImpl) file);
+        serviceIntent.putExtra("file", (TransferFileUri) file);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);
         } else {

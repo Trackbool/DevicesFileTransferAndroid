@@ -2,6 +2,7 @@ package com.afa.devicesfiletransfer.services.transfer.receiver;
 
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
 import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.google.gson.Gson;
 
@@ -55,9 +56,9 @@ public class FileReceiverProtocol {
             String fileNameWithExtension = dataInputStream.readUTF();
             String fileName = generateFileName(fileNameWithExtension);
             long fileSize = dataInputStream.readLong();
-            transfer = new Transfer(device, fileName, 0, true);
 
             File file = new File(targetDirectory.getAbsolutePath(), fileName);
+            transfer = new Transfer(device, TransferFileFactory.getFromFile(file), 0, true);
             fileReceiver.receive(file, fileSize, inputStream);
         } catch (IOException e) {
             if (callback != null)

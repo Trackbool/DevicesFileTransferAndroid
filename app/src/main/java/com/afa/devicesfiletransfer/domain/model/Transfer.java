@@ -1,12 +1,13 @@
 package com.afa.devicesfiletransfer.domain.model;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
 public class Transfer implements Serializable {
     private Device device;
-    private String fileName;
+    private TransferFile file;
     private int progress;
     private Date date;
     private boolean incoming;
@@ -17,10 +18,10 @@ public class Transfer implements Serializable {
         status = TransferStatus.NOT_STARTED;
     }
 
-    public Transfer(Device device, String fileName, int progress, boolean incoming) {
+    public Transfer(Device device, TransferFile file, int progress, boolean incoming) {
         this();
         this.device = device;
-        this.fileName = fileName;
+        this.file = file;
         this.progress = progress;
         this.incoming = incoming;
     }
@@ -41,12 +42,22 @@ public class Transfer implements Serializable {
         return device.getIpAddress();
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setFile(TransferFile file) {
+        this.file = file;
     }
 
-    public String getFileName() {
-        return fileName;
+    public TransferFile getFile() {
+        return file;
+    }
+
+    //Method necessary to allow mapping with persistence entity
+    public void setFilePath(String filePath) {
+        file = TransferFileFactory.getFromFile(new File(filePath));
+    }
+
+    //Method necessary to allow mapping with persistence entity
+    public String getFilePath() {
+        return file.getPath();
     }
 
     public void setProgress(int progress) {
@@ -113,13 +124,13 @@ public class Transfer implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Transfer transfer = (Transfer) o;
         return Objects.equals(device, transfer.device) &&
-                Objects.equals(fileName, transfer.fileName) &&
+                Objects.equals(file, transfer.file) &&
                 Objects.equals(date, transfer.date) &&
                 Objects.equals(incoming, transfer.incoming);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(device, fileName, date, incoming);
+        return Objects.hash(device, file, date, incoming);
     }
 }

@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework;
+package com.afa.devicesfiletransfer.framework;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -23,9 +23,6 @@ public class UriWrapper implements Parcelable {
     public UriWrapper(Context context, Uri uri) {
         this.context = context.getApplicationContext();
         this.uri = uri;
-        setUpFileName();
-        setUpLength();
-        setUpRealPath();
     }
 
     public void setContext(Context context) {
@@ -33,15 +30,31 @@ public class UriWrapper implements Parcelable {
     }
 
     public String getFileName() {
+        if (fileName == null)
+            setUpFileName();
+
         return fileName;
     }
 
     public long getLength() {
+        if (length < 1)
+            setUpLength();
+
         return length;
     }
 
     public String getRealPath() {
-        return realPath == null || realPath.isEmpty() ? getFileName() : realPath;
+        if (realPath == null)
+            setUpRealPath();
+
+        if (uri.getPath() != null) {
+            return uri.getPath();
+        }
+        if (realPath != null && realPath.isEmpty()) {
+            return realPath;
+        }
+
+        return getFileName();
     }
 
     public Uri getUri() {
@@ -115,7 +128,7 @@ public class UriWrapper implements Parcelable {
                     return contentUriExists(uri);
                 }
             case "file":
-                default:
+            default:
                 return new File(uri.getPath()).exists();
         }
     }

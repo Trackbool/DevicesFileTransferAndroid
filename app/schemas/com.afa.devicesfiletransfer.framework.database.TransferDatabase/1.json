@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "460f5b2c23580864ed409e56b354b24e",
+    "identityHash": "a30d98358c4ebfa1b5d3dd603eaa86d9",
     "entities": [
       {
         "tableName": "transfer",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `fileName` TEXT NOT NULL, `progress` INTEGER NOT NULL, `date` INTEGER NOT NULL, `status` TEXT NOT NULL, `incoming` INTEGER NOT NULL, `device_name` TEXT NOT NULL, `device_os` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `filePath` TEXT NOT NULL, `progress` INTEGER NOT NULL, `date` INTEGER NOT NULL, `status` TEXT NOT NULL, `incoming` INTEGER NOT NULL, `device_name` TEXT NOT NULL, `device_os` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,8 +15,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "fileName",
-            "columnName": "fileName",
+            "fieldPath": "filePath",
+            "columnName": "filePath",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -69,7 +69,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"460f5b2c23580864ed409e56b354b24e\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"a30d98358c4ebfa1b5d3dd603eaa86d9\")"
     ]
   }
 }

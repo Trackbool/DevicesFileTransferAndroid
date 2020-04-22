@@ -22,10 +22,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.TransfersViewHolder> {
 
-    private List<Transfer> transfers;
+    private final List<Transfer> transfers;
+    private Callback callback;
 
     public TransfersAdapter() {
         transfers = new ArrayList<>();
+    }
+
+    public TransfersAdapter(Callback callback) {
+        this();
+        this.callback = callback;
     }
 
     public void setTransfers(List<Transfer> transfers) {
@@ -51,8 +57,8 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
         holder.itemView.setBackgroundColor(Color.TRANSPARENT);
 
         Transfer transfer = transfers.get(position);
-        holder.icon.setImageResource(getMediaIcon(transfer.getFileName()));
-        holder.fileName.setText(transfer.getFileName());
+        holder.icon.setImageResource(getMediaIcon(transfer.getFile().getName()));
+        holder.fileName.setText(transfer.getFile().getName());
         holder.foreignDevice.setText(transfer.getDeviceName());
         holder.percentage.setText(transfer.getProgressPercentage());
         SimpleDateFormat simpleDateFormat =
@@ -106,6 +112,22 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
             percentage = itemView.findViewById(R.id.transferPercentage);
             status = itemView.findViewById(R.id.transferStatus);
             inOutArrow = itemView.findViewById(R.id.inOutArrowImageView);
+
+            if (callback != null) {
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (getAdapterPosition() == RecyclerView.NO_POSITION) return;
+
+                        Transfer clickedTransfer = transfers.get(getAdapterPosition());
+                        callback.onClick(clickedTransfer);
+                    }
+                });
+            }
         }
+    }
+
+    public interface Callback {
+        void onClick(Transfer transfer);
     }
 }

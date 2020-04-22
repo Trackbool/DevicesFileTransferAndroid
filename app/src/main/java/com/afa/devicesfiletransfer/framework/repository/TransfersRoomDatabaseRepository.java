@@ -4,12 +4,12 @@ import android.content.Context;
 
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.repository.TransfersRepository;
+import com.afa.devicesfiletransfer.framework.ModelMapperFactory;
 import com.afa.devicesfiletransfer.framework.database.TransferDatabase;
 import com.afa.devicesfiletransfer.framework.database.dao.TransferDao;
 import com.afa.devicesfiletransfer.framework.database.entities.TransferEntity;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,7 @@ public class TransfersRoomDatabaseRepository implements TransfersRepository {
     private final TransferDao transferDao;
 
     public TransfersRoomDatabaseRepository(Context context) {
-        modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper = ModelMapperFactory.getInstance();
 
         Context applicationContext = context.getApplicationContext();
         TransferDatabase database = Room.databaseBuilder(

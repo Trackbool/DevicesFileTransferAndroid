@@ -19,7 +19,7 @@ import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.framework.repository.TransfersRoomDatabaseRepository;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.usecases.SaveTransferUseCase;
-import com.afa.devicesfiletransfer.view.framework.TransferFileImpl;
+import com.afa.devicesfiletransfer.framework.TransferFileUri;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +81,7 @@ public class FilesSenderService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         final List<Device> devices = intent.getParcelableArrayListExtra("devices");
-        final TransferFileImpl file = intent.getParcelableExtra("file");
+        final TransferFileUri file = intent.getParcelableExtra("file");
         file.setContext(getApplicationContext());
 
         for (final Device device : devices) {
@@ -159,7 +159,7 @@ public class FilesSenderService extends Service {
                 //TODO: Notify transfer succeeded
                 inProgressTransfers.remove(transfer);
                 bundle.putSerializable("transfer", transfer);
-                bundle.putParcelable("file", (TransferFileImpl) file);
+                bundle.putParcelable("file", (TransferFileUri) file);
                 sendToAllReceivers(SUCCESS, bundle);
                 persistTransfer(transfer);
             }

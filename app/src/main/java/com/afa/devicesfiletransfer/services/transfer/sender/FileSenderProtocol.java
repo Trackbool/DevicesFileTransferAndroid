@@ -7,6 +7,7 @@ import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.google.gson.Gson;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,7 +27,7 @@ public class FileSenderProtocol {
         this.remoteDevice = remoteDevice;
         this.file = file;
         this.fileSender = new FileSender(file);
-        transfer = new Transfer(remoteDevice, file.getName(), 0, false);
+        transfer = new Transfer(remoteDevice, file, 0, false);
     }
 
     public FileSenderProtocol(Device remoteDevice, TransferFile file, Callback callback) {
