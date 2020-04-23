@@ -2,7 +2,10 @@ package com.afa.devicesfiletransfer.services.transfer.sender;
 
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,7 +51,9 @@ public class FileSender {
             sentCount.set(0);
             int sent;
             int currentPercentage = 0;
-            while ((sent = fileReader.read(buffer, 0, buffer.length)) != -1) {
+
+            while ((sent = fileReader.read(buffer, 0, getRemaining())) != -1
+                    && sentCount.get() < file.length()) {
                 if (!sending.get() || Thread.interrupted()) return;
                 output.write(buffer, 0, sent);
                 sentCount.getAndAdd(sent);
@@ -77,6 +82,15 @@ public class FileSender {
 
     public void cancel() {
         sending.set(false);
+    }
+
+    private int getRemaining() {
+        long remaining = (file.length() - sentCount.get());
+        if (remaining > BUFFER_SIZE) {
+            return BUFFER_SIZE;
+        }
+
+        return (int) remaining < 0? 0 : (int) remaining;
     }
 
     public interface Callback {

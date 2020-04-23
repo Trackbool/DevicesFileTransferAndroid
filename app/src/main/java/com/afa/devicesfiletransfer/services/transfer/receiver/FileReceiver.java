@@ -1,6 +1,10 @@
 package com.afa.devicesfiletransfer.services.transfer.receiver;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,7 +52,9 @@ public class FileReceiver {
             receivedCount.set(0);
             int received;
             int currentPercentage = 0;
-            while ((received = inputStream.read(buffer, 0, buffer.length)) != -1) {
+
+            while ((received = inputStream.read(buffer, 0, getRemaining())) != -1
+                    && receivedCount.get() < fileSize) {
                 if (!receiving.get() || Thread.interrupted()) return;
                 fileWriter.write(buffer, 0, received);
                 receivedCount.getAndAdd(received);
@@ -73,6 +79,15 @@ public class FileReceiver {
         } finally {
             receiving.set(false);
         }
+    }
+
+    private int getRemaining() {
+        long remaining = (fileSize - receivedCount.get());
+        if (remaining > BUFFER_SIZE) {
+            return BUFFER_SIZE;
+        }
+
+        return (int) remaining < 0? 0 : (int) remaining;
     }
 
     public void cancel() {
