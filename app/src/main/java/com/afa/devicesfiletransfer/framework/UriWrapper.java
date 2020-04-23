@@ -101,7 +101,8 @@ public class UriWrapper implements Parcelable {
         try {
             String[] projection = {MediaStore.Images.Media.DATA};
             try {
-                cursor = context.getContentResolver().query(uri, projection, null, null, null);
+                cursor = context.getContentResolver()
+                        .query(uri, projection, null, null, null);
                 if (cursor != null) {
                     int column_index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
                     cursor.moveToFirst();
@@ -122,42 +123,16 @@ public class UriWrapper implements Parcelable {
 
         switch (uri.getScheme()) {
             case "content":
-                if (DocumentsContract.isDocumentUri(context, uri)) {
-                    return documentUriExists(uri);
-                } else {
-                    return contentUriExists(uri);
+                try (Cursor cursor = context.getContentResolver()
+                        .query(uri, null, null, null, null)) {
+                    return (cursor != null && cursor.getCount() > 0) && getLength() > -1;
+                } catch (Exception e) {
+                    return false;
                 }
             case "file":
             default:
                 return new File(uri.getPath()).exists();
         }
-    }
-
-    private boolean documentUriExists(Uri uri) {
-        return resolveUri(uri, DocumentsContract.Document.COLUMN_DOCUMENT_ID);
-    }
-
-    private boolean contentUriExists(Uri uri) {
-        return resolveUri(uri, BaseColumns._ID);
-    }
-
-    private boolean resolveUri(Uri uri, String column) {
-        boolean result = false;
-
-        Cursor cursor;
-        try {
-            cursor = context.getContentResolver()
-                    .query(uri, new String[]{column}, null, null, null);
-        } catch (Exception e) {
-            return false;
-        }
-
-        if (cursor != null) {
-            result = cursor.moveToFirst();
-            cursor.close();
-        }
-
-        return result;
     }
 
     @Override

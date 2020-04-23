@@ -113,10 +113,9 @@ public class SendFileActivity extends AppCompatActivity {
     private void browseFile() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(
-                intent,
-                BROWSE_FILES_RESULT_CODE);
+        startActivityForResult(intent, BROWSE_FILES_RESULT_CODE);
     }
 
     @Override

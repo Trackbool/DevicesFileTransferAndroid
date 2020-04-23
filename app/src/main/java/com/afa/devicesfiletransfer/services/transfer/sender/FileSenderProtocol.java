@@ -52,12 +52,14 @@ public class FileSenderProtocol {
             isSending = true;
             outputStream.writeInt(files.size());
             for (TransferFile file : files) {
-                final Transfer transfer = new Transfer(remoteDevice, file, 0, false);
+                final Transfer transfer = new Transfer(
+                        remoteDevice, file, 0, false);
                 if (!file.exists()) {
                     transfer.setStatus(Transfer.TransferStatus.FAILED);
                     if (callback != null) {
                         callback.onTransferInitializationFailure(transfer,
-                                new FileNotFoundException("File " + file.getPath() + " doesn´t exists"));
+                                new FileNotFoundException("File " + file.getPath() + " doesn´t " +
+                                        "exists or cannot be accessed"));
                     }
                     continue;
                 }
