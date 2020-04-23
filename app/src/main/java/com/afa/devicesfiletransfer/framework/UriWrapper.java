@@ -47,14 +47,14 @@ public class UriWrapper implements Parcelable {
         if (realPath == null)
             setUpRealPath();
 
-        if (uri.getPath() != null) {
-            return uri.getPath();
-        }
-        if (realPath != null && realPath.isEmpty()) {
+        if (realPath != null && !realPath.isEmpty()) {
             return realPath;
         }
+        if (getFileName() != null) {
+            return fileName;
+        }
 
-        return getFileName();
+        return uri.getPath();
     }
 
     public Uri getUri() {
