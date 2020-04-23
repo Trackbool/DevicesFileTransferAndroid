@@ -32,10 +32,11 @@ import androidx.core.app.NotificationCompat;
 
 public class FilesSenderService extends Service {
     public static final int INITIALIZATION_FAILURE = 0;
-    public static final int START = 1;
-    public static final int FAILURE = 2;
-    public static final int PROGRESS_UPDATED = 3;
-    public static final int SUCCESS = 4;
+    public static final int TRANSFER_INITIALIZATION_FAILURE = 1;
+    public static final int START = 2;
+    public static final int FAILURE = 3;
+    public static final int PROGRESS_UPDATED = 4;
+    public static final int SUCCESS = 5;
     private static final String CHANNEL_ID = FilesSenderService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
     private SaveTransferUseCase saveTransferUseCase;
@@ -81,14 +82,19 @@ public class FilesSenderService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         final List<Device> devices = intent.getParcelableArrayListExtra("devices");
-        final TransferFileUri file = intent.getParcelableExtra("file");
-        file.setContext(getApplicationContext());
+
+        final List<TransferFileUri> intentFiles = intent.getParcelableArrayListExtra("files");
+        final List<TransferFile> files = new ArrayList<>();
+        for (final TransferFileUri file : intentFiles) {
+            file.setContext(getApplicationContext());
+            files.add(file);
+        }
 
         for (final Device device : devices) {
             fileSendingExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    final FileSenderProtocol fileSenderProtocol = createFileSender(device, file);
+                    final FileSenderProtocol fileSenderProtocol = createFileSender(device, files);
                     fileSenderProtocol.send();
                 }
             });
@@ -118,15 +124,21 @@ public class FilesSenderService extends Service {
         }
     }
 
-    private FileSenderProtocol createFileSender(Device device, TransferFile file) {
-        FileSenderProtocol fileSender = new FileSenderProtocol(device, file);
+    private FileSenderProtocol createFileSender(Device device, List<TransferFile> files) {
+        FileSenderProtocol fileSender = new FileSenderProtocol(device, files);
         final Bundle bundle = new Bundle();
         fileSender.setCallback(new FileSenderProtocol.Callback() {
             @Override
-            public void onInitializationFailure(Transfer transfer, Exception e) {
+            public void onInitializationFailure() {
+                sendToAllReceivers(INITIALIZATION_FAILURE, bundle);
+            }
+
+            @Override
+            public void onTransferInitializationFailure(Transfer transfer, Exception e) {
+                inProgressTransfers.remove(transfer);
                 bundle.putSerializable("transfer", transfer);
                 bundle.putSerializable("exception", e);
-                sendToAllReceivers(FAILURE, bundle);
+                sendToAllReceivers(TRANSFER_INITIALIZATION_FAILURE, bundle);
             }
 
             @Override

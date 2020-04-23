@@ -14,55 +14,56 @@ import java.io.InputStream;
 public class FileReceiverProtocol {
     private File targetDirectory;
     private Callback callback;
-    private FileReceiver fileReceiver;
-    private Transfer transfer;
+    private boolean isReceiving;
 
     public FileReceiverProtocol(File targetDirectory) {
         this.targetDirectory = targetDirectory;
-        fileReceiver = new FileReceiver();
+        isReceiving = false;
     }
 
     public FileReceiverProtocol(File targetDirectory, Callback callback) {
-        this.targetDirectory = targetDirectory;
+        this(targetDirectory);
         this.callback = callback;
-        this.fileReceiver = createFileReceiver(callback);
     }
 
     public void setCallback(Callback callback) {
         this.callback = callback;
-        this.fileReceiver = createFileReceiver(callback);
     }
 
     public File getTargetDirectory() {
         return targetDirectory;
     }
 
-    public Transfer getTransfer() {
-        return transfer;
-    }
-
     public boolean isReceiving() {
-        return fileReceiver.isReceiving();
-    }
-
-    public int getSentPercentage() {
-        return fileReceiver.getReceivedPercentage();
+        return isReceiving;
     }
 
     public void receive(InputStream inputStream) {
         try (DataInputStream dataInputStream = new DataInputStream(inputStream)) {
-            String deviceJson = dataInputStream.readUTF();
-            Device device = new Gson().fromJson(deviceJson, Device.class);
-            String fileNameWithExtension = dataInputStream.readUTF();
-            String fileName = generateFileName(fileNameWithExtension);
-            long fileSize = dataInputStream.readLong();
+            isReceiving = true;
+            int numberOfFiles = dataInputStream.readInt();
 
-            File file = new File(targetDirectory.getAbsolutePath(), fileName);
-            transfer = new Transfer(device, TransferFileFactory.getFromFile(file), 0, true);
-            fileReceiver.receive(file, fileSize, inputStream);
+            for (int i = 0; i < numberOfFiles; i++) {
+                try {
+                    String deviceJson = dataInputStream.readUTF();
+                    Device device = new Gson().fromJson(deviceJson, Device.class);
+                    String fileNameWithExtension = dataInputStream.readUTF();
+                    String fileName = generateFileName(fileNameWithExtension);
+                    long fileSize = dataInputStream.readLong();
+                    File file = new File(targetDirectory.getAbsolutePath(), fileName);
+                    final Transfer transfer = new Transfer(
+                            device, TransferFileFactory.getFromFile(file), 0, true);
+                    FileReceiver fileReceiver = createFileReceiver(transfer, callback);
+                    fileReceiver.receive(file, fileSize, inputStream);
+                } catch (IOException ignored) {
+                }
+            }
         } catch (IOException e) {
-            if (callback != null)
-                callback.onFailure(transfer, e);
+            if (callback != null) {
+                callback.onInitializationFailure();
+            }
+        } finally {
+            isReceiving = false;
         }
     }
 
@@ -71,16 +72,10 @@ public class FileReceiverProtocol {
             return String.valueOf(System.currentTimeMillis());
         }
 
-        return FileUtils.getFileNameWithoutExtension(fileNameWithExtension) +
-                "_" + System.currentTimeMillis() + "." +
-                FileUtils.getFileExtension(fileNameWithExtension);
+        return fileNameWithExtension;
     }
 
-    public void cancel() {
-        fileReceiver.cancel();
-    }
-
-    private FileReceiver createFileReceiver(final Callback callback) {
+    private FileReceiver createFileReceiver(final Transfer transfer, final Callback callback) {
         FileReceiver.Callback fileReceiverCallback = new FileReceiver.Callback() {
             @Override
             public void onStart() {
@@ -95,8 +90,8 @@ public class FileReceiverProtocol {
             }
 
             @Override
-            public void onProgressUpdated() {
-                transfer.setProgress(fileReceiver.getReceivedPercentage());
+            public void onProgressUpdated(int percentage) {
+                transfer.setProgress(percentage);
                 callback.onProgressUpdated(transfer);
             }
 
@@ -110,6 +105,8 @@ public class FileReceiverProtocol {
     }
 
     public interface Callback {
+        void onInitializationFailure();
+
         void onStart(Transfer transfer);
 
         void onFailure(Transfer transfer, Exception e);

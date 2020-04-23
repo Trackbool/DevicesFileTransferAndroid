@@ -20,7 +20,8 @@ import androidx.lifecycle.ViewModel;
 public class SendTransferViewModel extends ViewModel {
     private final List<Transfer> transfers;
     private final MutableLiveData<List<Transfer>> transfersLiveData;
-    private final MutableLiveData<TransferFile> attachedFile;
+    private List<TransferFile> attachedFiles;
+    private final MutableLiveData<List<TransferFile>> attachedFilesLiveData;
     private final LiveEvent<Transfer> onTransferProgressUpdatedEvent;
     private final LiveEvent<Pair<Transfer, TransferFile>> onTransferSucceededEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onSendTransferErrorEvent;
@@ -36,7 +37,8 @@ public class SendTransferViewModel extends ViewModel {
         transfersLiveData = new MutableLiveData<>();
         onTransferProgressUpdatedEvent = new LiveEvent<>();
         onTransferSucceededEvent = new LiveEvent<>();
-        attachedFile = new MutableLiveData<>();
+        attachedFiles = new ArrayList<>();
+        attachedFilesLiveData = new MutableLiveData<>();
         onSendTransferErrorEvent = new LiveEvent<>();
         alertEvent = new LiveEvent<>();
         errorEvent = new LiveEvent<>();
@@ -44,10 +46,15 @@ public class SendTransferViewModel extends ViewModel {
         this.fileSenderExecutor = fileSenderExecutor;
         this.fileSenderReceiver = fileSenderReceiver;
         fileSenderCallback = new FileSenderProtocol.Callback() {
+
             @Override
-            public void onInitializationFailure(Transfer transfer, Exception e) {
-                triggerSendTransferErrorEvent(transfer,
-                        new ErrorModel("Sending error", e.getMessage()));
+            public void onInitializationFailure() {
+
+            }
+
+            @Override
+            public void onTransferInitializationFailure(Transfer transfer, Exception e) {
+                triggerErrorEvent("Sending error", e.getMessage());
             }
 
             @Override
@@ -90,8 +97,8 @@ public class SendTransferViewModel extends ViewModel {
         return onTransferSucceededEvent;
     }
 
-    public MutableLiveData<TransferFile> getAttachedFile() {
-        return attachedFile;
+    public MutableLiveData<List<TransferFile>> getAttachedFiles() {
+        return attachedFilesLiveData;
     }
 
     public LiveEvent<AlertModel> getAlertEvent() {
@@ -102,23 +109,24 @@ public class SendTransferViewModel extends ViewModel {
         return errorEvent;
     }
 
-    public void attachFile(TransferFile file) {
-        this.attachedFile.postValue(file);
+    public void attachFiles(List<TransferFile> files) {
+        this.attachedFiles = files;
+        this.attachedFilesLiveData.postValue(files);
     }
 
     public void sendFile(List<Device> devices) {
-        if (attachedFile.getValue() == null) {
+        if (attachedFiles.isEmpty()) {
             triggerErrorEvent("No file attached", "You must attach a file");
             return;
         }
 
-        if (devices == null || devices.size() == 0) {
+        if (devices == null || devices.isEmpty()) {
             showAlert("No device selected",
                     "You must select one or more devices to send the file");
             return;
         }
 
-        fileSenderExecutor.send(devices, attachedFile.getValue());
+        fileSenderExecutor.send(devices, attachedFiles);
     }
 
     private void triggerSendTransferErrorEvent(Transfer transfer, ErrorModel error) {

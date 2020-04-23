@@ -56,7 +56,7 @@ public class FileReceiver {
                 int receivedPercentage = getReceivedPercentage();
                 if (callback != null && currentPercentage < receivedPercentage) {
                     currentPercentage = receivedPercentage;
-                    callback.onProgressUpdated();
+                    callback.onProgressUpdated(currentPercentage);
                 }
             }
             if (callback != null) {
@@ -84,7 +84,7 @@ public class FileReceiver {
 
         void onFailure(Exception e);
 
-        void onProgressUpdated();
+        void onProgressUpdated(int percentage);
 
         void onSuccess(File file);
     }

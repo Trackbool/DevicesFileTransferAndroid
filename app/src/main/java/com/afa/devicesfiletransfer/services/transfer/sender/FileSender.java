@@ -42,8 +42,8 @@ public class FileSender {
         sending.set(true);
         if (callback != null)
             callback.onStart();
-        try (InputStream fileReader = file.getInputStream();
-             DataOutputStream output = new DataOutputStream(outputStream)) {
+        try (InputStream fileReader = file.getInputStream()) {
+            DataOutputStream output = new DataOutputStream(outputStream);
             byte[] buffer = new byte[BUFFER_SIZE];
             sentCount.set(0);
             int sent;
@@ -56,7 +56,7 @@ public class FileSender {
                 int sentPercentage = getSentPercentage();
                 if (callback != null && currentPercentage < sentPercentage) {
                     currentPercentage = sentPercentage;
-                    callback.onProgressUpdated();
+                    callback.onProgressUpdated(currentPercentage);
                 }
             }
             if (callback != null) {
@@ -84,7 +84,7 @@ public class FileSender {
 
         void onFailure(Exception e);
 
-        void onProgressUpdated();
+        void onProgressUpdated(int percentage);
 
         void onSuccess(TransferFile file);
     }

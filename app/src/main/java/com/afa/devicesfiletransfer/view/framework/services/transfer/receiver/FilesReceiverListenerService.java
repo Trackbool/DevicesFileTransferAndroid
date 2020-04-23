@@ -137,6 +137,11 @@ public class FilesReceiverListenerService extends Service {
         final Bundle bundle = new Bundle();
         fileReceiver.setCallback(new FileReceiverProtocol.Callback() {
             @Override
+            public void onInitializationFailure() {
+
+            }
+
+            @Override
             public void onStart(Transfer transfer) {
                 //TODO: Transfer received in notification
                 inProgressTransfers.add(transfer);

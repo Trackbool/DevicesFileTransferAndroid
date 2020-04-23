@@ -24,6 +24,7 @@ import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferV
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class SendFileActivity extends AppCompatActivity {
     private List<Device> devices;
     private TextView attachedFileNameTextView;
 
-    private static final int BROWSE_FILE_RESULT_CODE = 10;
+    private static final int BROWSE_FILES_RESULT_CODE = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +77,15 @@ public class SendFileActivity extends AppCompatActivity {
                 new SendTransferViewModelFactory(fileSenderExecutor, fileSenderReceiver))
                 .get(SendTransferViewModel.class);
 
-        sendTransferViewModel.getAttachedFile().observe(this, new Observer<TransferFile>() {
+        sendTransferViewModel.getAttachedFiles().observe(this, new Observer<List<TransferFile>>() {
             @Override
-            public void onChanged(TransferFile transferFile) {
-                attachedFileNameTextView.setText(transferFile.getName());
+            public void onChanged(List<TransferFile> transferFiles) {
+                StringBuilder sb = new StringBuilder();
+                for (TransferFile file : transferFiles) {
+                    sb.append(file.getName()).append(", ");
+                }
+                String resultText = sb.substring(0, sb.length() - 2);
+                attachedFileNameTextView.setText(resultText);
             }
         });
         sendTransferViewModel.getAlertEvent().observe(this, new Observer<AlertModel>() {
@@ -105,22 +111,33 @@ public class SendFileActivity extends AppCompatActivity {
     }
 
     private void browseFile() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("*/*");
-        intent = Intent.createChooser(intent, "Choose a file");
-        startActivityForResult(intent, BROWSE_FILE_RESULT_CODE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(
+                intent,
+                BROWSE_FILES_RESULT_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == BROWSE_FILE_RESULT_CODE) {
-            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                Uri uri = data.getData();
-                if (uri != null) {
-                    TransferFile file = TransferFileFactory.getFromUri(getApplicationContext(), uri);
-                    sendTransferViewModel.attachFile(file);
+        if (requestCode == BROWSE_FILES_RESULT_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                List<TransferFile> files = new ArrayList<>();
+                if (data.getClipData() != null) {
+                    int filesCount = data.getClipData().getItemCount();
+                    for (int i = 0; i < filesCount; i++) {
+                        Uri uri = data.getClipData().getItemAt(i).getUri();
+                        files.add(TransferFileFactory.getFromUri(getApplicationContext(), uri));
+                    }
+                } else if (data.getData() != null) {
+                    Uri uri = data.getData();
+                    files.add(TransferFileFactory.getFromUri(getApplicationContext(), uri));
                 }
+
+                if (!files.isEmpty())
+                    sendTransferViewModel.attachFiles(files);
             }
         }
     }
