@@ -87,7 +87,7 @@ public class FileReceiver {
             return BUFFER_SIZE;
         }
 
-        return (int) remaining < 0? 0 : (int) remaining;
+        return Math.max((int) remaining, 0);
     }
 
     public void cancel() {
