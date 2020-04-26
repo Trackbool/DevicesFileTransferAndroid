@@ -34,17 +34,13 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class FilesReceiverListenerService extends Service {
-    public static final int START = 0;
-    public static final int FAILURE = 1;
-    public static final int PROGRESS_UPDATED = 2;
-    public static final int SUCCESS = 3;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final static int TRANSFER_SERVICE_PORT = 5001;
     private SaveTransferUseCase saveTransferUseCase;
     private FilesReceiverListener filesReceiverListener;
     private ThreadPoolExecutor fileReceivingExecutor;
     private final IBinder binder = new FilesReceiverListenerService.LocalBinder();
-    private List<ResultReceiver> receivers = new ArrayList<>();
+    private List<FileReceiverProtocol.Callback> callbackReceivers = new ArrayList<>();
     private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
@@ -57,12 +53,14 @@ public class FilesReceiverListenerService extends Service {
         fileReceivingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
     }
 
-    public void addResultReceiver(ResultReceiver resultReceiver) {
-        receivers.add(resultReceiver);
+    public void addCallbackReceiver(FileReceiverProtocol.Callback callbackReceiver) {
+        if (!callbackReceivers.contains(callbackReceiver)) {
+            callbackReceivers.add(callbackReceiver);
+        }
     }
 
-    public void removeResultReceiver(ResultReceiver resultReceiver) {
-        receivers.remove(resultReceiver);
+    public void removeCallbackReceiver(FileReceiverProtocol.Callback callbackReceiver) {
+        callbackReceivers.remove(callbackReceiver);
     }
 
     public List<Transfer> getInProgressTransfers() {
@@ -134,7 +132,6 @@ public class FilesReceiverListenerService extends Service {
 
     private FileReceiverProtocol createFileReceiver() {
         final FileReceiverProtocol fileReceiver = new FileReceiverProtocol(SystemUtils.getDownloadsDirectory());
-        final Bundle bundle = new Bundle();
         fileReceiver.setCallback(new FileReceiverProtocol.Callback() {
             @Override
             public void onInitializationFailure() {
@@ -142,37 +139,39 @@ public class FilesReceiverListenerService extends Service {
             }
 
             @Override
-            public void onStart(Transfer transfer) {
+            public  void onStart(Transfer transfer) {
                 //TODO: Transfer received in notification
                 inProgressTransfers.add(transfer);
-                bundle.putSerializable("transfer", transfer);
-                sendToAllReceivers(START, bundle);
+                for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
+                    callbackReceiver.onStart(transfer);
+                }
             }
 
             @Override
             public void onFailure(Transfer transfer, Exception e) {
                 //TODO: Transfer error in notification
                 inProgressTransfers.remove(transfer);
-                bundle.putSerializable("transfer", transfer);
-                bundle.putSerializable("exception", e);
-                sendToAllReceivers(FAILURE, bundle);
+                for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
+                    callbackReceiver.onFailure(transfer, e);
+                }
                 persistTransfer(transfer);
             }
 
             @Override
             public void onProgressUpdated(Transfer transfer) {
                 //TODO: Update progress in notification
-                bundle.putSerializable("transfer", transfer);
-                sendToAllReceivers(PROGRESS_UPDATED, bundle);
+                for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
+                    callbackReceiver.onProgressUpdated(transfer);
+                }
             }
 
             @Override
             public void onSuccess(Transfer transfer, File file) {
                 notifySystemAboutNewFile(file);
                 inProgressTransfers.remove(transfer);
-                bundle.putSerializable("transfer", transfer);
-                bundle.putSerializable("file", file);
-                sendToAllReceivers(SUCCESS, bundle);
+                for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
+                    callbackReceiver.onSuccess(transfer, file);
+                }
                 persistTransfer(transfer);
             }
         });
@@ -204,14 +203,6 @@ public class FilesReceiverListenerService extends Service {
                 new String[]{file.toString()},
                 new String[]{file.getName()},
                 null);
-    }
-
-    private void sendToAllReceivers(int resultCode, Bundle resultData) {
-        for (ResultReceiver resultReceiver : receivers) {
-            if (resultReceiver != null) {
-                resultReceiver.send(resultCode, resultData);
-            }
-        }
     }
 
     @Override

@@ -21,7 +21,6 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
     private ServiceConnectionCallback serviceConnectionCallback;
     private DiscoveryProtocolListener.Callback callback;
     private DevicesDiscoveryService boundService;
-    private ResultReceiver resultReceiver;
 
     public DevicesDiscoveryReceiverImpl(Context context) {
         this.context = context;
@@ -39,39 +38,6 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
 
     @Override
     public void receive() {
-        resultReceiver = new ResultReceiver(new Handler()) {
-            @Override
-            protected void onReceiveResult(int resultCode, Bundle resultData) {
-                switch (resultCode) {
-                    case DevicesDiscoveryService.INITIALIZATION_FAILURE:
-                        if (callback != null) {
-                            Exception exception = (Exception) resultData.getSerializable("exception");
-                            callback.initializationFailure(exception);
-                        }
-                        break;
-                    case DevicesDiscoveryService.REQUEST_RECEIVED:
-                        if (callback != null) {
-                            Device device = resultData.getParcelable("device");
-                            callback.discoveryRequestReceived(device);
-                        }
-                        break;
-                    case DevicesDiscoveryService.RESPONSE_RECEIVED:
-                        if (callback != null) {
-                            Device device = resultData.getParcelable("device");
-                            callback.discoveryResponseReceived(device);
-                        }
-                        break;
-                    case DevicesDiscoveryService.DISCONNECT:
-                        if (callback != null) {
-                            Device device = resultData.getParcelable("device");
-                            callback.discoveryDisconnect(device);
-                        }
-                        break;
-                }
-                super.onReceiveResult(resultCode, resultData);
-            }
-        };
-
         Intent serviceIntent = new Intent(context, DevicesDiscoveryService.class);
         context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
     }
@@ -79,8 +45,7 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
     @Override
     public void stop() {
         if (boundService != null)
-            boundService.removeResultReceiver(resultReceiver);
-        resultReceiver = null;
+            boundService.removeCallbackReceiver(callback);
         if (mBound)
             context.unbindService(connection);
     }
@@ -92,7 +57,7 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
                                        IBinder service) {
             DevicesDiscoveryService.LocalBinder binder = (DevicesDiscoveryService.LocalBinder) service;
             boundService = binder.getService();
-            boundService.addResultReceiver(resultReceiver);
+            boundService.addCallbackReceiver(callback);
             mBound = true;
 
             if (serviceConnectionCallback != null) {

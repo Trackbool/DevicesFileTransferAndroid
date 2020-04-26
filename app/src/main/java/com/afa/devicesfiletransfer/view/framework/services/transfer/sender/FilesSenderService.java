@@ -7,19 +7,17 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.afa.devicesfiletransfer.R;
-import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
+import com.afa.devicesfiletransfer.framework.TransferFileUri;
 import com.afa.devicesfiletransfer.framework.repository.TransfersRoomDatabaseRepository;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.usecases.SaveTransferUseCase;
-import com.afa.devicesfiletransfer.framework.TransferFileUri;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,17 +29,11 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class FilesSenderService extends Service {
-    public static final int INITIALIZATION_FAILURE = 0;
-    public static final int TRANSFER_INITIALIZATION_FAILURE = 1;
-    public static final int START = 2;
-    public static final int FAILURE = 3;
-    public static final int PROGRESS_UPDATED = 4;
-    public static final int SUCCESS = 5;
     private static final String CHANNEL_ID = FilesSenderService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
     private SaveTransferUseCase saveTransferUseCase;
     private final IBinder binder = new FilesSenderService.LocalBinder();
-    private List<ResultReceiver> receivers = new ArrayList<>();
+    private List<FileSenderProtocol.Callback> callbackReceivers = new ArrayList<>();
     private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
@@ -54,12 +46,14 @@ public class FilesSenderService extends Service {
         fileSendingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
     }
 
-    public void addResultReceiver(ResultReceiver resultReceiver) {
-        receivers.add(resultReceiver);
+    public void addCallbackReceiver(FileSenderProtocol.Callback callbackReceiver) {
+        if (!callbackReceivers.contains(callbackReceiver)) {
+            callbackReceivers.add(callbackReceiver);
+        }
     }
 
-    public void removeResultReceiver(ResultReceiver resultReceiver) {
-        receivers.remove(resultReceiver);
+    public void removeCallbackReceiver(FileSenderProtocol.Callback callbackReceiver) {
+        callbackReceivers.remove(callbackReceiver);
     }
 
     public List<Transfer> getInProgressTransfers() {
@@ -126,53 +120,56 @@ public class FilesSenderService extends Service {
 
     private FileSenderProtocol createFileSender(Device device, List<TransferFile> files) {
         FileSenderProtocol fileSender = new FileSenderProtocol(device, files);
-        final Bundle bundle = new Bundle();
         fileSender.setCallback(new FileSenderProtocol.Callback() {
             @Override
             public void onInitializationFailure() {
-                sendToAllReceivers(INITIALIZATION_FAILURE, bundle);
+                for (FileSenderProtocol.Callback callback : callbackReceivers) {
+                    callback.onInitializationFailure();
+                }
             }
 
             @Override
             public void onTransferInitializationFailure(Transfer transfer, Exception e) {
                 inProgressTransfers.remove(transfer);
-                bundle.putSerializable("transfer", transfer);
-                bundle.putSerializable("exception", e);
-                sendToAllReceivers(TRANSFER_INITIALIZATION_FAILURE, bundle);
+                for (FileSenderProtocol.Callback callback : callbackReceivers) {
+                    callback.onTransferInitializationFailure(transfer, e);
+                }
             }
 
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Notify the file is sending
                 inProgressTransfers.add(transfer);
-                bundle.putSerializable("transfer", transfer);
-                sendToAllReceivers(START, bundle);
+                for (FileSenderProtocol.Callback callback : callbackReceivers) {
+                    callback.onStart(transfer);
+                }
             }
 
             @Override
             public void onFailure(Transfer transfer, Exception e) {
                 //TODO: Notify failure in transfer
                 inProgressTransfers.remove(transfer);
-                bundle.putSerializable("transfer", transfer);
-                bundle.putSerializable("exception", e);
-                sendToAllReceivers(FAILURE, bundle);
+                for (FileSenderProtocol.Callback callback : callbackReceivers) {
+                    callback.onFailure(transfer, e);
+                }
                 persistTransfer(transfer);
             }
 
             @Override
             public void onProgressUpdated(Transfer transfer) {
                 //TODO: Update the progress in notification
-                bundle.putSerializable("transfer", transfer);
-                sendToAllReceivers(PROGRESS_UPDATED, bundle);
+                for (FileSenderProtocol.Callback callback : callbackReceivers) {
+                    callback.onProgressUpdated(transfer);
+                }
             }
 
             @Override
             public void onSuccess(Transfer transfer, TransferFile file) {
                 //TODO: Notify transfer succeeded
                 inProgressTransfers.remove(transfer);
-                bundle.putSerializable("transfer", transfer);
-                bundle.putParcelable("file", (TransferFileUri) file);
-                sendToAllReceivers(SUCCESS, bundle);
+                for (FileSenderProtocol.Callback callback : callbackReceivers) {
+                    callback.onSuccess(transfer, file);
+                }
                 persistTransfer(transfer);
             }
         });
@@ -204,14 +201,6 @@ public class FilesSenderService extends Service {
     private void finishServiceIfThereAreNoMoreTransfers() {
         if (inProgressTransfers.size() == 0) {
             stopSelf();
-        }
-    }
-
-    private void sendToAllReceivers(int resultCode, Bundle resultData) {
-        for (ResultReceiver resultReceiver : receivers) {
-            if (resultReceiver != null) {
-                resultReceiver.send(resultCode, resultData);
-            }
         }
     }
 

@@ -17,6 +17,7 @@ import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerFactory;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSender;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSenderFactory;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;
 
 import java.net.SocketException;
@@ -27,16 +28,12 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class DevicesDiscoveryService extends Service {
-    public static final int INITIALIZATION_FAILURE = 0;
-    public static final int REQUEST_RECEIVED = 1;
-    public static final int RESPONSE_RECEIVED = 2;
-    public static final int DISCONNECT = 3;
     private static final int DISCOVERY_SERVICE_PORT = 5000;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final IBinder binder = new LocalBinder();
     private DiscoveryProtocolSender discoverySender;
     private DiscoveryProtocolListener discoveryListener;
-    private List<ResultReceiver> receivers = new ArrayList<>();
+    private List<DiscoveryProtocolListener.Callback> callbackReceivers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
         DevicesDiscoveryService getService() {
@@ -44,12 +41,14 @@ public class DevicesDiscoveryService extends Service {
         }
     }
 
-    public void addResultReceiver(ResultReceiver resultReceiver) {
-        receivers.add(resultReceiver);
+    public void addCallbackReceiver(DiscoveryProtocolListener.Callback callbackReceiver) {
+        if (!callbackReceivers.contains(callbackReceiver)) {
+            callbackReceivers.add(callbackReceiver);
+        }
     }
 
-    public void removeResultReceiver(ResultReceiver resultReceiver) {
-        receivers.remove(resultReceiver);
+    public void removeCallbackReceiver(DiscoveryProtocolListener.Callback callbackReceiver) {
+        callbackReceivers.remove(callbackReceiver);
     }
 
     @Nullable
@@ -93,42 +92,37 @@ public class DevicesDiscoveryService extends Service {
     }
 
     private DiscoveryProtocolListener createDiscoveryListener() {
-        final Bundle bundle = new Bundle();
         return DiscoveryProtocolListenerFactory
                 .getDefault(DISCOVERY_SERVICE_PORT, new DiscoveryProtocolListener.Callback() {
                     @Override
                     public void initializationFailure(Exception e) {
-                        bundle.putSerializable("exception", e);
-                        sendToAllReceivers(INITIALIZATION_FAILURE, bundle);
+                        for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
+                            callback.initializationFailure(e);
+                        }
                         stopSelf();
                     }
 
                     @Override
                     public void discoveryRequestReceived(Device device) {
-                        bundle.putParcelable("device", device);
-                        sendToAllReceivers(REQUEST_RECEIVED, bundle);
+                        for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
+                            callback.discoveryRequestReceived(device);
+                        }
                     }
 
                     @Override
                     public void discoveryResponseReceived(Device device) {
-                        bundle.putParcelable("device", device);
-                        sendToAllReceivers(RESPONSE_RECEIVED, bundle);
+                        for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
+                            callback.discoveryResponseReceived(device);
+                        }
                     }
 
                     @Override
                     public void discoveryDisconnect(Device device) {
-                        bundle.putParcelable("device", device);
-                        sendToAllReceivers(DISCONNECT, bundle);
+                        for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
+                            callback.discoveryDisconnect(device);
+                        }
                     }
                 });
-    }
-
-    private void sendToAllReceivers(int resultCode, Bundle resultData) {
-        for (ResultReceiver resultReceiver : receivers) {
-            if (resultReceiver != null) {
-                resultReceiver.send(resultCode, resultData);
-            }
-        }
     }
 
     @Override

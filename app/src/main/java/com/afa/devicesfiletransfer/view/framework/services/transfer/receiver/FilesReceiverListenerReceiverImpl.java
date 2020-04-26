@@ -4,17 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
 
-import java.io.File;
 import java.util.List;
 
 public class FilesReceiverListenerReceiverImpl implements FilesReceiverListenerReceiver {
@@ -24,7 +20,6 @@ public class FilesReceiverListenerReceiverImpl implements FilesReceiverListenerR
     private ServiceConnectionCallback serviceConnectionCallback;
     private FileReceiverProtocol.Callback callback;
     private FilesReceiverListenerService boundService;
-    private ResultReceiver resultReceiver;
 
     public FilesReceiverListenerReceiverImpl(Context context) {
         this.context = context;
@@ -51,41 +46,6 @@ public class FilesReceiverListenerReceiverImpl implements FilesReceiverListenerR
 
     @Override
     public void receive() {
-        resultReceiver = new ResultReceiver(new Handler()) {
-            @Override
-            protected void onReceiveResult(int resultCode, Bundle resultData) {
-                switch (resultCode) {
-                    case FilesReceiverListenerService.START:
-                        if (callback != null) {
-                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
-                            callback.onStart(transfer);
-                        }
-                        break;
-                    case FilesReceiverListenerService.PROGRESS_UPDATED:
-                        if (callback != null) {
-                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
-                            callback.onProgressUpdated(transfer);
-                        }
-                        break;
-                    case FilesReceiverListenerService.FAILURE:
-                        if (callback != null) {
-                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
-                            Exception exception = (Exception) resultData.getSerializable("exception");
-                            callback.onFailure(transfer, exception);
-                        }
-                        break;
-                    case FilesReceiverListenerService.SUCCESS:
-                        if (callback != null) {
-                            Transfer transfer = (Transfer) resultData.getSerializable("transfer");
-                            File file = (File) resultData.getSerializable("file");
-                            callback.onSuccess(transfer, file);
-                        }
-                        break;
-                }
-                super.onReceiveResult(resultCode, resultData);
-            }
-        };
-
         Intent serviceIntent = new Intent(context, FilesReceiverListenerService.class);
         context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
     }
@@ -93,8 +53,7 @@ public class FilesReceiverListenerReceiverImpl implements FilesReceiverListenerR
     @Override
     public void stop() {
         if (boundService != null)
-            boundService.removeResultReceiver(resultReceiver);
-        resultReceiver = null;
+            boundService.removeCallbackReceiver(callback);
         if (mBound)
             context.unbindService(connection);
     }
@@ -106,7 +65,7 @@ public class FilesReceiverListenerReceiverImpl implements FilesReceiverListenerR
                                        IBinder service) {
             FilesReceiverListenerService.LocalBinder binder = (FilesReceiverListenerService.LocalBinder) service;
             boundService = binder.getService();
-            boundService.addResultReceiver(resultReceiver);
+            boundService.addCallbackReceiver(callback);
             mBound = true;
 
             if (serviceConnectionCallback != null) {
