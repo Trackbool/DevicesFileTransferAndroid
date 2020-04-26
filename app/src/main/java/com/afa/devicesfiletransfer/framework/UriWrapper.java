@@ -1,15 +1,15 @@
 package com.afa.devicesfiletransfer.framework;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
-import android.provider.BaseColumns;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
 
@@ -75,7 +75,8 @@ public class UriWrapper implements Parcelable {
         String result = null;
         if (uri.getScheme() != null && uri.getScheme().equals("content")) {
             try (Cursor cursor = context.getContentResolver()
-                    .query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+                    .query(uri, new String[]{OpenableColumns.DISPLAY_NAME},
+                            null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
@@ -92,7 +93,25 @@ public class UriWrapper implements Parcelable {
                 }
             }
         }
+
+        if (!hasExtension(result)) {
+            String extension = getExtension();
+            if (extension != null && !extension.equals("")) {
+                result = result + "." + extension;
+            }
+        }
+
         fileName = result;
+    }
+
+    private boolean hasExtension(String fileName) {
+        return fileName != null && fileName.contains(".");
+    }
+
+    public String getExtension() {
+        ContentResolver contentResolver = context.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
     private void setUpRealPath() {
