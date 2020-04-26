@@ -97,7 +97,9 @@ public class DevicesDiscoveryService extends Service {
                     @Override
                     public void initializationFailure(Exception e) {
                         for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
-                            callback.initializationFailure(e);
+                            if (callback != null) {
+                                callback.initializationFailure(e);
+                            }
                         }
                         stopSelf();
                     }
@@ -105,21 +107,27 @@ public class DevicesDiscoveryService extends Service {
                     @Override
                     public void discoveryRequestReceived(Device device) {
                         for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
-                            callback.discoveryRequestReceived(device);
+                            if (callback != null) {
+                                callback.discoveryRequestReceived(device);
+                            }
                         }
                     }
 
                     @Override
                     public void discoveryResponseReceived(Device device) {
                         for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
-                            callback.discoveryResponseReceived(device);
+                            if (callback != null) {
+                                callback.discoveryResponseReceived(device);
+                            }
                         }
                     }
 
                     @Override
                     public void discoveryDisconnect(Device device) {
                         for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {
-                            callback.discoveryDisconnect(device);
+                            if (callback != null) {
+                                callback.discoveryDisconnect(device);
+                            }
                         }
                     }
                 });

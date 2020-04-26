@@ -65,7 +65,6 @@ public class SendFileActivity extends AppCompatActivity {
         });
 
         initializeSendTransferViewModel();
-        sendTransferViewModel.onStart();
     }
 
     private void initializeSendTransferViewModel() {
@@ -157,8 +156,14 @@ public class SendFileActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        sendTransferViewModel.onDestroy();
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
+        sendTransferViewModel.onHideView();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        sendTransferViewModel.onShowView();
     }
 }

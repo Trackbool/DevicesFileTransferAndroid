@@ -143,7 +143,9 @@ public class FilesReceiverListenerService extends Service {
                 //TODO: Transfer received in notification
                 inProgressTransfers.add(transfer);
                 for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
-                    callbackReceiver.onStart(transfer);
+                    if (callbackReceiver != null) {
+                        callbackReceiver.onStart(transfer);
+                    }
                 }
             }
 
@@ -152,7 +154,9 @@ public class FilesReceiverListenerService extends Service {
                 //TODO: Transfer error in notification
                 inProgressTransfers.remove(transfer);
                 for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
-                    callbackReceiver.onFailure(transfer, e);
+                    if (callbackReceiver != null) {
+                        callbackReceiver.onFailure(transfer, e);
+                    }
                 }
                 persistTransfer(transfer);
             }
@@ -161,7 +165,9 @@ public class FilesReceiverListenerService extends Service {
             public void onProgressUpdated(Transfer transfer) {
                 //TODO: Update progress in notification
                 for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
-                    callbackReceiver.onProgressUpdated(transfer);
+                    if (callbackReceiver != null) {
+                        callbackReceiver.onProgressUpdated(transfer);
+                    }
                 }
             }
 
@@ -170,7 +176,9 @@ public class FilesReceiverListenerService extends Service {
                 notifySystemAboutNewFile(file);
                 inProgressTransfers.remove(transfer);
                 for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
-                    callbackReceiver.onSuccess(transfer, file);
+                    if (callbackReceiver != null) {
+                        callbackReceiver.onSuccess(transfer, file);
+                    }
                 }
                 persistTransfer(transfer);
             }
