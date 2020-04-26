@@ -134,7 +134,7 @@ public class TransfersViewModel extends ViewModel {
         return new FileSenderProtocol.Callback() {
 
             @Override
-            public void onInitializationFailure() {
+            public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
 
             }
 

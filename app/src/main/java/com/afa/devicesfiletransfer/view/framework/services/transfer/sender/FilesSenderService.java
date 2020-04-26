@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -34,6 +35,7 @@ public class FilesSenderService extends Service {
     private SaveTransferUseCase saveTransferUseCase;
     private final IBinder binder = new FilesSenderService.LocalBinder();
     private List<FileSenderProtocol.Callback> callbackReceivers = new ArrayList<>();
+    private AtomicInteger notStartedTransfersNum = new AtomicInteger(0);
     private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
@@ -85,10 +87,12 @@ public class FilesSenderService extends Service {
         }
 
         for (final Device device : devices) {
+            final FileSenderProtocol fileSenderProtocol = createFileSender(device, files);
+            notStartedTransfersNum.getAndAdd(fileSenderProtocol.getTransfersNum());
+
             fileSendingExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    final FileSenderProtocol fileSenderProtocol = createFileSender(device, files);
                     fileSenderProtocol.send();
                 }
             });
@@ -122,14 +126,16 @@ public class FilesSenderService extends Service {
         FileSenderProtocol fileSender = new FileSenderProtocol(device, files);
         fileSender.setCallback(new FileSenderProtocol.Callback() {
             @Override
-            public void onInitializationFailure() {
+            public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
+                notStartedTransfersNum.getAndAdd(-fileSenderProtocol.getTransfersNum());
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
-                    callback.onInitializationFailure();
+                    callback.onInitializationFailure(fileSenderProtocol);
                 }
             }
 
             @Override
             public void onTransferInitializationFailure(Transfer transfer, Exception e) {
+                notStartedTransfersNum.decrementAndGet();
                 inProgressTransfers.remove(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
                     callback.onTransferInitializationFailure(transfer, e);
@@ -139,6 +145,7 @@ public class FilesSenderService extends Service {
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Notify the file is sending
+                notStartedTransfersNum.decrementAndGet();
                 inProgressTransfers.add(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
                     callback.onStart(transfer);
@@ -199,7 +206,7 @@ public class FilesSenderService extends Service {
     }
 
     private void finishServiceIfThereAreNoMoreTransfers() {
-        if (inProgressTransfers.size() == 0) {
+        if (notStartedTransfersNum.get() == 0 && inProgressTransfers.size() == 0) {
             stopSelf();
         }
     }

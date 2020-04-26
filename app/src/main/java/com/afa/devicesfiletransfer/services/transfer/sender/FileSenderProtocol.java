@@ -38,6 +38,10 @@ public class FileSenderProtocol {
         this.callback = callback;
     }
 
+    public int getTransfersNum() {
+        return files.size();
+    }
+
     public boolean isSending() {
         return isSending;
     }
@@ -76,7 +80,7 @@ public class FileSenderProtocol {
             }
         } catch (IOException e) {
             if (callback != null) {
-                callback.onInitializationFailure();
+                callback.onInitializationFailure(this);
             }
         } finally {
             isSending = false;
@@ -119,7 +123,7 @@ public class FileSenderProtocol {
     }
 
     public interface Callback {
-        void onInitializationFailure();
+        void onInitializationFailure(FileSenderProtocol fileSenderProtocol);
 
         void onTransferInitializationFailure(Transfer transfer, Exception e);
 

@@ -47,8 +47,8 @@ public class SendTransferViewModel extends ViewModel {
         this.fileSenderReceiver.setCallback(new FileSenderProtocol.Callback() {
 
             @Override
-            public void onInitializationFailure() {
-
+            public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
+                
             }
 
             @Override
