@@ -28,7 +28,6 @@ public class SendTransferViewModel extends ViewModel {
     private final LiveEvent<AlertModel> alertEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private FileSenderServiceExecutor fileSenderExecutor;
-    private FileSenderProtocol.Callback fileSenderCallback;
     private FileSenderReceiver fileSenderReceiver;
 
     public SendTransferViewModel(FileSenderServiceExecutor fileSenderExecutor,
@@ -45,7 +44,7 @@ public class SendTransferViewModel extends ViewModel {
 
         this.fileSenderExecutor = fileSenderExecutor;
         this.fileSenderReceiver = fileSenderReceiver;
-        fileSenderCallback = new FileSenderProtocol.Callback() {
+        this.fileSenderReceiver.setCallback(new FileSenderProtocol.Callback() {
 
             @Override
             public void onInitializationFailure() {
@@ -77,11 +76,10 @@ public class SendTransferViewModel extends ViewModel {
             public void onSuccess(Transfer transfer, TransferFile file) {
                 onTransferSucceededEvent.postValue(new Pair<>(transfer, file));
             }
-        };
-        this.fileSenderReceiver.setCallback(fileSenderCallback);
+        });
     }
 
-    public void onStart() {
+    public void onShowView() {
         fileSenderReceiver.receive();
     }
 
@@ -141,7 +139,7 @@ public class SendTransferViewModel extends ViewModel {
         alertEvent.postValue(new AlertModel(title, message));
     }
 
-    public void onDestroy() {
+    public void onHideView() {
         if (fileSenderReceiver != null)
             fileSenderReceiver.stop();
     }
