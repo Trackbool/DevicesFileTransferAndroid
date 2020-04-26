@@ -202,7 +202,7 @@ public class TransfersViewModel extends ViewModel {
         return onReceiveTransferErrorEvent;
     }
 
-    public void onShowView() {
+    public void onStart() {
         this.receiverListenerReceiver.receive();
         this.fileSenderReceiver.receive();
     }
@@ -251,7 +251,7 @@ public class TransfersViewModel extends ViewModel {
         onReceiveTransferErrorEvent.postValue(new Pair<>(transfer, error));
     }
 
-    public void onHideView() {
+    public void onDestroy() {
         if (receiverListenerReceiver != null)
             receiverListenerReceiver.stop();
 

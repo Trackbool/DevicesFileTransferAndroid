@@ -124,9 +124,7 @@ public class FilesSenderService extends Service {
             @Override
             public void onInitializationFailure() {
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
-                    if (callback != null) {
-                        callback.onInitializationFailure();
-                    }
+                    callback.onInitializationFailure();
                 }
             }
 
@@ -134,9 +132,7 @@ public class FilesSenderService extends Service {
             public void onTransferInitializationFailure(Transfer transfer, Exception e) {
                 inProgressTransfers.remove(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
-                    if (callback != null) {
-                        callback.onTransferInitializationFailure(transfer, e);
-                    }
+                    callback.onTransferInitializationFailure(transfer, e);
                 }
             }
 
@@ -145,9 +141,7 @@ public class FilesSenderService extends Service {
                 //TODO: Notify the file is sending
                 inProgressTransfers.add(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
-                    if (callback != null) {
-                        callback.onStart(transfer);
-                    }
+                    callback.onStart(transfer);
                 }
             }
 
@@ -156,9 +150,7 @@ public class FilesSenderService extends Service {
                 //TODO: Notify failure in transfer
                 inProgressTransfers.remove(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
-                    if (callback != null) {
-                        callback.onFailure(transfer, e);
-                    }
+                    callback.onFailure(transfer, e);
                 }
                 persistTransfer(transfer);
             }
@@ -167,9 +159,7 @@ public class FilesSenderService extends Service {
             public void onProgressUpdated(Transfer transfer) {
                 //TODO: Update the progress in notification
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
-                    if (callback != null) {
-                        callback.onProgressUpdated(transfer);
-                    }
+                    callback.onProgressUpdated(transfer);
                 }
             }
 
@@ -178,9 +168,7 @@ public class FilesSenderService extends Service {
                 //TODO: Notify transfer succeeded
                 inProgressTransfers.remove(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
-                    if (callback != null) {
-                        callback.onSuccess(transfer, file);
-                    }
+                    callback.onSuccess(transfer, file);
                 }
                 persistTransfer(transfer);
             }
