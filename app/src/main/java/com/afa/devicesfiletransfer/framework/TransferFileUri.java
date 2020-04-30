@@ -1,29 +1,22 @@
 package com.afa.devicesfiletransfer.framework;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.afa.devicesfiletransfer.DftApplication;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class TransferFileUri implements TransferFile, Parcelable {
-    private Context context;
     private UriWrapper uriWrapper;
     private Uri uri;
 
-    public TransferFileUri(Context context, Uri uri) {
-        this.context = context.getApplicationContext();
+    public TransferFileUri(Uri uri) {
         this.uri = uri;
-        this.uriWrapper = new UriWrapper(context, uri);
-    }
-
-    public void setContext(Context context) {
-        this.context = context.getApplicationContext();
-        uriWrapper = new UriWrapper(context, uri);
+        this.uriWrapper = new UriWrapper(DftApplication.getContext(), uri);
     }
 
     @Override
@@ -49,7 +42,8 @@ public class TransferFileUri implements TransferFile, Parcelable {
     @Override
     public InputStream getInputStream() throws FileNotFoundException {
         try {
-            return context.getContentResolver().openInputStream(uriWrapper.getUri());
+            return DftApplication.getContext().getContentResolver()
+                    .openInputStream(uriWrapper.getUri());
         } catch (SecurityException e) {
             throw new FileNotFoundException("The file " + getName() + " doesn´t exists");
         }
@@ -67,6 +61,7 @@ public class TransferFileUri implements TransferFile, Parcelable {
 
     private TransferFileUri(Parcel in) {
         uri = in.readParcelable(Uri.class.getClassLoader());
+        uriWrapper = new UriWrapper(DftApplication.getContext(), uri);
     }
 
     public static final Creator<TransferFileUri> CREATOR = new Creator<TransferFileUri>() {

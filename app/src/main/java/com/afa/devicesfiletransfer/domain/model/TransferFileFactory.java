@@ -1,6 +1,5 @@
 package com.afa.devicesfiletransfer.domain.model;
 
-import android.content.Context;
 import android.net.Uri;
 
 import com.afa.devicesfiletransfer.framework.TransferFileUri;
@@ -12,7 +11,7 @@ public class TransferFileFactory {
         return new TransferFileLocal(file);
     }
 
-    public static TransferFile getFromUri(Context context, Uri uri) {
-        return new TransferFileUri(context, uri);
+    public static TransferFile getFromUri(Uri uri) {
+        return new TransferFileUri(uri);
     }
 }

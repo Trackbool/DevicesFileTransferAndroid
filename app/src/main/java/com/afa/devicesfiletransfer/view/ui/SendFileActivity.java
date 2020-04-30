@@ -127,11 +127,11 @@ public class SendFileActivity extends AppCompatActivity {
                     int filesCount = data.getClipData().getItemCount();
                     for (int i = 0; i < filesCount; i++) {
                         Uri uri = data.getClipData().getItemAt(i).getUri();
-                        files.add(TransferFileFactory.getFromUri(getApplicationContext(), uri));
+                        files.add(TransferFileFactory.getFromUri(uri));
                     }
                 } else if (data.getData() != null) {
                     Uri uri = data.getData();
-                    files.add(TransferFileFactory.getFromUri(getApplicationContext(), uri));
+                    files.add(TransferFileFactory.getFromUri(uri));
                 }
 
                 if (!files.isEmpty())

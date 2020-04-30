@@ -81,10 +81,7 @@ public class FilesSenderService extends Service {
 
         final List<TransferFileUri> intentFiles = intent.getParcelableArrayListExtra("files");
         final List<TransferFile> files = new ArrayList<>();
-        for (final TransferFileUri file : intentFiles) {
-            file.setContext(getApplicationContext());
-            files.add(file);
-        }
+        files.addAll(intentFiles);
 
         for (final Device device : devices) {
             final FileSenderProtocol fileSenderProtocol = createFileSender(device, files);
