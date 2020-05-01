@@ -48,9 +48,8 @@ public class FileReceiverProtocol {
                     String deviceJson = dataInputStream.readUTF();
                     Device device = new Gson().fromJson(deviceJson, Device.class);
                     String fileNameWithExtension = dataInputStream.readUTF();
-                    String fileName = generateFileName(fileNameWithExtension);
                     long fileSize = dataInputStream.readLong();
-                    File file = new File(targetDirectory.getAbsolutePath(), fileName);
+                    File file = createDestinationFile(fileNameWithExtension);
                     final Transfer transfer = new Transfer(
                             device, TransferFileFactory.getFromFile(file), 0, true);
                     FileReceiver fileReceiver = createFileReceiver(transfer, callback);
@@ -67,12 +66,31 @@ public class FileReceiverProtocol {
         }
     }
 
-    private String generateFileName(String fileNameWithExtension) {
+    private File createDestinationFile(String fileNameWithExtension) {
+        String destinationPath = targetDirectory.getAbsolutePath();
+        String currentMillis = String.valueOf(System.currentTimeMillis());
         if (fileNameWithExtension == null || fileNameWithExtension.isEmpty()) {
-            return String.valueOf(System.currentTimeMillis());
+            return new File(destinationPath, currentMillis);
         }
 
-        return fileNameWithExtension;
+        String fileName = FileUtils.getFileNameWithoutExtension(fileNameWithExtension);
+        String extension = FileUtils.getFileExtension(fileNameWithExtension);
+
+        File destinationFile = new File(destinationPath, fileNameWithExtension);
+        int attempts = 0;
+        final int MAX_ATTEMPTS = 100;
+        while (destinationFile.exists() && attempts < MAX_ATTEMPTS) {
+            String incrementedFileName = fileName + "(" + (attempts + 1) + ")." + extension;
+            destinationFile = new File(destinationPath, incrementedFileName);
+            attempts++;
+        }
+
+        if (attempts == MAX_ATTEMPTS && destinationFile.exists()) {
+            destinationFile = new File(
+                    destinationPath, fileName + "_" + currentMillis + "." + extension);
+        }
+
+        return destinationFile;
     }
 
     private FileReceiver createFileReceiver(final Transfer transfer, final Callback callback) {
