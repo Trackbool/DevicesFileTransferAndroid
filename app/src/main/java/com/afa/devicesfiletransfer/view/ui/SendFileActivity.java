@@ -22,6 +22,7 @@ import com.afa.devicesfiletransfer.framework.TransferFileUri;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.util.file.FileUtils;
+import com.afa.devicesfiletransfer.view.components.LabeledImageView;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.model.AlertModel;
@@ -110,27 +111,10 @@ public class SendFileActivity extends AppCompatActivity {
                             .centerCrop()
                             .into(imageView);
 
-                    TextView fileNameLabel = new TextView(SendFileActivity.this);
-                    fileNameLabel.setText(file.getName());
-                    fileNameLabel.setWidth(FrameLayout.LayoutParams.MATCH_PARENT);
-                    fileNameLabel.setHeight(FrameLayout.LayoutParams.WRAP_CONTENT);
-                    fileNameLabel.setGravity(Gravity.CENTER);
-                    fileNameLabel.setTextColor(Color.WHITE);
-
-                    FrameLayout labelContainer = new FrameLayout(SendFileActivity.this);
-                    FrameLayout.LayoutParams labelContainerLayoutParams =
-                            new FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.MATCH_PARENT,100);
-                    labelContainerLayoutParams.gravity = Gravity.BOTTOM;
-                    labelContainer.setLayoutParams(labelContainerLayoutParams);
-                    labelContainer.setBackgroundColor(Color.BLACK);
-                    labelContainer.getBackground().setAlpha(100);
-                    labelContainer.addView(fileNameLabel);
-
-                    FrameLayout frameLayout = new FrameLayout(SendFileActivity.this);
-                    frameLayout.addView(imageView);
-                    frameLayout.addView(labelContainer);
-                    fileImagesContainer.addView(frameLayout);
+                    LabeledImageView labeledImageView = new LabeledImageView(
+                            SendFileActivity.this, imageView);
+                    labeledImageView.getLabelText().setText(file.getName());
+                    fileImagesContainer.addView(labeledImageView);
                 }
             }
         });
