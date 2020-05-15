@@ -30,6 +30,18 @@ public class FileUtils {
         return FileType.OTHER;
     }
 
+    public static boolean isImage(String fileName) {
+        return getFileType(fileName) == FileType.IMAGE;
+    }
+
+    public static boolean isVideo(String fileName) {
+        return getFileType(fileName) == FileType.VIDEO;
+    }
+
+    public static boolean isAudio(String fileName) {
+        return getFileType(fileName) == FileType.AUDIO;
+    }
+
     public static String getFileNameWithoutExtension(String fileName) {
         if (fileName == null || fileName.isEmpty())
             return "";
