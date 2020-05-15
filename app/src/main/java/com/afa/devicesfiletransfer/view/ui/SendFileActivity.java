@@ -4,8 +4,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
@@ -14,8 +18,10 @@ import com.afa.devicesfiletransfer.domain.model.Pair;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
+import com.afa.devicesfiletransfer.framework.TransferFileUri;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
+import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.model.AlertModel;
@@ -23,6 +29,8 @@ import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModel;
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +44,7 @@ import androidx.lifecycle.ViewModelProvider;
 public class SendFileActivity extends AppCompatActivity {
     private SendTransferViewModel sendTransferViewModel;
     private List<Device> devices;
-    private TextView attachedFileNameTextView;
+    private LinearLayout fileImagesContainer;
 
     private static final int BROWSE_FILES_RESULT_CODE = 10;
 
@@ -55,7 +63,7 @@ public class SendFileActivity extends AppCompatActivity {
                 browseFile();
             }
         });
-        attachedFileNameTextView = findViewById(R.id.attachedFileNameTextView);
+        fileImagesContainer = findViewById(R.id.fileImagesContainer);
         Button sendFileButton = findViewById(R.id.sendFileButton);
         sendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,12 +87,51 @@ public class SendFileActivity extends AppCompatActivity {
         sendTransferViewModel.getAttachedFiles().observe(this, new Observer<List<TransferFile>>() {
             @Override
             public void onChanged(List<TransferFile> transferFiles) {
-                StringBuilder sb = new StringBuilder();
-                for (TransferFile file : transferFiles) {
-                    sb.append(file.getName()).append(", ");
+                if (!transferFiles.isEmpty()) {
+                    fileImagesContainer.removeAllViews();
                 }
-                String resultText = sb.substring(0, sb.length() - 2);
-                attachedFileNameTextView.setText(resultText);
+
+                for (TransferFile file : transferFiles) {
+                    ImageView imageView = new ImageView(SendFileActivity.this);
+                    RequestCreator picassoCreator;
+                    if (FileUtils.isImage(file.getName()) && file instanceof TransferFileUri) {
+                        TransferFileUri fileUri = (TransferFileUri) file;
+                        picassoCreator = Picasso.get().load(fileUri.getUri());
+                    } else if (FileUtils.isAudio(file.getName())) {
+                        picassoCreator = Picasso.get().load(R.drawable.audio_icon);
+                    } else if (FileUtils.isVideo(file.getName())) {
+                        picassoCreator = Picasso.get().load(R.drawable.video_icon);
+                    } else {
+                        picassoCreator = Picasso.get().load(R.drawable.file_icon);
+                    }
+
+                    picassoCreator
+                            .resize(700, 700)
+                            .centerCrop()
+                            .into(imageView);
+
+                    TextView fileNameLabel = new TextView(SendFileActivity.this);
+                    fileNameLabel.setText(file.getName());
+                    fileNameLabel.setWidth(FrameLayout.LayoutParams.MATCH_PARENT);
+                    fileNameLabel.setHeight(FrameLayout.LayoutParams.WRAP_CONTENT);
+                    fileNameLabel.setGravity(Gravity.CENTER);
+                    fileNameLabel.setTextColor(Color.WHITE);
+
+                    FrameLayout labelContainer = new FrameLayout(SendFileActivity.this);
+                    FrameLayout.LayoutParams labelContainerLayoutParams =
+                            new FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.MATCH_PARENT,100);
+                    labelContainerLayoutParams.gravity = Gravity.BOTTOM;
+                    labelContainer.setLayoutParams(labelContainerLayoutParams);
+                    labelContainer.setBackgroundColor(Color.BLACK);
+                    labelContainer.getBackground().setAlpha(100);
+                    labelContainer.addView(fileNameLabel);
+
+                    FrameLayout frameLayout = new FrameLayout(SendFileActivity.this);
+                    frameLayout.addView(imageView);
+                    frameLayout.addView(labelContainer);
+                    fileImagesContainer.addView(frameLayout);
+                }
             }
         });
         sendTransferViewModel.getAlertEvent().observe(this, new Observer<AlertModel>() {
