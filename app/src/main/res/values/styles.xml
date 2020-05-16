@@ -26,6 +26,7 @@
     </style>
 
     <style name="SecondaryButton">
+        <item name="backgroundTint">@color/secondary_button_color</item>
         <item name="android:background">@color/colorPrimaryLight</item>
         <item name="android:textColor">#ffffff</item>
         <item name="android:height">50dp</item>

@@ -57,7 +57,7 @@ public class SendFileActivity extends AppCompatActivity {
         devices = Objects.requireNonNull(
                 getIntent().getExtras()).getParcelableArrayList("devicesList");
 
-        Button attachFileButton = findViewById(R.id.attachFileButton);
+        final Button attachFileButton = findViewById(R.id.attachFileButton);
         attachFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,6 +71,9 @@ public class SendFileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendTransferViewModel.sendFile(devices);
+                attachFileButton.setClickable(false);
+                sendFileButton.setClickable(false);
+                finish();
             }
         });
 
