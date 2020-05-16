@@ -89,40 +89,7 @@ public class SendFileActivity extends AppCompatActivity {
         sendTransferViewModel.getAttachedFiles().observe(this, new Observer<List<TransferFile>>() {
             @Override
             public void onChanged(List<TransferFile> transferFiles) {
-                if (!transferFiles.isEmpty()) {
-                    fileImagesContainer.removeAllViews();
-                }
-
-                for (TransferFile file : transferFiles) {
-                    ImageView imageView = new ImageView(SendFileActivity.this);
-                    RequestCreator picassoCreator;
-                    if (FileUtils.isImage(file.getName()) && file instanceof TransferFileUri) {
-                        TransferFileUri fileUri = (TransferFileUri) file;
-                        picassoCreator = Picasso.get().load(fileUri.getUri());
-                    } else if (FileUtils.isAudio(file.getName())) {
-                        picassoCreator = Picasso.get().load(R.drawable.audio_icon);
-                    } else if (FileUtils.isVideo(file.getName())) {
-                        picassoCreator = Picasso.get().load(R.drawable.video_icon);
-                    } else {
-                        picassoCreator = Picasso.get().load(R.drawable.file_icon);
-                    }
-
-                    int imageWidth = fileImagesScrollView.getWidth();
-                    if (transferFiles.size() == 1 && imageWidth > 0) {
-                        picassoCreator.resize(imageWidth, 700);
-                    } else {
-                        picassoCreator.resize(700, 700);
-                    }
-
-                    picassoCreator.centerCrop()
-                            .into(imageView);
-
-
-                    LabeledImageView labeledImageView = new LabeledImageView(
-                            SendFileActivity.this, imageView);
-                    labeledImageView.getLabelText().setText(file.getName());
-                    fileImagesContainer.addView(labeledImageView);
-                }
+                showFileImagesInGallery(transferFiles);
             }
         });
         sendTransferViewModel.getAlertEvent().observe(this, new Observer<AlertModel>() {
@@ -180,6 +147,43 @@ public class SendFileActivity extends AppCompatActivity {
                     sendFileButton.setEnabled(false);
                 }
             }
+        }
+    }
+
+    private void showFileImagesInGallery(List<TransferFile> transferFiles) {
+        if (!transferFiles.isEmpty()) {
+            fileImagesContainer.removeAllViews();
+        }
+
+        for (TransferFile file : transferFiles) {
+            ImageView imageView = new ImageView(SendFileActivity.this);
+            RequestCreator picassoCreator;
+            if (FileUtils.isImage(file.getName()) && file instanceof TransferFileUri) {
+                TransferFileUri fileUri = (TransferFileUri) file;
+                picassoCreator = Picasso.get().load(fileUri.getUri());
+            } else if (FileUtils.isAudio(file.getName())) {
+                picassoCreator = Picasso.get().load(R.drawable.audio_icon);
+            } else if (FileUtils.isVideo(file.getName())) {
+                picassoCreator = Picasso.get().load(R.drawable.video_icon);
+            } else {
+                picassoCreator = Picasso.get().load(R.drawable.file_icon);
+            }
+
+            int imageWidth = fileImagesScrollView.getWidth();
+            if (transferFiles.size() == 1 && imageWidth > 0) {
+                picassoCreator.resize(imageWidth, 700);
+            } else {
+                picassoCreator.resize(700, 700);
+            }
+
+            picassoCreator.centerCrop()
+                    .into(imageView);
+
+
+            LabeledImageView labeledImageView = new LabeledImageView(
+                    SendFileActivity.this, imageView);
+            labeledImageView.getLabelText().setText(file.getName());
+            fileImagesContainer.addView(labeledImageView);
         }
     }
 
