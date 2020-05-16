@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.afa.devicesfiletransfer.R;
@@ -46,6 +47,7 @@ import androidx.lifecycle.ViewModelProvider;
 public class SendFileActivity extends AppCompatActivity {
     private SendTransferViewModel sendTransferViewModel;
     private List<Device> devices;
+    private TextView noFilesAttachedTextView;
     private HorizontalScrollView fileImagesScrollView;
     private LinearLayout fileImagesContainer;
     private Button sendFileButton;
@@ -74,6 +76,7 @@ public class SendFileActivity extends AppCompatActivity {
                 browseFile();
             }
         });
+        noFilesAttachedTextView = findViewById(R.id.noFilesAttachedTextView);
         fileImagesScrollView = findViewById(R.id.fileImagesScrollView);
         fileImagesContainer = findViewById(R.id.fileImagesContainer);
         sendFileButton = findViewById(R.id.sendFileButton);
@@ -161,11 +164,13 @@ public class SendFileActivity extends AppCompatActivity {
                 }
 
                 if (!files.isEmpty()) {
-                    sendFileButton.setEnabled(true);
                     sendTransferViewModel.attachFiles(files);
+                    sendFileButton.setEnabled(true);
+                    noFilesAttachedTextView.setVisibility(View.INVISIBLE);
                 }
                 else {
                     sendFileButton.setEnabled(false);
+                    noFilesAttachedTextView.setVisibility(View.VISIBLE);
                 }
             }
         }
