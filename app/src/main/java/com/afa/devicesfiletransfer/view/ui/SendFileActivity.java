@@ -200,10 +200,17 @@ public class SendFileActivity extends AppCompatActivity {
             picassoCreator.centerCrop()
                     .into(imageView);
 
-
             LabeledImageView labeledImageView = new LabeledImageView(
                     SendFileActivity.this, imageView);
-            labeledImageView.getLabelText().setText(file.getName());
+
+            final int MAX_FILE_NAME_LENGTH = 22;
+            String fileName = file.getName();
+            String fileNameWithoutExtension = FileUtils.getFileNameWithoutExtension(fileName);
+            if (fileNameWithoutExtension.length() > MAX_FILE_NAME_LENGTH) {
+                fileName = fileNameWithoutExtension.substring(0, MAX_FILE_NAME_LENGTH) + "..." +
+                        FileUtils.getFileExtension(fileName);
+            }
+            labeledImageView.getLabelText().setText(fileName);
             fileImagesContainer.addView(labeledImageView);
         }
     }

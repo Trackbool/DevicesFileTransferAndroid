@@ -71,6 +71,7 @@ public class LabeledImageView extends FrameLayout {
         labelText.setHeight(FrameLayout.LayoutParams.WRAP_CONTENT);
         labelText.setGravity(Gravity.CENTER);
         labelText.setTextColor(Color.WHITE);
+        labelText.setMaxLines(1);
 
         label = new FrameLayout(context);
         FrameLayout.LayoutParams labelLayoutParams =
