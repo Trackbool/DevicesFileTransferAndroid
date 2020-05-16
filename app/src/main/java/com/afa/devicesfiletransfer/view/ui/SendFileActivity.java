@@ -46,6 +46,7 @@ import androidx.lifecycle.ViewModelProvider;
 public class SendFileActivity extends AppCompatActivity {
     private SendTransferViewModel sendTransferViewModel;
     private List<Device> devices;
+    private TextView receiverDevicesTextView;
     private TextView noFilesAttachedTextView;
     private HorizontalScrollView fileImagesScrollView;
     private LinearLayout fileImagesContainer;
@@ -75,6 +76,7 @@ public class SendFileActivity extends AppCompatActivity {
                 browseFile();
             }
         });
+        receiverDevicesTextView = findViewById(R.id.receiverDevicesTextView);
         noFilesAttachedTextView = findViewById(R.id.noFilesAttachedTextView);
         fileImagesScrollView = findViewById(R.id.fileImagesScrollView);
         fileImagesContainer = findViewById(R.id.fileImagesContainer);
@@ -90,6 +92,7 @@ public class SendFileActivity extends AppCompatActivity {
         });
 
         initializeSendTransferViewModel();
+        displayReceiverDevices();
     }
 
     @Override
@@ -135,6 +138,15 @@ public class SendFileActivity extends AppCompatActivity {
                         showAlert("File sent", "The file " + transfer.getFile().getName());
                     }
                 });
+    }
+
+    private void displayReceiverDevices() {
+        StringBuilder receivers = new StringBuilder();
+        for (Device device : devices) {
+            receivers.append(device.getName()).append(", ");
+        }
+        String receiversText = receivers.toString().substring(0, receivers.length() - 2);
+        receiverDevicesTextView.setText(receiversText);
     }
 
     private void browseFile() {
@@ -196,9 +208,9 @@ public class SendFileActivity extends AppCompatActivity {
 
             int imageWidth = fileImagesScrollView.getWidth();
             if (transferFiles.size() == 1 && imageWidth > 0) {
-                picassoCreator.resize(imageWidth, 700);
+                picassoCreator.resize(imageWidth, 900);
             } else {
-                picassoCreator.resize(700, 700);
+                picassoCreator.resize(900, 900);
             }
 
             picassoCreator.centerCrop()

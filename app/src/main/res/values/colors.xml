@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimaryLight">#006A85</color>
-    <color name="colorPrimaryLightDisabled">#7F006A85</color>
-    <color name="colorPrimary">#005685</color>
-    <color name="colorPrimaryDark">#013D7E</color>
-    <color name="colorPrimaryDisabled">#7F006A85</color>
+    <color name="colorPrimary">#394E79</color>
+    <color name="colorPrimaryDisabled">#7F394E79</color>
+    <color name="colorPrimaryDark">#091D36</color>
+
+    <color name="colorPrimaryLight">#5E83BA</color>
+    <color name="colorPrimaryLightDisabled">#7F5E83BA</color>
+
     <color name="colorAccent">#D81B60</color>
+    <color name="colorSky">#C2D2E9</color>
     <color name="selectedItemList">#C0C0C0</color>
+
+    <color name="colorBackgroundScreen">#F1F1EF</color>
 </resources>
