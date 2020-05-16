@@ -7,4 +7,6 @@
     <string name="tab_text_2">Transfers</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="incoming_outgoing_icon_description">Incoming/Outgoing indicator</string>
+    <string name="send_files">Send</string>
+    <string name="browse_files">Browse files</string>
 </resources>
