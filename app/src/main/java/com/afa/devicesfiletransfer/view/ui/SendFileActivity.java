@@ -4,13 +4,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
@@ -45,7 +43,9 @@ import androidx.lifecycle.ViewModelProvider;
 public class SendFileActivity extends AppCompatActivity {
     private SendTransferViewModel sendTransferViewModel;
     private List<Device> devices;
+    private HorizontalScrollView fileImagesScrollView;
     private LinearLayout fileImagesContainer;
+    private Button sendFileButton;
 
     private static final int BROWSE_FILES_RESULT_CODE = 10;
 
@@ -64,8 +64,9 @@ public class SendFileActivity extends AppCompatActivity {
                 browseFile();
             }
         });
+        fileImagesScrollView = findViewById(R.id.fileImagesScrollView);
         fileImagesContainer = findViewById(R.id.fileImagesContainer);
-        Button sendFileButton = findViewById(R.id.sendFileButton);
+        sendFileButton = findViewById(R.id.sendFileButton);
         sendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,10 +107,16 @@ public class SendFileActivity extends AppCompatActivity {
                         picassoCreator = Picasso.get().load(R.drawable.file_icon);
                     }
 
-                    picassoCreator
-                            .resize(700, 700)
-                            .centerCrop()
+                    int imageWidth = fileImagesScrollView.getWidth();
+                    if (transferFiles.size() == 1 && imageWidth > 0) {
+                        picassoCreator.resize(imageWidth, 700);
+                    } else {
+                        picassoCreator.resize(700, 700);
+                    }
+
+                    picassoCreator.centerCrop()
                             .into(imageView);
+
 
                     LabeledImageView labeledImageView = new LabeledImageView(
                             SendFileActivity.this, imageView);
@@ -165,8 +172,13 @@ public class SendFileActivity extends AppCompatActivity {
                     files.add(TransferFileFactory.getFromUri(uri));
                 }
 
-                if (!files.isEmpty())
+                if (!files.isEmpty()) {
+                    sendFileButton.setEnabled(true);
                     sendTransferViewModel.attachFiles(files);
+                }
+                else {
+                    sendFileButton.setEnabled(false);
+                }
             }
         }
     }

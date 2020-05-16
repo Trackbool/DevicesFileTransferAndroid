@@ -40,13 +40,14 @@
     </HorizontalScrollView>
 
     <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
-        android:layout_width="wrap_content"
+        android:id="@+id/fileImagesScrollView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/attachFileButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView2">
+        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView2"
+        app:layout_constraintVertical_bias="0.7">
 
         <LinearLayout
             android:id="@+id/fileImagesContainer"
@@ -57,6 +58,7 @@
 
     <Button
         android:id="@+id/attachFileButton"
+        style="@style/SecondaryButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Attach file"
@@ -68,6 +70,7 @@
         style="@style/MainButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:enabled="false"
         android:text="Send"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
