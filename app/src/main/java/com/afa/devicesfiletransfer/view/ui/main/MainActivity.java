@@ -6,16 +6,16 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.afa.devicesfiletransfer.R;
+import com.afa.devicesfiletransfer.view.ui.BaseActivity;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final int REQUEST_READ_WRITE_PERMISSION = 9;
 

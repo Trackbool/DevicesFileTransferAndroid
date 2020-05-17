@@ -1,7 +1,6 @@
 package com.afa.devicesfiletransfer.view.ui;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -14,8 +13,6 @@ import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
-import com.afa.devicesfiletransfer.domain.model.Pair;
-import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
 import com.afa.devicesfiletransfer.framework.TransferFileUri;
@@ -29,7 +26,6 @@ import com.afa.devicesfiletransfer.view.model.AlertModel;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModel;
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModelFactory;
-import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
@@ -39,11 +35,10 @@ import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-public class SendFileActivity extends AppCompatActivity {
+public class SendFileActivity extends BaseActivity {
     private SendTransferViewModel sendTransferViewModel;
     private List<Device> devices;
     private TextView receiverDevicesTextView;
@@ -69,6 +64,20 @@ public class SendFileActivity extends AppCompatActivity {
         devices = Objects.requireNonNull(
                 getIntent().getExtras()).getParcelableArrayList("devicesList");
 
+        initViews();
+        initializeSendTransferViewModel();
+        displayTargetDevices();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void initViews() {
         final Button attachFileButton = findViewById(R.id.attachFileButton);
         attachFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,23 +93,12 @@ public class SendFileActivity extends AppCompatActivity {
         sendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendTransferViewModel.sendFile(devices);
+                sendTransferViewModel.sendFiles(devices);
                 attachFileButton.setClickable(false);
                 sendFileButton.setClickable(false);
                 finish();
             }
         });
-
-        initializeSendTransferViewModel();
-        displayReceiverDevices();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void initializeSendTransferViewModel() {
@@ -130,17 +128,9 @@ public class SendFileActivity extends AppCompatActivity {
                 showError(errorModel.getTitle(), errorModel.getMessage());
             }
         });
-        sendTransferViewModel.getOnTransferSucceededEvent().observe(this,
-                new Observer<Pair<Transfer, TransferFile>>() {
-                    @Override
-                    public void onChanged(Pair<Transfer, TransferFile> transferTransferFilePair) {
-                        Transfer transfer = transferTransferFilePair.getLeft();
-                        showAlert("File sent", "The file " + transfer.getFile().getName());
-                    }
-                });
     }
 
-    private void displayReceiverDevices() {
+    private void displayTargetDevices() {
         StringBuilder receivers = new StringBuilder();
         for (Device device : devices) {
             receivers.append(device.getName()).append(", ");
@@ -178,8 +168,7 @@ public class SendFileActivity extends AppCompatActivity {
                     sendTransferViewModel.attachFiles(files);
                     sendFileButton.setEnabled(true);
                     noFilesAttachedTextView.setVisibility(View.INVISIBLE);
-                }
-                else {
+                } else {
                     sendFileButton.setEnabled(false);
                     noFilesAttachedTextView.setVisibility(View.VISIBLE);
                 }
@@ -188,62 +177,56 @@ public class SendFileActivity extends AppCompatActivity {
     }
 
     private void showFileImagesInGallery(List<TransferFile> transferFiles) {
-        if (!transferFiles.isEmpty()) {
-            fileImagesContainer.removeAllViews();
-        }
+        fileImagesContainer.removeAllViews();
 
         for (TransferFile file : transferFiles) {
             ImageView imageView = new ImageView(SendFileActivity.this);
-            RequestCreator picassoCreator;
-            if (FileUtils.isImage(file.getName()) && file instanceof TransferFileUri) {
-                TransferFileUri fileUri = (TransferFileUri) file;
-                picassoCreator = Picasso.get().load(fileUri.getUri());
-            } else if (FileUtils.isAudio(file.getName())) {
-                picassoCreator = Picasso.get().load(R.drawable.audio_icon);
-            } else if (FileUtils.isVideo(file.getName())) {
-                picassoCreator = Picasso.get().load(R.drawable.video_icon);
-            } else {
-                picassoCreator = Picasso.get().load(R.drawable.file_icon);
-            }
+            RequestCreator picassoCreator = loadPicassoImageBasedOnFileType(file);
 
-            int imageWidth = fileImagesScrollView.getWidth();
-            if (transferFiles.size() == 1 && imageWidth > 0) {
-                picassoCreator.resize(imageWidth, 900);
+            final int DEFAULT_IMAGE_DIMENSION = 900;
+            final int containerWidth = fileImagesScrollView.getWidth();
+            if (transferFiles.size() == 1 && containerWidth > 0) {
+                picassoCreator.resize(containerWidth, DEFAULT_IMAGE_DIMENSION);
             } else {
-                picassoCreator.resize(900, 900);
+                picassoCreator.resize(DEFAULT_IMAGE_DIMENSION, DEFAULT_IMAGE_DIMENSION);
             }
-
-            picassoCreator.centerCrop()
-                    .into(imageView);
+            picassoCreator.centerCrop().into(imageView);
 
             LabeledImageView labeledImageView = new LabeledImageView(
                     SendFileActivity.this, imageView);
 
             final int MAX_FILE_NAME_LENGTH = 22;
-            String fileName = file.getName();
-            String fileNameWithoutExtension = FileUtils.getFileNameWithoutExtension(fileName);
-            if (fileNameWithoutExtension.length() > MAX_FILE_NAME_LENGTH) {
-                fileName = fileNameWithoutExtension.substring(0, MAX_FILE_NAME_LENGTH) + "..." +
-                        FileUtils.getFileExtension(fileName);
-            }
-            labeledImageView.getLabelText().setText(fileName);
+            String truncatedFileName = getTruncatedFileName(file.getName(), MAX_FILE_NAME_LENGTH);
+            labeledImageView.getLabelText().setText(truncatedFileName);
             fileImagesContainer.addView(labeledImageView);
         }
     }
 
-    public void showError(final String title, final String message) {
-        Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
-                title + ". " + message,
-                Snackbar.LENGTH_LONG);
-        snackbar.getView().setBackgroundColor(Color.RED);
-        snackbar.show();
+    private RequestCreator loadPicassoImageBasedOnFileType(TransferFile file) {
+        RequestCreator picassoCreator;
+        if (FileUtils.isImage(file.getName()) && file instanceof TransferFileUri) {
+            TransferFileUri fileUri = (TransferFileUri) file;
+            picassoCreator = Picasso.get().load(fileUri.getUri());
+        } else if (FileUtils.isAudio(file.getName())) {
+            picassoCreator = Picasso.get().load(R.drawable.audio_icon); //TODO: Change image
+        } else if (FileUtils.isVideo(file.getName())) {
+            picassoCreator = Picasso.get().load(R.drawable.video_icon); //TODO: Change image
+        } else {
+            picassoCreator = Picasso.get().load(R.drawable.file_icon); //TODO: Change image
+        }
+
+        return picassoCreator;
     }
 
-    public void showAlert(final String title, final String message) {
-        Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
-                title + ". " + message,
-                Snackbar.LENGTH_LONG);
-        snackbar.show();
+    private String getTruncatedFileName(String fileName, int maxLength) {
+        String fileNameWithoutExtension = FileUtils.getFileNameWithoutExtension(fileName);
+        if (fileNameWithoutExtension.length() > maxLength) {
+            String fileExtension = FileUtils.getFileExtension(fileName);
+            fileName = fileNameWithoutExtension.substring(0, maxLength) + "..." +
+                    (fileExtension.length() <= 4? fileExtension : "");
+        }
+
+        return fileName;
     }
 
     @Override
