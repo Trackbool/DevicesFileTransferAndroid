@@ -105,7 +105,8 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesV
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (getAdapterPosition() == RecyclerView.NO_POSITION) return false;
+                    if (devices.size() <= 1 || getAdapterPosition() == RecyclerView.NO_POSITION)
+                        return false;
 
                     selectedPositions.add(getAdapterPosition());
                     notifyItemChanged(getAdapterPosition());
