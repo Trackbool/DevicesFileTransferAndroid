@@ -43,6 +43,26 @@ public class LabeledImageView extends FrameLayout {
         init(context, imageView);
     }
 
+    private void init(Context context, ImageView imageView) {
+        this.imageView = imageView;
+
+        labelText = new TextView(context);
+        labelText.setWidth(FrameLayout.LayoutParams.MATCH_PARENT);
+        labelText.setHeight(FrameLayout.LayoutParams.WRAP_CONTENT);
+        labelText.setGravity(Gravity.CENTER);
+        labelText.setTextColor(Color.WHITE);
+        labelText.setMaxLines(1);
+
+        label = new FrameLayout(context);
+        setLabelBottom();
+        label.setBackgroundColor(Color.BLACK);
+        setLabelBackgroundOpacity(DEFAULT_LABEL_OPACITY);
+        label.addView(labelText);
+
+        this.addView(imageView);
+        this.addView(label);
+    }
+
     public ImageView getImageView() {
         return imageView;
     }
@@ -63,27 +83,29 @@ public class LabeledImageView extends FrameLayout {
         label.getBackground().setAlpha(opacity);
     }
 
-    private void init(Context context, ImageView imageView) {
-        this.imageView = imageView;
-
-        labelText = new TextView(context);
-        labelText.setWidth(FrameLayout.LayoutParams.MATCH_PARENT);
-        labelText.setHeight(FrameLayout.LayoutParams.WRAP_CONTENT);
-        labelText.setGravity(Gravity.CENTER);
-        labelText.setTextColor(Color.WHITE);
-        labelText.setMaxLines(1);
-
-        label = new FrameLayout(context);
-        FrameLayout.LayoutParams labelLayoutParams =
+    public void setLabelTop() {
+        FrameLayout.LayoutParams layoutParams =
                 new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT, DEFAULT_LABEL_HEIGHT);
-        labelLayoutParams.gravity = Gravity.BOTTOM;
-        label.setLayoutParams(labelLayoutParams);
-        label.setBackgroundColor(Color.BLACK);
-        label.getBackground().setAlpha(DEFAULT_LABEL_OPACITY);
-        label.addView(labelText);
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        DEFAULT_LABEL_HEIGHT);
+        layoutParams.gravity = Gravity.TOP;
+        label.setLayoutParams(layoutParams);
+    }
 
-        this.addView(imageView);
-        this.addView(label);
+    public void setLabelBottom() {
+        FrameLayout.LayoutParams layoutParams =
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        DEFAULT_LABEL_HEIGHT);
+        layoutParams.gravity = Gravity.BOTTOM;
+        label.setLayoutParams(layoutParams);
+    }
+
+    public void setLabelOverlay() {
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER;
+        label.setLayoutParams(layoutParams);
     }
 }
