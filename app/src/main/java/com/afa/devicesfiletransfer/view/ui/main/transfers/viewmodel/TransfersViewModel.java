@@ -101,7 +101,7 @@ public class TransfersViewModel extends ViewModel {
         return new FileReceiverProtocol.Callback() {
             @Override
             public void onInitializationFailure() {
-
+                triggerErrorEvent("Receiving error", "Could not connect");
             }
 
             @Override
@@ -135,7 +135,7 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
-
+                triggerErrorEvent("Sending error", "Could not connect");
             }
 
             @Override
