@@ -1,70 +1,106 @@
 package com.afa.devicesfiletransfer.view.ui;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
-import com.afa.devicesfiletransfer.domain.model.Pair;
-import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
+import com.afa.devicesfiletransfer.framework.TransferFileUri;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
+import com.afa.devicesfiletransfer.util.file.FileUtils;
+import com.afa.devicesfiletransfer.view.components.LabeledImageView;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderReceiverImpl;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceExecutorImpl;
 import com.afa.devicesfiletransfer.view.model.AlertModel;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModel;
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModelFactory;
-import com.google.android.material.snackbar.Snackbar;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-public class SendFileActivity extends AppCompatActivity {
+public class SendFileActivity extends BaseActivity {
     private SendTransferViewModel sendTransferViewModel;
     private List<Device> devices;
-    private TextView attachedFileNameTextView;
+    private TextView receiverDevicesTextView;
+    private TextView noFilesAttachedTextView;
+    private HorizontalScrollView fileImagesScrollView;
+    private LinearLayout fileImagesContainer;
+    private Button sendFileButton;
 
     private static final int BROWSE_FILES_RESULT_CODE = 10;
+
+    private static final int MAX_GALLERY_IMAGES = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_file);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.send_files_title));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
+        }
+
         devices = Objects.requireNonNull(
                 getIntent().getExtras()).getParcelableArrayList("devicesList");
 
-        Button attachFileButton = findViewById(R.id.attachFileButton);
+        initViews();
+        initializeSendTransferViewModel();
+        displayTargetDevices();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void initViews() {
+        final Button attachFileButton = findViewById(R.id.attachFileButton);
         attachFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 browseFile();
             }
         });
-        attachedFileNameTextView = findViewById(R.id.attachedFileNameTextView);
-        Button sendFileButton = findViewById(R.id.sendFileButton);
+        receiverDevicesTextView = findViewById(R.id.receiverDevicesTextView);
+        noFilesAttachedTextView = findViewById(R.id.noFilesAttachedTextView);
+        fileImagesScrollView = findViewById(R.id.fileImagesScrollView);
+        fileImagesContainer = findViewById(R.id.fileImagesContainer);
+        sendFileButton = findViewById(R.id.sendFileButton);
         sendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendTransferViewModel.sendFile(devices);
+                sendTransferViewModel.sendFiles(devices);
+                attachFileButton.setClickable(false);
+                sendFileButton.setClickable(false);
+                finish();
             }
         });
-
-        initializeSendTransferViewModel();
     }
 
     private void initializeSendTransferViewModel() {
@@ -79,12 +115,7 @@ public class SendFileActivity extends AppCompatActivity {
         sendTransferViewModel.getAttachedFiles().observe(this, new Observer<List<TransferFile>>() {
             @Override
             public void onChanged(List<TransferFile> transferFiles) {
-                StringBuilder sb = new StringBuilder();
-                for (TransferFile file : transferFiles) {
-                    sb.append(file.getName()).append(", ");
-                }
-                String resultText = sb.substring(0, sb.length() - 2);
-                attachedFileNameTextView.setText(resultText);
+                showFileImagesInGallery(transferFiles);
             }
         });
         sendTransferViewModel.getAlertEvent().observe(this, new Observer<AlertModel>() {
@@ -99,14 +130,15 @@ public class SendFileActivity extends AppCompatActivity {
                 showError(errorModel.getTitle(), errorModel.getMessage());
             }
         });
-        sendTransferViewModel.getOnTransferSucceededEvent().observe(this,
-                new Observer<Pair<Transfer, TransferFile>>() {
-                    @Override
-                    public void onChanged(Pair<Transfer, TransferFile> transferTransferFilePair) {
-                        Transfer transfer = transferTransferFilePair.getLeft();
-                        showAlert("File sent", "The file " + transfer.getFile().getName());
-                    }
-                });
+    }
+
+    private void displayTargetDevices() {
+        StringBuilder receivers = new StringBuilder();
+        for (Device device : devices) {
+            receivers.append(device.getName()).append(", ");
+        }
+        String receiversText = receivers.toString().substring(0, receivers.length() - 2);
+        receiverDevicesTextView.setText(receiversText);
     }
 
     private void browseFile() {
@@ -134,25 +166,101 @@ public class SendFileActivity extends AppCompatActivity {
                     files.add(TransferFileFactory.getFromUri(uri));
                 }
 
-                if (!files.isEmpty())
+                if (!files.isEmpty()) {
                     sendTransferViewModel.attachFiles(files);
+                    sendFileButton.setEnabled(true);
+                    noFilesAttachedTextView.setVisibility(View.INVISIBLE);
+                } else {
+                    sendFileButton.setEnabled(false);
+                    noFilesAttachedTextView.setVisibility(View.VISIBLE);
+                }
             }
         }
     }
 
-    public void showError(final String title, final String message) {
-        Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
-                title + ". " + message,
-                Snackbar.LENGTH_LONG);
-        snackbar.getView().setBackgroundColor(Color.RED);
-        snackbar.show();
+    private void showFileImagesInGallery(List<TransferFile> transferFiles) {
+        final int MAX_GALLERY_IMAGES_INTERNAL = MAX_GALLERY_IMAGES - 1;
+        final int MAX_FILE_NAME_LENGTH = 22;
+        final int DEFAULT_IMAGE_DIMENSION = 900;
+
+        fileImagesContainer.removeAllViews();
+
+        int limit = transferFiles.size() > MAX_GALLERY_IMAGES_INTERNAL ?
+                MAX_GALLERY_IMAGES_INTERNAL : transferFiles.size();
+        for (int i = 0; i < limit; i++) {
+            TransferFile file = transferFiles.get(i);
+            int width = DEFAULT_IMAGE_DIMENSION;
+            final int containerWidth = fileImagesScrollView.getWidth();
+            if (transferFiles.size() == 1 && containerWidth > 0) {
+                width = containerWidth;
+            }
+            ImageView imageView = createImageViewFromFile(file, width, DEFAULT_IMAGE_DIMENSION);
+            LabeledImageView labeledImageView = new LabeledImageView(
+                    SendFileActivity.this, imageView);
+
+            String truncatedFileName = getTruncatedFileName(file.getName(), MAX_FILE_NAME_LENGTH);
+            labeledImageView.getLabelText().setText(truncatedFileName);
+            fileImagesContainer.addView(labeledImageView);
+        }
+
+        if (transferFiles.size() > MAX_GALLERY_IMAGES_INTERNAL) {
+            TransferFile file = transferFiles.get(MAX_GALLERY_IMAGES_INTERNAL);
+            int remainingImages = transferFiles.size() - MAX_GALLERY_IMAGES_INTERNAL;
+            ImageView imageView = createImageViewFromFile(
+                    file, DEFAULT_IMAGE_DIMENSION, DEFAULT_IMAGE_DIMENSION);
+            LabeledImageView labeledImageView = new LabeledImageView(
+                    SendFileActivity.this, imageView);
+
+            TextView labelText = labeledImageView.getLabelText();
+            if (remainingImages == 1) {
+                String truncatedFileName = getTruncatedFileName(
+                        file.getName(), MAX_FILE_NAME_LENGTH);
+                labelText.setText(truncatedFileName);
+            } else {
+                labeledImageView.setLabelOverlay();
+                labelText.setText("+" + remainingImages);
+                labelText.setTextSize(22);
+            }
+
+            fileImagesContainer.addView(labeledImageView);
+        }
     }
 
-    public void showAlert(final String title, final String message) {
-        Snackbar snackbar = Snackbar.make(SendFileActivity.this.findViewById(android.R.id.content),
-                title + ". " + message,
-                Snackbar.LENGTH_LONG);
-        snackbar.show();
+    private ImageView createImageViewFromFile(TransferFile file, int width, int height) {
+        ImageView imageView = new ImageView(SendFileActivity.this);
+        RequestCreator picassoCreator = loadPicassoImageBasedOnFileType(file);
+        picassoCreator.resize(width, height)
+                .centerCrop()
+                .into(imageView);
+
+        return imageView;
+    }
+
+    private RequestCreator loadPicassoImageBasedOnFileType(TransferFile file) {
+        RequestCreator picassoCreator;
+        if (FileUtils.isImage(file.getName()) && file instanceof TransferFileUri) {
+            TransferFileUri fileUri = (TransferFileUri) file;
+            picassoCreator = Picasso.get().load(fileUri.getUri());
+        } else if (FileUtils.isAudio(file.getName())) {
+            picassoCreator = Picasso.get().load(R.drawable.audio_icon); //TODO: Change image
+        } else if (FileUtils.isVideo(file.getName())) {
+            picassoCreator = Picasso.get().load(R.drawable.video_icon); //TODO: Change image
+        } else {
+            picassoCreator = Picasso.get().load(R.drawable.file_icon); //TODO: Change image
+        }
+
+        return picassoCreator;
+    }
+
+    private String getTruncatedFileName(String fileName, int maxLength) {
+        String fileNameWithoutExtension = FileUtils.getFileNameWithoutExtension(fileName);
+        if (fileNameWithoutExtension.length() > maxLength) {
+            String fileExtension = FileUtils.getFileExtension(fileName);
+            fileName = fileNameWithoutExtension.substring(0, maxLength) + "..." +
+                    (fileExtension.length() <= 4 ? fileExtension : "");
+        }
+
+        return fileName;
     }
 
     @Override

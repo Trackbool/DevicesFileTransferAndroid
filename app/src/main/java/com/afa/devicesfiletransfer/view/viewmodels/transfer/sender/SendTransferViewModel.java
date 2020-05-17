@@ -112,7 +112,7 @@ public class SendTransferViewModel extends ViewModel {
         this.attachedFilesLiveData.postValue(files);
     }
 
-    public void sendFile(List<Device> devices) {
+    public void sendFiles(List<Device> devices) {
         if (attachedFiles.isEmpty()) {
             triggerErrorEvent("No file attached", "You must attach a file");
             return;

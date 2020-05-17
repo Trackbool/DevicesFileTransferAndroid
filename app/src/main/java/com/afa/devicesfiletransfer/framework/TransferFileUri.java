@@ -49,6 +49,10 @@ public class TransferFileUri implements TransferFile, Parcelable {
         }
     }
 
+    public Uri getUri() {
+        return uri;
+    }
+
     @Override
     public int describeContents() {
         return 0;

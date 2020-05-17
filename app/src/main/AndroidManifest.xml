@@ -24,7 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.ui.SendFileActivity" />
+        <activity android:name=".view.ui.SendFileActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.ui.BaseActivity" />
 
         <service android:name=".view.framework.services.transfer.receiver.FilesReceiverListenerService" />
         <service android:name=".view.framework.services.transfer.sender.FilesSenderService" />
