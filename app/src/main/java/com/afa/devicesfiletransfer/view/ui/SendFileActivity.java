@@ -49,6 +49,8 @@ public class SendFileActivity extends BaseActivity {
 
     private static final int BROWSE_FILES_RESULT_CODE = 10;
 
+    private static final int MAX_GALLERY_IMAGES = 20;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,29 +179,61 @@ public class SendFileActivity extends BaseActivity {
     }
 
     private void showFileImagesInGallery(List<TransferFile> transferFiles) {
+        final int MAX_GALLERY_IMAGES_INTERNAL = MAX_GALLERY_IMAGES - 1;
+        final int MAX_FILE_NAME_LENGTH = 22;
+        final int DEFAULT_IMAGE_DIMENSION = 900;
+
         fileImagesContainer.removeAllViews();
 
-        for (TransferFile file : transferFiles) {
-            ImageView imageView = new ImageView(SendFileActivity.this);
-            RequestCreator picassoCreator = loadPicassoImageBasedOnFileType(file);
-
-            final int DEFAULT_IMAGE_DIMENSION = 900;
+        int limit = transferFiles.size() > MAX_GALLERY_IMAGES_INTERNAL ?
+                MAX_GALLERY_IMAGES_INTERNAL : transferFiles.size();
+        for (int i = 0; i < limit; i++) {
+            TransferFile file = transferFiles.get(i);
+            int width = DEFAULT_IMAGE_DIMENSION;
             final int containerWidth = fileImagesScrollView.getWidth();
             if (transferFiles.size() == 1 && containerWidth > 0) {
-                picassoCreator.resize(containerWidth, DEFAULT_IMAGE_DIMENSION);
-            } else {
-                picassoCreator.resize(DEFAULT_IMAGE_DIMENSION, DEFAULT_IMAGE_DIMENSION);
+                width = containerWidth;
             }
-            picassoCreator.centerCrop().into(imageView);
-
+            ImageView imageView = createImageViewFromFile(file, width, DEFAULT_IMAGE_DIMENSION);
             LabeledImageView labeledImageView = new LabeledImageView(
                     SendFileActivity.this, imageView);
 
-            final int MAX_FILE_NAME_LENGTH = 22;
             String truncatedFileName = getTruncatedFileName(file.getName(), MAX_FILE_NAME_LENGTH);
             labeledImageView.getLabelText().setText(truncatedFileName);
             fileImagesContainer.addView(labeledImageView);
         }
+
+        if (transferFiles.size() > MAX_GALLERY_IMAGES_INTERNAL) {
+            TransferFile file = transferFiles.get(MAX_GALLERY_IMAGES_INTERNAL);
+            int remainingImages = transferFiles.size() - MAX_GALLERY_IMAGES_INTERNAL;
+            ImageView imageView = createImageViewFromFile(
+                    file, DEFAULT_IMAGE_DIMENSION, DEFAULT_IMAGE_DIMENSION);
+            LabeledImageView labeledImageView = new LabeledImageView(
+                    SendFileActivity.this, imageView);
+
+            TextView labelText = labeledImageView.getLabelText();
+            if (remainingImages == 1) {
+                String truncatedFileName = getTruncatedFileName(
+                        file.getName(), MAX_FILE_NAME_LENGTH);
+                labelText.setText(truncatedFileName);
+            } else {
+                labeledImageView.setLabelOverlay();
+                labelText.setText("+" + remainingImages);
+                labelText.setTextSize(22);
+            }
+
+            fileImagesContainer.addView(labeledImageView);
+        }
+    }
+
+    private ImageView createImageViewFromFile(TransferFile file, int width, int height) {
+        ImageView imageView = new ImageView(SendFileActivity.this);
+        RequestCreator picassoCreator = loadPicassoImageBasedOnFileType(file);
+        picassoCreator.resize(width, height)
+                .centerCrop()
+                .into(imageView);
+
+        return imageView;
     }
 
     private RequestCreator loadPicassoImageBasedOnFileType(TransferFile file) {
@@ -223,7 +257,7 @@ public class SendFileActivity extends BaseActivity {
         if (fileNameWithoutExtension.length() > maxLength) {
             String fileExtension = FileUtils.getFileExtension(fileName);
             fileName = fileNameWithoutExtension.substring(0, maxLength) + "..." +
-                    (fileExtension.length() <= 4? fileExtension : "");
+                    (fileExtension.length() <= 4 ? fileExtension : "");
         }
 
         return fileName;
