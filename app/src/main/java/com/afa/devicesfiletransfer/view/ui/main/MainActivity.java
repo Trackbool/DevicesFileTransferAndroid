@@ -13,18 +13,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 public class MainActivity extends BaseActivity {
-
     private static final int REQUEST_READ_WRITE_PERMISSION = 9;
+
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
@@ -68,6 +70,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+        String displayedFragmentTag = makeFragmentTag(viewPager.getId(), viewPager.getCurrentItem());
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(displayedFragmentTag);
+        if (fragment instanceof Backable) {
+            if (!((Backable) fragment).onBackPressed()) {
+                return;
+            }
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("Exit")
                 .setMessage("Do you want to exit the app?")

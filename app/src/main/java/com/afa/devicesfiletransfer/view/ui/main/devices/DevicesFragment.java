@@ -3,6 +3,7 @@ package com.afa.devicesfiletransfer.view.ui.main.devices;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDisc
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryReceiverImpl;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.SendFileActivity;
+import com.afa.devicesfiletransfer.view.ui.main.Backable;
 import com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel.DevicesViewModel;
 import com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel.DevicesViewModelFactory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,7 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class DevicesFragment extends BaseFragment {
+public class DevicesFragment extends BaseFragment implements Backable {
     private DevicesViewModel devicesViewModel;
     private DevicesAdapter devicesAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -133,9 +135,13 @@ public class DevicesFragment extends BaseFragment {
     }
 
     private void discoverDevices() {
+        deselectAdapterDevices();
+        devicesViewModel.discoverDevices();
+    }
+
+    private void deselectAdapterDevices() {
         sendFilesButton.setVisibility(View.INVISIBLE);
         devicesAdapter.deselectDevices();
-        devicesViewModel.discoverDevices();
     }
 
     private void openSendFileActivity(List<Device> devices) {
@@ -148,5 +154,14 @@ public class DevicesFragment extends BaseFragment {
     public void onDestroyView() {
         devicesViewModel.onDestroy();
         super.onDestroyView();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (!devicesAdapter.getSelectedDevices().isEmpty()) {
+            deselectAdapterDevices();
+            return false;
+        }
+        return true;
     }
 }
