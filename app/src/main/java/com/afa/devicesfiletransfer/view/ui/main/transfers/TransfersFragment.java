@@ -1,22 +1,14 @@
 package com.afa.devicesfiletransfer.view.ui.main.transfers;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.ProgressBar;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Pair;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
-import com.afa.devicesfiletransfer.domain.model.TransferFile;
-import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel.TransfersViewModel;
@@ -26,7 +18,6 @@ import java.io.File;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
