@@ -135,7 +135,9 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
-                triggerErrorEvent("Sending error", "Could not connect");
+                String targetDeviceName = fileSenderProtocol.getTargetDevice().getName();
+                triggerErrorEvent("Sending error",
+                        "Could not connect with " + targetDeviceName);
             }
 
             @Override

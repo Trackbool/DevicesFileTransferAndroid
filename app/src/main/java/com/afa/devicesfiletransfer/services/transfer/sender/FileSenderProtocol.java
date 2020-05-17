@@ -38,6 +38,10 @@ public class FileSenderProtocol {
         this.callback = callback;
     }
 
+    public Device getTargetDevice() {
+        return remoteDevice;
+    }
+
     public int getTransfersNum() {
         return files.size();
     }
