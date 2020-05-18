@@ -35,7 +35,7 @@ public class FilesSenderService extends Service {
     private SaveTransferUseCase saveTransferUseCase;
     private final IBinder binder = new FilesSenderService.LocalBinder();
     private List<FileSenderProtocol.Callback> callbackReceivers = new ArrayList<>();
-    private AtomicInteger notStartedTransfersNum = new AtomicInteger(0);
+    private AtomicInteger notStartedTransfersCount = new AtomicInteger(0);
     private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
@@ -85,7 +85,7 @@ public class FilesSenderService extends Service {
 
         for (final Device device : devices) {
             final FileSenderProtocol fileSenderProtocol = createFileSender(device, files);
-            notStartedTransfersNum.getAndAdd(fileSenderProtocol.getTransfersNum());
+            notStartedTransfersCount.getAndAdd(fileSenderProtocol.getTransfersNum());
 
             fileSendingExecutor.execute(new Runnable() {
                 @Override
@@ -124,7 +124,7 @@ public class FilesSenderService extends Service {
         fileSender.setCallback(new FileSenderProtocol.Callback() {
             @Override
             public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
-                notStartedTransfersNum.getAndAdd(-fileSenderProtocol.getTransfersNum());
+                notStartedTransfersCount.getAndAdd(-fileSenderProtocol.getTransfersNum());
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
                     callback.onInitializationFailure(fileSenderProtocol);
                 }
@@ -132,7 +132,7 @@ public class FilesSenderService extends Service {
 
             @Override
             public void onTransferInitializationFailure(Transfer transfer, Exception e) {
-                notStartedTransfersNum.decrementAndGet();
+                notStartedTransfersCount.decrementAndGet();
                 inProgressTransfers.remove(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
                     callback.onTransferInitializationFailure(transfer, e);
@@ -142,7 +142,7 @@ public class FilesSenderService extends Service {
             @Override
             public void onStart(Transfer transfer) {
                 //TODO: Notify the file is sending
-                notStartedTransfersNum.decrementAndGet();
+                notStartedTransfersCount.decrementAndGet();
                 inProgressTransfers.add(transfer);
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
                     callback.onStart(transfer);
@@ -203,7 +203,7 @@ public class FilesSenderService extends Service {
     }
 
     private void finishServiceIfThereAreNoMoreTransfers() {
-        if (notStartedTransfersNum.get() == 0 && inProgressTransfers.size() == 0) {
+        if (notStartedTransfersCount.get() == 0 && inProgressTransfers.size() == 0) {
             stopSelf();
         }
     }
