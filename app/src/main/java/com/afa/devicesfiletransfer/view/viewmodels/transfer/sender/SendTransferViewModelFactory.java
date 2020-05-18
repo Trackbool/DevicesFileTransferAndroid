@@ -1,6 +1,6 @@
 package com.afa.devicesfiletransfer.view.viewmodels.transfer.sender;
 
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderInteractor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 
 import androidx.annotation.NonNull;
@@ -9,17 +9,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 public class SendTransferViewModelFactory implements ViewModelProvider.Factory {
     private final FileSenderServiceExecutor fileSenderServiceExecutor;
-    private final FileSenderReceiver fileSenderReceiver;
+    private final FileSenderInteractor fileSenderInteractor;
 
     public SendTransferViewModelFactory(FileSenderServiceExecutor fileSenderServiceExecutor,
-                                        FileSenderReceiver fileSenderReceiver) {
+                                        FileSenderInteractor fileSenderInteractor) {
         this.fileSenderServiceExecutor = fileSenderServiceExecutor;
-        this.fileSenderReceiver = fileSenderReceiver;
+        this.fileSenderInteractor = fileSenderInteractor;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        return (T) new SendTransferViewModel(fileSenderServiceExecutor, fileSenderReceiver);
+        return (T) new SendTransferViewModel(fileSenderServiceExecutor, fileSenderInteractor);
     }
 }

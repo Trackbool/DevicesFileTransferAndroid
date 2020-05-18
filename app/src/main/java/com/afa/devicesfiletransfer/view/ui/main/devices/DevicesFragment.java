@@ -3,7 +3,6 @@ package com.afa.devicesfiletransfer.view.ui.main.devices;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +10,10 @@ import android.view.ViewGroup;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
-import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
+import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryInteractor;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryExecutorImpl;
-import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryReceiverImpl;
+import com.afa.devicesfiletransfer.view.framework.services.discovery.DevicesDiscoveryInteractorImpl;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.SendFileActivity;
 import com.afa.devicesfiletransfer.view.ui.main.Backable;
@@ -114,10 +113,10 @@ public class DevicesFragment extends BaseFragment implements Backable {
     private void initializeDevicesViewModel() {
         DevicesDiscoveryExecutor devicesDiscoveryExecutor = new DevicesDiscoveryExecutorImpl(
                 requireActivity().getApplicationContext());
-        DevicesDiscoveryReceiver devicesDiscoveryReceiver = new DevicesDiscoveryReceiverImpl(
+        DevicesDiscoveryInteractor devicesDiscoveryInteractor = new DevicesDiscoveryInteractorImpl(
                 requireActivity().getApplicationContext());
         devicesViewModel = new ViewModelProvider(this,
-                new DevicesViewModelFactory(devicesDiscoveryExecutor, devicesDiscoveryReceiver))
+                new DevicesViewModelFactory(devicesDiscoveryExecutor, devicesDiscoveryInteractor))
                 .get(DevicesViewModel.class);
 
         devicesViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {

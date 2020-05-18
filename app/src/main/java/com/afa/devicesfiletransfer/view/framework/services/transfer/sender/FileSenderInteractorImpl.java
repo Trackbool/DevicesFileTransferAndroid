@@ -1,28 +1,26 @@
-package com.afa.devicesfiletransfer.view.framework.services.discovery;
+package com.afa.devicesfiletransfer.view.framework.services.transfer.sender;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 
-import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
-import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
-import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderInteractor;
 
-public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
+import java.util.List;
 
+public class FileSenderInteractorImpl implements FileSenderInteractor {
     private final Context context;
     private boolean mBound = false;
     private ServiceConnectionCallback serviceConnectionCallback;
-    private DiscoveryProtocolListener.Callback callback;
-    private DevicesDiscoveryService boundService;
+    private FileSenderProtocol.Callback callback;
+    private FilesSenderService boundService;
 
-    public DevicesDiscoveryReceiverImpl(Context context) {
+    public FileSenderInteractorImpl(Context context) {
         this.context = context;
     }
 
@@ -32,13 +30,22 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
     }
 
     @Override
-    public void setCallback(DiscoveryProtocolListener.Callback callback) {
+    public void setCallback(FileSenderProtocol.Callback callback) {
         this.callback = callback;
     }
 
     @Override
+    public List<Transfer> getInProgressTransfers() {
+        if (!mBound) {
+            throw new IllegalStateException("The service has not been started");
+        }
+
+        return boundService.getInProgressTransfers();
+    }
+
+    @Override
     public void receive() {
-        Intent serviceIntent = new Intent(context, DevicesDiscoveryService.class);
+        Intent serviceIntent = new Intent(context, FilesSenderService.class);
         context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
@@ -55,7 +62,7 @@ public class DevicesDiscoveryReceiverImpl implements DevicesDiscoveryReceiver {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            DevicesDiscoveryService.LocalBinder binder = (DevicesDiscoveryService.LocalBinder) service;
+            FilesSenderService.LocalBinder binder = (FilesSenderService.LocalBinder) service;
             boundService = binder.getService();
             boundService.addCallbackReceiver(callback);
             mBound = true;

@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.services.transfer.sender;
+package com.afa.devicesfiletransfer.view.framework.services.transfer.receiver;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,19 +8,20 @@ import android.os.IBinder;
 
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverInteractor;
 
 import java.util.List;
 
-public class FileSenderReceiverImpl implements FileSenderReceiver {
+public class FilesReceiverInteractorImpl implements FilesReceiverInteractor {
+
     private final Context context;
     private boolean mBound = false;
     private ServiceConnectionCallback serviceConnectionCallback;
-    private FileSenderProtocol.Callback callback;
-    private FilesSenderService boundService;
+    private FileReceiverProtocol.Callback callback;
+    private FilesReceiverListenerService boundService;
 
-    public FileSenderReceiverImpl(Context context) {
+    public FilesReceiverInteractorImpl(Context context) {
         this.context = context;
     }
 
@@ -30,7 +31,7 @@ public class FileSenderReceiverImpl implements FileSenderReceiver {
     }
 
     @Override
-    public void setCallback(FileSenderProtocol.Callback callback) {
+    public void setCallback(FileReceiverProtocol.Callback callback) {
         this.callback = callback;
     }
 
@@ -45,7 +46,7 @@ public class FileSenderReceiverImpl implements FileSenderReceiver {
 
     @Override
     public void receive() {
-        Intent serviceIntent = new Intent(context, FilesSenderService.class);
+        Intent serviceIntent = new Intent(context, FilesReceiverListenerService.class);
         context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
@@ -62,7 +63,7 @@ public class FileSenderReceiverImpl implements FileSenderReceiver {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            FilesSenderService.LocalBinder binder = (FilesSenderService.LocalBinder) service;
+            FilesReceiverListenerService.LocalBinder binder = (FilesReceiverListenerService.LocalBinder) service;
             boundService = binder.getService();
             boundService.addCallbackReceiver(callback);
             mBound = true;

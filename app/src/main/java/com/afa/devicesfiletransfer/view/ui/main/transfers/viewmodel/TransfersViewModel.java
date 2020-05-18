@@ -5,10 +5,10 @@ import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
-import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerReceiver;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverInteractor;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderInteractor;
 import com.afa.devicesfiletransfer.usecases.GetLastTransfersUseCase;
 import com.afa.devicesfiletransfer.util.TransferDateComparator;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
@@ -35,13 +35,13 @@ public class TransfersViewModel extends ViewModel {
 
     private final GetLastTransfersUseCase getLastTransfersUseCase;
     private final FilesReceiverListenerServiceExecutor receiverServiceExecutor;
-    private final FilesReceiverListenerReceiver receiverListenerReceiver;
-    private final FileSenderReceiver fileSenderReceiver;
+    private final FilesReceiverInteractor receiverListenerInteractor;
+    private final FileSenderInteractor fileSenderInteractor;
 
     public TransfersViewModel(final GetLastTransfersUseCase getLastTransfersUseCase,
                               final FilesReceiverListenerServiceExecutor receiverServiceExecutor,
-                              final FilesReceiverListenerReceiver receiverListenerReceiver,
-                              final FileSenderReceiver fileSenderReceiver) {
+                              final FilesReceiverInteractor receiverListenerInteractor,
+                              final FileSenderInteractor fileSenderInteractor) {
         loading = new MutableLiveData<>();
         transfers = new ArrayList<Transfer>() {
             @Override
@@ -60,14 +60,14 @@ public class TransfersViewModel extends ViewModel {
         onReceiveTransferErrorEvent = new LiveEvent<>();
         this.getLastTransfersUseCase = getLastTransfersUseCase;
         this.receiverServiceExecutor = receiverServiceExecutor;
-        this.receiverListenerReceiver = receiverListenerReceiver;
-        this.fileSenderReceiver = fileSenderReceiver;
+        this.receiverListenerInteractor = receiverListenerInteractor;
+        this.fileSenderInteractor = fileSenderInteractor;
 
-        this.receiverListenerReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
+        this.receiverListenerInteractor.setServiceConnectionCallback(new ServiceConnectionCallback() {
             @Override
             public void onConnect() {
                 List<Transfer> inProgressTransfers =
-                        receiverListenerReceiver.getInProgressTransfers();
+                        receiverListenerInteractor.getInProgressTransfers();
                 addNewTransfers(inProgressTransfers);
             }
 
@@ -76,13 +76,13 @@ public class TransfersViewModel extends ViewModel {
             }
         });
         final FileReceiverProtocol.Callback fileReceiverCallback = createFileReceiverCallback();
-        this.receiverListenerReceiver.setCallback(fileReceiverCallback);
+        this.receiverListenerInteractor.setCallback(fileReceiverCallback);
 
-        this.fileSenderReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
+        this.fileSenderInteractor.setServiceConnectionCallback(new ServiceConnectionCallback() {
             @Override
             public void onConnect() {
                 List<Transfer> inProgressTransfers =
-                        fileSenderReceiver.getInProgressTransfers();
+                        fileSenderInteractor.getInProgressTransfers();
                 addNewTransfers(inProgressTransfers);
             }
 
@@ -91,7 +91,7 @@ public class TransfersViewModel extends ViewModel {
             }
         });
         final FileSenderProtocol.Callback fileSenderCallback = createFileSenderCallback();
-        this.fileSenderReceiver.setCallback(fileSenderCallback);
+        this.fileSenderInteractor.setCallback(fileSenderCallback);
 
         this.receiverServiceExecutor.start();
         callGetLastTransfersUseCase();
@@ -205,8 +205,8 @@ public class TransfersViewModel extends ViewModel {
     }
 
     public void onStart() {
-        this.receiverListenerReceiver.receive();
-        this.fileSenderReceiver.receive();
+        this.receiverListenerInteractor.receive();
+        this.fileSenderInteractor.receive();
     }
 
     private void callGetLastTransfersUseCase() {
@@ -254,18 +254,18 @@ public class TransfersViewModel extends ViewModel {
     }
 
     public void onDestroy() {
-        if (receiverListenerReceiver != null)
-            receiverListenerReceiver.stop();
+        if (receiverListenerInteractor != null)
+            receiverListenerInteractor.stop();
 
-        if (fileSenderReceiver != null)
-            fileSenderReceiver.stop();
+        if (fileSenderInteractor != null)
+            fileSenderInteractor.stop();
     }
 
     @Override
     protected void onCleared() {
-        receiverListenerReceiver.setServiceConnectionCallback(null);
-        receiverListenerReceiver.setCallback(null);
-        fileSenderReceiver.setCallback(null);
+        receiverListenerInteractor.setServiceConnectionCallback(null);
+        receiverListenerInteractor.setCallback(null);
+        fileSenderInteractor.setCallback(null);
         super.onCleared();
     }
 }

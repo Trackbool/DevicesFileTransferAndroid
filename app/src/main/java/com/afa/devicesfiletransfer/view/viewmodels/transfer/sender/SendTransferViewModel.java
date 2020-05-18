@@ -5,7 +5,7 @@ import com.afa.devicesfiletransfer.domain.model.Pair;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderReceiver;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderInteractor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.model.AlertModel;
@@ -28,10 +28,10 @@ public class SendTransferViewModel extends ViewModel {
     private final LiveEvent<AlertModel> alertEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private FileSenderServiceExecutor fileSenderExecutor;
-    private FileSenderReceiver fileSenderReceiver;
+    private FileSenderInteractor fileSenderInteractor;
 
     public SendTransferViewModel(FileSenderServiceExecutor fileSenderExecutor,
-                                 FileSenderReceiver fileSenderReceiver) {
+                                 FileSenderInteractor fileSenderInteractor) {
         transfers = new ArrayList<>();
         transfersLiveData = new MutableLiveData<>();
         onTransferProgressUpdatedEvent = new LiveEvent<>();
@@ -43,8 +43,8 @@ public class SendTransferViewModel extends ViewModel {
         errorEvent = new LiveEvent<>();
 
         this.fileSenderExecutor = fileSenderExecutor;
-        this.fileSenderReceiver = fileSenderReceiver;
-        this.fileSenderReceiver.setCallback(new FileSenderProtocol.Callback() {
+        this.fileSenderInteractor = fileSenderInteractor;
+        this.fileSenderInteractor.setCallback(new FileSenderProtocol.Callback() {
 
             @Override
             public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
@@ -80,7 +80,7 @@ public class SendTransferViewModel extends ViewModel {
     }
 
     public void onShowView() {
-        fileSenderReceiver.receive();
+        fileSenderInteractor.receive();
     }
 
     public MutableLiveData<List<Transfer>> getTransfersLiveData() {
@@ -140,14 +140,14 @@ public class SendTransferViewModel extends ViewModel {
     }
 
     public void onHideView() {
-        if (fileSenderReceiver != null)
-            fileSenderReceiver.stop();
+        if (fileSenderInteractor != null)
+            fileSenderInteractor.stop();
     }
 
     @Override
     protected void onCleared() {
-        fileSenderReceiver.setServiceConnectionCallback(null);
-        fileSenderReceiver.setCallback(null);
+        fileSenderInteractor.setServiceConnectionCallback(null);
+        fileSenderInteractor.setCallback(null);
         super.onCleared();
     }
 }

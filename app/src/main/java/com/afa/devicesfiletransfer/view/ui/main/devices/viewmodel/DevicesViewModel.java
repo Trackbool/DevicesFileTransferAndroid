@@ -1,15 +1,13 @@
 package com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel;
 
 import com.afa.devicesfiletransfer.domain.model.Device;
-import com.afa.devicesfiletransfer.domain.model.DeviceProperties;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
-import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryReceiver;
+import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryInteractor;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,18 +21,18 @@ public class DevicesViewModel extends ViewModel {
     private final LiveEvent<Device> discoveryRequestReceivedEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private DevicesDiscoveryExecutor devicesDiscoveryExecutor;
-    private DevicesDiscoveryReceiver devicesDiscoveryReceiver;
+    private DevicesDiscoveryInteractor devicesDiscoveryInteractor;
 
     public DevicesViewModel(DevicesDiscoveryExecutor devicesDiscoveryExecutor,
-                            DevicesDiscoveryReceiver devicesDiscoveryReceiver) {
+                            DevicesDiscoveryInteractor devicesDiscoveryInteractor) {
         devices = new ArrayList<>();
         devicesLiveData = new MutableLiveData<>();
         discoveryRequestReceivedEvent = new LiveEvent<>();
         errorEvent = new LiveEvent<>();
-        this.devicesDiscoveryReceiver = devicesDiscoveryReceiver;
+        this.devicesDiscoveryInteractor = devicesDiscoveryInteractor;
         this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
         this.devicesDiscoveryExecutor.start();
-        this.devicesDiscoveryReceiver.setServiceConnectionCallback(new ServiceConnectionCallback() {
+        this.devicesDiscoveryInteractor.setServiceConnectionCallback(new ServiceConnectionCallback() {
             @Override
             public void onConnect() {
                 discoverDevices();
@@ -67,11 +65,11 @@ public class DevicesViewModel extends ViewModel {
                 devicesLiveData.postValue(devices);
             }
         };
-        this.devicesDiscoveryReceiver.setCallback(discoveryProtocolCallback);
+        this.devicesDiscoveryInteractor.setCallback(discoveryProtocolCallback);
     }
 
     public void onStart() {
-        this.devicesDiscoveryReceiver.receive();
+        this.devicesDiscoveryInteractor.receive();
     }
 
     public MutableLiveData<List<Device>> getDevicesLiveData() {
@@ -108,14 +106,14 @@ public class DevicesViewModel extends ViewModel {
     }
 
     public void onDestroy() {
-        if (devicesDiscoveryReceiver != null)
-            this.devicesDiscoveryReceiver.stop();
+        if (devicesDiscoveryInteractor != null)
+            this.devicesDiscoveryInteractor.stop();
     }
 
     @Override
     protected void onCleared() {
-        devicesDiscoveryReceiver.setServiceConnectionCallback(null);
-        devicesDiscoveryReceiver.setCallback(null);
+        devicesDiscoveryInteractor.setServiceConnectionCallback(null);
+        devicesDiscoveryInteractor.setCallback(null);
         super.onCleared();
     }
 }

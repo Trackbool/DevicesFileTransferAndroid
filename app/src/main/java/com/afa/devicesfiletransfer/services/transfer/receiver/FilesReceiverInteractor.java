@@ -1,14 +1,14 @@
-package com.afa.devicesfiletransfer.services.transfer.sender;
+package com.afa.devicesfiletransfer.services.transfer.receiver;
 
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 
 import java.util.List;
 
-public interface FileSenderReceiver {
+public interface FilesReceiverInteractor {
     void setServiceConnectionCallback(ServiceConnectionCallback callback);
 
-    void setCallback(FileSenderProtocol.Callback callback);
+    void setCallback(FileReceiverProtocol.Callback callback);
 
     List<Transfer> getInProgressTransfers();
 
