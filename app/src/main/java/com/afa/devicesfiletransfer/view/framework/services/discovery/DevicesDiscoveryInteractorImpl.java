@@ -6,20 +6,27 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import com.afa.devicesfiletransfer.ConfigProperties;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryInteractor;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSender;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSenderFactory;
+
+import java.net.SocketException;
 
 public class DevicesDiscoveryInteractorImpl implements DevicesDiscoveryInteractor {
-
     private final Context context;
     private boolean mBound = false;
     private ServiceConnectionCallback serviceConnectionCallback;
     private DiscoveryProtocolListener.Callback callback;
     private DevicesDiscoveryService boundService;
 
+    private DiscoveryProtocolSender discoverySender;
+
     public DevicesDiscoveryInteractorImpl(Context context) {
         this.context = context;
+        discoverySender = DiscoveryProtocolSenderFactory.getDefault(ConfigProperties.DISCOVERY_SERVICE_PORT);
     }
 
     @Override
@@ -36,6 +43,11 @@ public class DevicesDiscoveryInteractorImpl implements DevicesDiscoveryInteracto
     public void receive() {
         Intent serviceIntent = new Intent(context, DevicesDiscoveryService.class);
         context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void discover() throws SocketException {
+        discoverySender.discover();
     }
 
     @Override
