@@ -1,6 +1,6 @@
 package com.afa.devicesfiletransfer.services.transfer.receiver;
 
-public interface FilesReceiverListenerServiceExecutor {
+public interface FilesReceiverServiceExecutor {
     void start();
 
     void stop();

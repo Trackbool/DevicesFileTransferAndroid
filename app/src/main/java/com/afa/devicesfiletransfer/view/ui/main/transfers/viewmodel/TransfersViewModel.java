@@ -6,7 +6,7 @@ import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverInteractor;
-import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListenerServiceExecutor;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverServiceExecutor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderInteractor;
 import com.afa.devicesfiletransfer.usecases.GetLastTransfersUseCase;
@@ -34,12 +34,12 @@ public class TransfersViewModel extends ViewModel {
     private final LiveEvent<Pair<Transfer, ErrorModel>> onReceiveTransferErrorEvent;
 
     private final GetLastTransfersUseCase getLastTransfersUseCase;
-    private final FilesReceiverListenerServiceExecutor receiverServiceExecutor;
+    private final FilesReceiverServiceExecutor receiverServiceExecutor;
     private final FilesReceiverInteractor receiverListenerInteractor;
     private final FileSenderInteractor fileSenderInteractor;
 
     public TransfersViewModel(final GetLastTransfersUseCase getLastTransfersUseCase,
-                              final FilesReceiverListenerServiceExecutor receiverServiceExecutor,
+                              final FilesReceiverServiceExecutor receiverServiceExecutor,
                               final FilesReceiverInteractor receiverListenerInteractor,
                               final FileSenderInteractor fileSenderInteractor) {
         loading = new MutableLiveData<>();
