@@ -5,7 +5,7 @@ import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 
 import java.util.List;
 
-public interface FilesReceiverInteractor {
+public interface FileReceiverServiceInteractor {
     void setServiceConnectionCallback(ServiceConnectionCallback callback);
 
     void setCallback(FileReceiverProtocol.Callback callback);

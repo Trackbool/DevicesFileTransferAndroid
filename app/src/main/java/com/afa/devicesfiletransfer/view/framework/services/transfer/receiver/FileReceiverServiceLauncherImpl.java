@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverServiceExecutor;
+import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverServiceLauncher;
 
-public class FilesReceiverServiceExecutorImpl implements FilesReceiverServiceExecutor {
+public class FileReceiverServiceLauncherImpl implements FileReceiverServiceLauncher {
     private final Context context;
 
-    public FilesReceiverServiceExecutorImpl(Context context) {
+    public FileReceiverServiceLauncherImpl(Context context) {
         this.context = context;
     }
 

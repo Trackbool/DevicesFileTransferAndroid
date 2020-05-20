@@ -1,25 +1,25 @@
 package com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel;
 
-import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryExecutor;
-import com.afa.devicesfiletransfer.services.discovery.DevicesDiscoveryInteractor;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceLauncher;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceInteractor;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 public class DevicesViewModelFactory implements ViewModelProvider.Factory {
-    private DevicesDiscoveryExecutor devicesDiscoveryExecutor;
-    private DevicesDiscoveryInteractor devicesDiscoveryInteractor;
+    private DiscoveryServiceLauncher discoveryServiceLauncher;
+    private DiscoveryServiceInteractor discoveryServiceInteractor;
 
-    public DevicesViewModelFactory(DevicesDiscoveryExecutor devicesDiscoveryExecutor,
-                                   DevicesDiscoveryInteractor devicesDiscoveryInteractor) {
-        this.devicesDiscoveryExecutor = devicesDiscoveryExecutor;
-        this.devicesDiscoveryInteractor = devicesDiscoveryInteractor;
+    public DevicesViewModelFactory(DiscoveryServiceLauncher discoveryServiceLauncher,
+                                   DiscoveryServiceInteractor discoveryServiceInteractor) {
+        this.discoveryServiceLauncher = discoveryServiceLauncher;
+        this.discoveryServiceInteractor = discoveryServiceInteractor;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        return (T) new DevicesViewModel(devicesDiscoveryExecutor, devicesDiscoveryInteractor);
+        return (T) new DevicesViewModel(discoveryServiceLauncher, discoveryServiceInteractor);
     }
 }

@@ -9,18 +9,18 @@ import android.os.IBinder;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderInteractor;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceInteractor;
 
 import java.util.List;
 
-public class FileSenderInteractorImpl implements FileSenderInteractor {
+public class FileSenderServiceInteractorImpl implements FileSenderServiceInteractor {
     private final Context context;
     private boolean mBound = false;
     private ServiceConnectionCallback serviceConnectionCallback;
     private FileSenderProtocol.Callback callback;
     private FilesSenderService boundService;
 
-    public FileSenderInteractorImpl(Context context) {
+    public FileSenderServiceInteractorImpl(Context context) {
         this.context = context;
     }
 

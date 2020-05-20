@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.framework.services.transfer.receiver;
+package com.afa.devicesfiletransfer.view.framework.services.discovery;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -6,23 +6,27 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.ConfigProperties;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
-import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
-import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverInteractor;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceInteractor;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSender;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSenderFactory;
 
-import java.util.List;
+import java.net.SocketException;
 
-public class FilesReceiverInteractorImpl implements FilesReceiverInteractor {
-
+public class DiscoveryServiceInteractorImpl implements DiscoveryServiceInteractor {
     private final Context context;
     private boolean mBound = false;
     private ServiceConnectionCallback serviceConnectionCallback;
-    private FileReceiverProtocol.Callback callback;
-    private FilesReceiverListenerService boundService;
+    private DiscoveryProtocolListener.Callback callback;
+    private DevicesDiscoveryService boundService;
 
-    public FilesReceiverInteractorImpl(Context context) {
+    private DiscoveryProtocolSender discoverySender;
+
+    public DiscoveryServiceInteractorImpl(Context context) {
         this.context = context;
+        discoverySender = DiscoveryProtocolSenderFactory.getDefault(ConfigProperties.DISCOVERY_SERVICE_PORT);
     }
 
     @Override
@@ -31,23 +35,19 @@ public class FilesReceiverInteractorImpl implements FilesReceiverInteractor {
     }
 
     @Override
-    public void setCallback(FileReceiverProtocol.Callback callback) {
+    public void setCallback(DiscoveryProtocolListener.Callback callback) {
         this.callback = callback;
     }
 
     @Override
-    public List<Transfer> getInProgressTransfers() {
-        if (!mBound) {
-            throw new IllegalStateException("The service has not been started");
-        }
-
-        return boundService.getInProgressTransfers();
+    public void receive() {
+        Intent serviceIntent = new Intent(context, DevicesDiscoveryService.class);
+        context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    public void receive() {
-        Intent serviceIntent = new Intent(context, FilesReceiverListenerService.class);
-        context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+    public void discover() throws SocketException {
+        discoverySender.discover();
     }
 
     @Override
@@ -63,7 +63,7 @@ public class FilesReceiverInteractorImpl implements FilesReceiverInteractor {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            FilesReceiverListenerService.LocalBinder binder = (FilesReceiverListenerService.LocalBinder) service;
+            DevicesDiscoveryService.LocalBinder binder = (DevicesDiscoveryService.LocalBinder) service;
             boundService = binder.getService();
             boundService.addCallbackReceiver(callback);
             mBound = true;

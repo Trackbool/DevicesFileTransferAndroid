@@ -7,15 +7,15 @@ import android.os.Build;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.framework.TransferFileUri;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceLauncher;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileSenderServiceExecutorImpl implements FileSenderServiceExecutor {
+public class FileSenderServiceLauncherImpl implements FileSenderServiceLauncher {
     private final Context context;
 
-    public FileSenderServiceExecutorImpl(Context context) {
+    public FileSenderServiceLauncherImpl(Context context) {
         this.context = context;
     }
 

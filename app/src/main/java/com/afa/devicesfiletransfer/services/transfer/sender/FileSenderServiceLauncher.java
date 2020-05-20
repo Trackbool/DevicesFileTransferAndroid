@@ -5,6 +5,6 @@ import com.afa.devicesfiletransfer.domain.model.TransferFile;
 
 import java.util.List;
 
-public interface FileSenderServiceExecutor {
+public interface FileSenderServiceLauncher {
     void send(List<Device> devices, List<TransferFile> files);
 }

@@ -16,12 +16,12 @@ import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
 import com.afa.devicesfiletransfer.framework.TransferFileUri;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderInteractor;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceExecutor;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceInteractor;
+import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceLauncher;
 import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.afa.devicesfiletransfer.view.components.LabeledImageView;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderInteractorImpl;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceExecutorImpl;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceInteractorImpl;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceLauncherImpl;
 import com.afa.devicesfiletransfer.view.model.AlertModel;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModel;
@@ -104,12 +104,12 @@ public class SendFileActivity extends BaseActivity {
     }
 
     private void initializeSendTransferViewModel() {
-        FileSenderServiceExecutor fileSenderExecutor =
-                new FileSenderServiceExecutorImpl(getApplicationContext());
-        FileSenderInteractor fileSenderInteractor =
-                new FileSenderInteractorImpl(getApplicationContext());
+        FileSenderServiceLauncher fileSenderExecutor =
+                new FileSenderServiceLauncherImpl(getApplicationContext());
+        FileSenderServiceInteractor fileSenderServiceInteractor =
+                new FileSenderServiceInteractorImpl(getApplicationContext());
         sendTransferViewModel = new ViewModelProvider(this,
-                new SendTransferViewModelFactory(fileSenderExecutor, fileSenderInteractor))
+                new SendTransferViewModelFactory(fileSenderExecutor, fileSenderServiceInteractor))
                 .get(SendTransferViewModel.class);
 
         sendTransferViewModel.getAttachedFiles().observe(this, new Observer<List<TransferFile>>() {
