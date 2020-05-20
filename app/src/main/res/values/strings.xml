@@ -11,4 +11,5 @@
     <string name="send_files">Send</string>
     <string name="browse_files">Browse files</string>
     <string name="no_files_attached">No files attached</string>
+    <string name="devices_tip_header">You don´t see any devices?</string>
 </resources>
