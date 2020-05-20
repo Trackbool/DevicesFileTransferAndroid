@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 
+import com.afa.devicesfiletransfer.ConfigProperties;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
@@ -28,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class DevicesDiscoveryService extends Service {
-    private static final int DISCOVERY_SERVICE_PORT = 5000;
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
     private final IBinder binder = new LocalBinder();
     private DiscoveryProtocolSender discoverySender;
@@ -59,7 +59,7 @@ public class DevicesDiscoveryService extends Service {
 
     @Override
     public void onCreate() {
-        discoverySender = DiscoveryProtocolSenderFactory.getDefault(DISCOVERY_SERVICE_PORT);
+        discoverySender = DiscoveryProtocolSenderFactory.getDefault(ConfigProperties.DISCOVERY_SERVICE_PORT);
         discoveryListener = createDiscoveryListener();
         discoveryListener.start();
         super.onCreate();
@@ -93,7 +93,7 @@ public class DevicesDiscoveryService extends Service {
 
     private DiscoveryProtocolListener createDiscoveryListener() {
         return DiscoveryProtocolListenerFactory
-                .getDefault(DISCOVERY_SERVICE_PORT, new DiscoveryProtocolListener.Callback() {
+                .getDefault(ConfigProperties.DISCOVERY_SERVICE_PORT, new DiscoveryProtocolListener.Callback() {
                     @Override
                     public void initializationFailure(Exception e) {
                         for (DiscoveryProtocolListener.Callback callback : callbackReceivers) {

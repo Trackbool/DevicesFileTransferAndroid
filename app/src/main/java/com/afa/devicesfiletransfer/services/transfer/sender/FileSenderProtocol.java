@@ -1,5 +1,6 @@
 package com.afa.devicesfiletransfer.services.transfer.sender;
 
+import com.afa.devicesfiletransfer.ConfigProperties;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.DeviceFactory;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
@@ -16,7 +17,6 @@ import java.net.Socket;
 import java.util.List;
 
 public class FileSenderProtocol {
-    private static final int SOCKET_PORT = 5001;
     private final Device remoteDevice;
     private Device currentDevice;
     private final List<TransferFile> files;
@@ -52,7 +52,7 @@ public class FileSenderProtocol {
 
     public void send() {
         try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(remoteDevice.getAddress(), SOCKET_PORT), 3000);
+            socket.connect(new InetSocketAddress(remoteDevice.getAddress(), ConfigProperties.TRANSFER_SERVICE_PORT), 3000);
             InetAddress currentDeviceAddress = socket.getLocalAddress();
             currentDevice = DeviceFactory.getCurrentDevice(currentDeviceAddress);
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());

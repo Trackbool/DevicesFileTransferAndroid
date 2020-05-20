@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import com.afa.devicesfiletransfer.ConfigProperties;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.framework.repository.TransfersRoomDatabaseRepository;
@@ -35,7 +36,6 @@ import androidx.core.app.NotificationCompat;
 
 public class FilesReceiverListenerService extends Service {
     private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
-    private final static int TRANSFER_SERVICE_PORT = 5001;
     private SaveTransferUseCase saveTransferUseCase;
     private FilesReceiverListener filesReceiverListener;
     private ThreadPoolExecutor fileReceivingExecutor;
@@ -78,7 +78,7 @@ public class FilesReceiverListenerService extends Service {
         saveTransferUseCase = new SaveTransferUseCase(
                 new TransfersRoomDatabaseRepository(getApplicationContext()));
 
-        filesReceiverListener = new FilesReceiverListener(TRANSFER_SERVICE_PORT, new FilesReceiverListener.Callback() {
+        filesReceiverListener = new FilesReceiverListener(ConfigProperties.TRANSFER_SERVICE_PORT, new FilesReceiverListener.Callback() {
             @Override
             public void onTransferReceived(final InputStream inputStream) {
                 final FileReceiverProtocol fileReceiver = FilesReceiverListenerService.this.createFileReceiver();
