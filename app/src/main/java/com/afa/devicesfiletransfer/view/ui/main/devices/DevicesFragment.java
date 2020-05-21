@@ -201,6 +201,7 @@ public class DevicesFragment extends BaseFragment implements Backable {
 
     @Override
     public boolean onBackPressed() {
+        headerTipPopup.dismiss();
         if (!devicesAdapter.getSelectedDevices().isEmpty()) {
             deselectAdapterDevices();
             return false;
