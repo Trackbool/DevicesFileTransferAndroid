@@ -11,5 +11,8 @@
     <string name="send_files">Send</string>
     <string name="browse_files">Browse files</string>
     <string name="no_files_attached">No files attached</string>
-    <string name="devices_tip_header">You don´t see any devices?</string>
+    <string name="devices_tip_header">Can´t you find the device?</string>
+    <string name="devices_header_question_tip_text">
+        Disable and enable the Wi-Fi in both devices and swipe again or try a direct connection
+    </string>
 </resources>

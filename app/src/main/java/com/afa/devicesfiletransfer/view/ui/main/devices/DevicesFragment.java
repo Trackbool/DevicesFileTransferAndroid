@@ -1,19 +1,25 @@
 package com.afa.devicesfiletransfer.view.ui.main.devices;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
-import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceLauncher;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceInteractor;
-import com.afa.devicesfiletransfer.view.model.ErrorModel;
-import com.afa.devicesfiletransfer.view.framework.services.discovery.DiscoveryServiceLauncherImpl;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceLauncher;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DiscoveryServiceInteractorImpl;
+import com.afa.devicesfiletransfer.view.framework.services.discovery.DiscoveryServiceLauncherImpl;
+import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.SendFileActivity;
 import com.afa.devicesfiletransfer.view.ui.main.Backable;
@@ -34,9 +40,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 public class DevicesFragment extends BaseFragment implements Backable {
     private DevicesViewModel devicesViewModel;
     private DevicesAdapter devicesAdapter;
+    private ImageView questionIconImageView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView devicesRecyclerView;
     private FloatingActionButton sendFilesButton;
+    private PopupWindow headerTipPopup;
 
     public static DevicesFragment newInstance() {
         return new DevicesFragment();
@@ -48,6 +56,14 @@ public class DevicesFragment extends BaseFragment implements Backable {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_devices, container, false);
 
+        questionIconImageView = root.findViewById(R.id.questionIconImageView);
+        headerTipPopup = createTipPopup();
+        questionIconImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                headerTipPopup.showAsDropDown(questionIconImageView);
+            }
+        });
         swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
         devicesRecyclerView = root.findViewById(R.id.devicesRecyclerView);
         sendFilesButton = root.findViewById(R.id.sendFilesButton);
@@ -131,6 +147,34 @@ public class DevicesFragment extends BaseFragment implements Backable {
                 showError(error.getTitle(), error.getMessage());
             }
         });
+    }
+
+    private PopupWindow createTipPopup() {
+        final PopupWindow tip = new PopupWindow(requireContext());
+
+        TextView tipText = new TextView(requireContext());
+        tipText.setText(getString(R.string.devices_header_question_tip_text));
+        tipText.setTextColor(Color.WHITE);
+
+        FrameLayout textContainer = new FrameLayout(requireContext());
+        textContainer.setBackgroundColor(Color.BLACK);
+        textContainer.getBackground().setAlpha(200);
+        textContainer.setPadding(20, 20, 20, 20);
+        textContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tip.dismiss();
+            }
+        });
+        textContainer.addView(tipText);
+
+        tip.setOutsideTouchable(true);
+        tip.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        tip.setContentView(textContainer);
+        tip.setHeight(200);
+        tip.setWidth(700);
+
+        return tip;
     }
 
     private void discoverDevices() {
