@@ -12,4 +12,5 @@
     <color name="selectedItemList">#C0C0C0</color>
 
     <color name="colorBackgroundScreen">#F1F1EF</color>
+    <color name="pressedColor">#51838181</color>
 </resources>
