@@ -23,27 +23,42 @@
                 android:layout_height="wrap_content"
                 android:padding="16dp">
 
-                <ImageView
+                <com.afa.devicesfiletransfer.view.components.ClickableImageView
                     android:id="@+id/questionIconImageView"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
+                    android:layout_marginStart="6dp"
                     android:layout_marginEnd="10dp"
+                    android:layout_marginTop="4dp"
                     android:src="@drawable/question_tip_icon"
                     android:contentDescription="@string/device_icon_description" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/tipHeaderTextView"
+                    android:layout_width="250dp"
+                    android:layout_height="21dp"
                     android:layout_alignParentTop="true"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginTop="9dp"
+                    android:layout_marginEnd="40dp"
+                    android:layout_toStartOf="@+id/addDirectConnectionImageView"
                     android:layout_toEndOf="@+id/questionIconImageView"
                     android:ellipsize="end"
-                    android:gravity="center"
                     android:maxLines="2"
                     android:text="@string/devices_tip_header"
                     android:textSize="14sp" />
+
+                <com.afa.devicesfiletransfer.view.components.ClickableImageView
+                    android:id="@+id/addDirectConnectionImageView"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="@string/add_device_icon_description"
+                    android:src="@drawable/plus_icon" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
 

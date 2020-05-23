@@ -15,4 +15,5 @@
     <string name="devices_header_question_tip_text">
         Disable and enable the Wi-Fi in both devices and swipe again or try a direct connection
     </string>
+    <string name="add_device_icon_description">Add device</string>
 </resources>

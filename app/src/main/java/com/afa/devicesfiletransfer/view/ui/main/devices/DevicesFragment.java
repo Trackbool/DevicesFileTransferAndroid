@@ -41,6 +41,7 @@ public class DevicesFragment extends BaseFragment implements Backable {
     private DevicesViewModel devicesViewModel;
     private DevicesAdapter devicesAdapter;
     private ImageView questionIconImageView;
+    private ImageView addDirectConnectionImageView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView devicesRecyclerView;
     private FloatingActionButton sendFilesButton;
@@ -62,6 +63,13 @@ public class DevicesFragment extends BaseFragment implements Backable {
             @Override
             public void onClick(View view) {
                 headerTipPopup.showAsDropDown(questionIconImageView);
+            }
+        });
+        addDirectConnectionImageView = root.findViewById(R.id.addDirectConnectionImageView);
+        addDirectConnectionImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: Prompt window to fill device name and IP
             }
         });
         swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
