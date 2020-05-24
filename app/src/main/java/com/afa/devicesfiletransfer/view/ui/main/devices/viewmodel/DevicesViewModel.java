@@ -51,12 +51,12 @@ public class DevicesViewModel extends ViewModel {
 
             @Override
             public void discoveryRequestReceived(Device device) {
-                addDeviceIfNotAlreadyInTheList(device);
+                addOrUpdateDeviceIfAlreadyPresent(device);
             }
 
             @Override
             public void discoveryResponseReceived(Device device) {
-                addDeviceIfNotAlreadyInTheList(device);
+                addOrUpdateDeviceIfAlreadyPresent(device);
             }
 
             @Override
@@ -94,11 +94,10 @@ public class DevicesViewModel extends ViewModel {
         }
     }
 
-    private void addDeviceIfNotAlreadyInTheList(Device device) {
-        if (!devices.contains(device)) {
-            devices.add(device);
-            devicesLiveData.postValue(devices);
-        }
+    private void addOrUpdateDeviceIfAlreadyPresent(Device device) {
+        devices.remove(device);
+        devices.add(device);
+        devicesLiveData.postValue(devices);
     }
 
     private void triggerErrorEvent(String title, String message) {
