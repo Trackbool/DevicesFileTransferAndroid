@@ -29,16 +29,16 @@ public class AddDeviceViewModel extends ViewModel {
         return onErrorEvent;
     }
 
-    public void onAddDeviceButtonClicked(final String name, final String ipAddress) {
+    public void onAddDeviceButtonClicked(final String name, final String address) {
         if (name == null || name.isEmpty()) {
             onErrorEvent.postValue(
                     new ErrorModel("Error", "The name can´t be empty"));
             return;
         }
 
-        if (ipAddress == null || ipAddress.isEmpty()) {
+        if (address == null || address.isEmpty()) {
             onErrorEvent.postValue(
-                    new ErrorModel("Error", "The IP Address can´t be empty"));
+                    new ErrorModel("Error", "The address can´t be empty"));
             return;
         }
 
@@ -46,17 +46,17 @@ public class AddDeviceViewModel extends ViewModel {
             @Override
             public void run() {
                 try {
-                    InetAddress deviceIpAddress = InetAddress.getByName(ipAddress);
+                    InetAddress deviceAddress = InetAddress.getByName(address);
                     NetworkDataProvider networkDataProvider = new NetworkDataProvider();
-                    if (!networkDataProvider.isCurrentDeviceIp(deviceIpAddress)) {
-                        deviceLiveData.postValue(new Device(name, "Unknown", deviceIpAddress));
+                    if (!networkDataProvider.isCurrentDeviceAddress(deviceAddress)) {
+                        deviceLiveData.postValue(new Device(name, "Unknown", deviceAddress));
                     } else {
                         onErrorEvent.postValue(new ErrorModel("Error",
-                                "The IP Address can´t be the current device address"));
+                                "The address can´t be the current device address"));
                     }
                 } catch (UnknownHostException e) {
                     onErrorEvent.postValue(
-                            new ErrorModel("Error", "The IP Address is invalid"));
+                            new ErrorModel("Error", "The address is invalid"));
                 }
             }
         }).start();

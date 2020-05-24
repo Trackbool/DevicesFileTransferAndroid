@@ -26,7 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 public class AddDeviceDialogFragment extends DialogFragment {
     private AddDeviceViewModel addDeviceViewModel;
     private EditText nameEditText;
-    private EditText ipAddressEditText;
+    private EditText addressEditText;
     private TextView errorTextView;
 
     @NotNull
@@ -37,15 +37,15 @@ public class AddDeviceDialogFragment extends DialogFragment {
 
         initViewModel();
         nameEditText = view.findViewById(R.id.nameEditText);
-        ipAddressEditText = view.findViewById(R.id.ipAddressEditText);
+        addressEditText = view.findViewById(R.id.addressEditText);
         errorTextView = view.findViewById(R.id.errorTextView);
         Button formSubmitButton = view.findViewById(R.id.formSubmitButton);
         formSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String name = String.valueOf(nameEditText.getText());
-                String ipAddress = String.valueOf(ipAddressEditText.getText());
-                addDeviceViewModel.onAddDeviceButtonClicked(name, ipAddress);
+                String address = String.valueOf(addressEditText.getText());
+                addDeviceViewModel.onAddDeviceButtonClicked(name, address);
             }
         });
 

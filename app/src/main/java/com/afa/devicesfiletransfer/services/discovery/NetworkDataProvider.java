@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class NetworkDataProvider {
 
-    public boolean isCurrentDeviceIp(InetAddress receivedAddress) {
+    public boolean isCurrentDeviceAddress(InetAddress receivedAddress) {
         Set<InetAddress> currentDeviceAddresses = getDeviceIpv4Addresses();
         String receivedIp = receivedAddress.getHostAddress();
         for (InetAddress a : currentDeviceAddresses) {

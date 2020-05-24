@@ -11,7 +11,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DiscoveryProtocolListener {
@@ -71,7 +70,7 @@ public class DiscoveryProtocolListener {
                         receivePacket.getOffset(),
                         receivePacket.getLength());
 
-                if (networkDataProvider.isCurrentDeviceIp(senderAddress)) {
+                if (networkDataProvider.isCurrentDeviceAddress(senderAddress)) {
                     continue;
                 }
 
