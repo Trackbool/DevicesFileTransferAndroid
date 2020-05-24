@@ -39,10 +39,9 @@
                 <TextView
                     android:id="@+id/tipHeaderTextView"
                     android:layout_width="250dp"
-                    android:layout_height="21dp"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginTop="9dp"
+                    android:layout_marginTop="2dp"
                     android:layout_marginEnd="40dp"
                     android:layout_toStartOf="@+id/addDirectConnectionImageView"
                     android:layout_toEndOf="@+id/questionIconImageView"
@@ -50,6 +49,32 @@
                     android:maxLines="2"
                     android:text="@string/devices_tip_header"
                     android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/yourIpTextView"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tipHeaderTextView"
+                    android:layout_marginTop="0dp"
+                    android:layout_toEndOf="@+id/questionIconImageView"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text="@string/header_ip_address_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/currentDeviceIpTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tipHeaderTextView"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="40dp"
+                    android:layout_toStartOf="@+id/addDirectConnectionImageView"
+                    android:layout_toEndOf="@+id/yourIpTextView"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textSize="12sp"
+                    tools:text="192.168.1.189" />
 
                 <com.afa.devicesfiletransfer.view.components.ClickableImageView
                     android:id="@+id/addDirectConnectionImageView"

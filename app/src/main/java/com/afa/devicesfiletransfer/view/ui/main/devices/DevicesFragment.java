@@ -47,6 +47,7 @@ public class DevicesFragment extends BaseFragment implements Backable {
     private DevicesViewModel devicesViewModel;
     private DevicesAdapter devicesAdapter;
     private ImageView questionIconImageView;
+    private TextView currentDeviceIpTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView devicesRecyclerView;
     private FloatingActionButton sendFilesButton;
@@ -70,6 +71,7 @@ public class DevicesFragment extends BaseFragment implements Backable {
                 headerTipPopup.showAsDropDown(questionIconImageView);
             }
         });
+        currentDeviceIpTextView = root.findViewById(R.id.currentDeviceIpTextView);
         ImageView addDirectConnectionImageView = root.findViewById(R.id.addDirectConnectionImageView);
         addDirectConnectionImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,6 +157,12 @@ public class DevicesFragment extends BaseFragment implements Backable {
                 new DevicesViewModelFactory(discoveryServiceLauncher, discoveryServiceInteractor))
                 .get(DevicesViewModel.class);
 
+        devicesViewModel.getCurrentDeviceAddress().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String text) {
+                currentDeviceIpTextView.setText(text);
+            }
+        });
         devicesViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
             @Override
             public void onChanged(List<Device> devices) {
@@ -224,6 +232,18 @@ public class DevicesFragment extends BaseFragment implements Backable {
                 }
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        devicesViewModel.onShowView();
+    }
+
+    @Override
+    public void onPause() {
+        devicesViewModel.onHideView();
+        super.onPause();
     }
 
     @Override

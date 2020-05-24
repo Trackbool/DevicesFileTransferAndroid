@@ -5,32 +5,44 @@ import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceInteractor;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceLauncher;
+import com.afa.devicesfiletransfer.services.discovery.NetworkDataProvider;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class DevicesViewModel extends ViewModel {
+    private final MutableLiveData<String> currentDeviceAddress;
     private final List<Device> devices;
     private final MutableLiveData<List<Device>> devicesLiveData;
     private final LiveEvent<Device> discoveryRequestReceivedEvent;
     private final LiveEvent<ErrorModel> errorEvent;
     private DiscoveryServiceLauncher discoveryServiceLauncher;
     private DiscoveryServiceInteractor discoveryServiceInteractor;
+    private final NetworkDataProvider networkDataProvider;
+
+    private static final int REFRESH_DEVICE_ADDRESS_RATE = 3000;
+    private Timer refreshCurrentDeviceAddressTimer;
 
     public DevicesViewModel(DiscoveryServiceLauncher discoveryServiceLauncher,
                             DiscoveryServiceInteractor discoveryServiceInteractor) {
+        currentDeviceAddress = new MutableLiveData<>();
         devices = new ArrayList<>();
         devicesLiveData = new MutableLiveData<>();
         discoveryRequestReceivedEvent = new LiveEvent<>();
         errorEvent = new LiveEvent<>();
         this.discoveryServiceInteractor = discoveryServiceInteractor;
         this.discoveryServiceLauncher = discoveryServiceLauncher;
+        networkDataProvider = new NetworkDataProvider();
         this.discoveryServiceLauncher.start();
         this.discoveryServiceInteractor.setServiceConnectionCallback(new ServiceConnectionCallback() {
             @Override
@@ -68,8 +80,8 @@ public class DevicesViewModel extends ViewModel {
         this.discoveryServiceInteractor.setCallback(discoveryProtocolCallback);
     }
 
-    public void onStart() {
-        this.discoveryServiceInteractor.receive();
+    public MutableLiveData<String> getCurrentDeviceAddress() {
+        return currentDeviceAddress;
     }
 
     public MutableLiveData<List<Device>> getDevicesLiveData() {
@@ -82,6 +94,24 @@ public class DevicesViewModel extends ViewModel {
 
     public LiveEvent<ErrorModel> getErrorEvent() {
         return errorEvent;
+    }
+
+    public void onStart() {
+        this.discoveryServiceInteractor.receive();
+    }
+
+    public void onShowView() {
+        refreshCurrentDeviceAddressTimer = new Timer();
+        refreshCurrentDeviceAddressTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                updateCurrentDeviceAddress();
+            }
+        }, 0, REFRESH_DEVICE_ADDRESS_RATE);
+    }
+
+    public void onHideView() {
+        refreshCurrentDeviceAddressTimer.cancel();
     }
 
     public void addDevice(Device device) {
@@ -102,6 +132,24 @@ public class DevicesViewModel extends ViewModel {
         devices.remove(device);
         devices.add(device);
         devicesLiveData.postValue(devices);
+    }
+
+    private void updateCurrentDeviceAddress() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String addressToShow = "Not connected";
+                try {
+                    InetAddress currentAddress = networkDataProvider.getOutgoingDeviceIpv4();
+                    if (networkDataProvider.isCurrentDeviceAddress(currentAddress)) {
+                        addressToShow = currentAddress.getHostAddress();
+                    }
+                } catch (IOException ignored) {
+                } finally {
+                    currentDeviceAddress.postValue(addressToShow);
+                }
+            }
+        }).start();
     }
 
     private void triggerErrorEvent(String title, String message) {

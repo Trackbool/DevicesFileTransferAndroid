@@ -20,4 +20,5 @@
     <string name="add_device_name_field">Name</string>
     <string name="add_device_address_field">IP Address/Hostname</string>
     <string name="submit">Submit</string>
+    <string name="header_ip_address_text">Your IP:</string>
 </resources>
