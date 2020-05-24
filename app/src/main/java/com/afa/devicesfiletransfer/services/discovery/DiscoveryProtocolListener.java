@@ -71,7 +71,7 @@ public class DiscoveryProtocolListener {
                         receivePacket.getOffset(),
                         receivePacket.getLength());
 
-                if (receivedIpIsCurrentDeviceIp(senderAddress)) {
+                if (networkDataProvider.isCurrentDeviceIp(senderAddress)) {
                     continue;
                 }
 
@@ -117,18 +117,6 @@ public class DiscoveryProtocolListener {
         byte[] sendData = new Gson().toJson(discoveryOperation).getBytes();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, senderAddress, port);
         serverSocket.send(sendPacket);
-    }
-
-    private boolean receivedIpIsCurrentDeviceIp(InetAddress receivedAddress) {
-        Set<InetAddress> currentDeviceAddresses = networkDataProvider.getDeviceIpv4Addresses();
-        String receivedIp = receivedAddress.getHostAddress();
-        for (InetAddress a : currentDeviceAddresses) {
-            String currentDeviceIp = a.getHostAddress();
-            if (receivedIp.equals(currentDeviceIp)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void notifyDiscoveryRequest(InetAddress senderAddress, DeviceProperties deviceProperties) {
