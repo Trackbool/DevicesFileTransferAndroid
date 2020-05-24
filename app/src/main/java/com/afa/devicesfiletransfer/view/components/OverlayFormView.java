@@ -2,11 +2,14 @@ package com.afa.devicesfiletransfer.view.components;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -157,4 +160,26 @@ public class OverlayFormView extends FrameLayout {
                 });
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        final int x = (int) event.getX();
+        final int y = (int) event.getY();
+
+        final int viewX = (int) dialogContainer.getX();
+        final int viewY = (int) dialogContainer.getY();
+        final int viewWidth = dialogContainer.getWidth();
+        final int viewHeight = dialogContainer.getHeight();
+
+        Rect viewRect = new Rect(viewX, viewY, viewX + viewWidth, viewY + viewHeight);
+        if ((event.getAction() == MotionEvent.ACTION_DOWN) && !viewRect.contains(x, y)) {
+            hideFade();
+            return true;
+        } else if (event.getAction() == MotionEvent.ACTION_OUTSIDE) {
+            hideFade();
+            return true;
+        } else {
+            return super.onTouchEvent(event);
+        }
+    }
 }
