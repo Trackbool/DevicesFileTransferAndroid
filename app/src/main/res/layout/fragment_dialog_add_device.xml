@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="center"
+    android:background="@android:drawable/dialog_holo_light_frame"
+    android:foregroundGravity="center"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:id="@+id/formTitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginBottom="20dp"
+            android:text="@string/add_device_form_title"/>
+
+        <LinearLayout
+            android:id="@+id/formFieldsContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <EditText
+                android:id="@+id/nameEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/add_device_name_field"
+                android:importantForAutofill="no"
+                android:inputType="text" />
+            <EditText
+                android:id="@+id/addressEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/add_device_address_field"
+                android:importantForAutofill="no"
+                android:inputType="text" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/errorTextView"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/errorRed"
+            tools:text="This is the status" />
+        <Button
+            android:id="@+id/formSubmitButton"
+            style="@style/SecondaryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/submit"/>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

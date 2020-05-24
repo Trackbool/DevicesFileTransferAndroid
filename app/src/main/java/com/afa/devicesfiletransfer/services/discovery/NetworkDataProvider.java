@@ -1,9 +1,27 @@
 package com.afa.devicesfiletransfer.services.discovery;
 
-import java.net.*;
-import java.util.*;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NetworkDataProvider {
+
+    public boolean isCurrentDeviceAddress(InetAddress receivedAddress) {
+        Set<InetAddress> currentDeviceAddresses = getDeviceIpv4Addresses();
+        String receivedIp = receivedAddress.getHostAddress();
+        for (InetAddress a : currentDeviceAddresses) {
+            String currentDeviceIp = a.getHostAddress();
+            if (receivedIp.equals(currentDeviceIp)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public Set<InetAddress> getDeviceIpv4Addresses() {
         Set<InetAddress> addresses = new HashSet<>();
@@ -43,7 +61,7 @@ public class NetworkDataProvider {
             while (inetAddresses.hasMoreElements()) {
                 InetAddress address = inetAddresses.nextElement();
 
-                if(address instanceof Inet6Address)
+                if (address instanceof Inet6Address)
                     continue;
 
                 addresses.add(address);

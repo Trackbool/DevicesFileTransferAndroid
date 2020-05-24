@@ -2,9 +2,9 @@ package com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel;
 
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.services.ServiceConnectionCallback;
-import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceLauncher;
-import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceInteractor;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceInteractor;
+import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceLauncher;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 
@@ -82,6 +82,10 @@ public class DevicesViewModel extends ViewModel {
 
     public LiveEvent<ErrorModel> getErrorEvent() {
         return errorEvent;
+    }
+
+    public void addDevice(Device device) {
+        addDeviceIfNotAlreadyInTheList(device);
     }
 
     public void discoverDevices() {
