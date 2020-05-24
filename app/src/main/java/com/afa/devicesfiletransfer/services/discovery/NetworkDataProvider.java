@@ -1,5 +1,7 @@
 package com.afa.devicesfiletransfer.services.discovery;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -11,9 +13,9 @@ import java.util.Set;
 
 public class NetworkDataProvider {
 
-    public boolean isCurrentDeviceAddress(InetAddress receivedAddress) {
+    public boolean isCurrentDeviceAddress(InetAddress address) {
         Set<InetAddress> currentDeviceAddresses = getDeviceIpv4Addresses();
-        String receivedIp = receivedAddress.getHostAddress();
+        String receivedIp = address.getHostAddress();
         for (InetAddress a : currentDeviceAddresses) {
             String currentDeviceIp = a.getHostAddress();
             if (receivedIp.equals(currentDeviceIp)) {
@@ -21,6 +23,15 @@ public class NetworkDataProvider {
             }
         }
         return false;
+    }
+
+    public InetAddress getOutgoingDeviceIpv4() throws IOException {
+        InetAddress address;
+        try (final DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            address = socket.getLocalAddress();
+        }
+        return address;
     }
 
     public Set<InetAddress> getDeviceIpv4Addresses() {
