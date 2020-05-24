@@ -1,5 +1,6 @@
 package com.afa.devicesfiletransfer.view.ui.main.devices;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -40,6 +42,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class DevicesFragment extends BaseFragment implements Backable {
+    private static final int ADD_DEVICE_REQUEST_CODE = 6;
+    private static final String ADD_DEVICE_DIALOG = "ADD_DEVICE_DIALOG";
     private DevicesViewModel devicesViewModel;
     private DevicesAdapter devicesAdapter;
     private ImageView questionIconImageView;
@@ -93,7 +97,8 @@ public class DevicesFragment extends BaseFragment implements Backable {
     private void showOverlayForm() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         DialogFragment dialog = new AddDeviceDialogFragment();
-        dialog.show(fragmentManager, "dialog");
+        dialog.setTargetFragment(this, ADD_DEVICE_REQUEST_CODE);
+        dialog.show(fragmentManager, ADD_DEVICE_DIALOG);
     }
 
     private void initializeViews() {
@@ -206,6 +211,19 @@ public class DevicesFragment extends BaseFragment implements Backable {
         Intent intent = new Intent(requireActivity(), SendFileActivity.class);
         intent.putParcelableArrayListExtra("devicesList", new ArrayList<>(devices));
         startActivity(intent);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ADD_DEVICE_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data.getExtras().containsKey("device")) {
+                    Device device = data.getParcelableExtra("device");
+                    devicesViewModel.addDevice(device);
+                }
+            }
+        }
     }
 
     @Override

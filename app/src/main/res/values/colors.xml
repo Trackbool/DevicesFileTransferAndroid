@@ -13,4 +13,5 @@
 
     <color name="colorBackgroundScreen">#F1F1EF</color>
     <color name="pressedColor">#51838181</color>
+    <color name="errorRed">#FD2B2B</color>
 </resources>
