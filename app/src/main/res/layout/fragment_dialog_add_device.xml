@@ -51,12 +51,13 @@
                 android:importantForAutofill="no"
                 android:inputType="text" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/errorTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:textColor="@color/errorRed"
-            tools:text="This is the status"/>
+            tools:text="This is the status" />
         <Button
             android:id="@+id/formSubmitButton"
             style="@style/SecondaryButton"
