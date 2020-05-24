@@ -85,7 +85,7 @@ public class DevicesViewModel extends ViewModel {
     }
 
     public void addDevice(Device device) {
-        addDeviceIfNotAlreadyInTheList(device);
+        addOrUpdateDeviceIfAlreadyPresent(device);
     }
 
     public void discoverDevices() {
