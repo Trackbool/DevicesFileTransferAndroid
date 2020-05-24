@@ -140,7 +140,7 @@ public class DevicesViewModel extends ViewModel {
             public void run() {
                 String addressToShow = "Not connected";
                 try {
-                    InetAddress currentAddress = networkDataProvider.getOutgoingDeviceIpv4();
+                    InetAddress currentAddress = networkDataProvider.getOutgoingDeviceIp();
                     if (networkDataProvider.isCurrentDeviceAddress(currentAddress)) {
                         addressToShow = currentAddress.getHostAddress();
                     }

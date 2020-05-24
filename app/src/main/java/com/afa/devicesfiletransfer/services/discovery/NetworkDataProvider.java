@@ -2,7 +2,6 @@ package com.afa.devicesfiletransfer.services.discovery;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -14,7 +13,7 @@ import java.util.Set;
 public class NetworkDataProvider {
 
     public boolean isCurrentDeviceAddress(InetAddress address) {
-        Set<InetAddress> currentDeviceAddresses = getDeviceIpv4Addresses();
+        Set<InetAddress> currentDeviceAddresses = getDeviceAddresses();
         String receivedIp = address.getHostAddress();
         for (InetAddress a : currentDeviceAddresses) {
             String currentDeviceIp = a.getHostAddress();
@@ -25,7 +24,7 @@ public class NetworkDataProvider {
         return false;
     }
 
-    public InetAddress getOutgoingDeviceIpv4() throws IOException {
+    public InetAddress getOutgoingDeviceIp() throws IOException {
         InetAddress address;
         try (final DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
@@ -34,29 +33,18 @@ public class NetworkDataProvider {
         return address;
     }
 
-    public Set<InetAddress> getDeviceIpv4Addresses() {
+    public Set<InetAddress> getDeviceAddresses() {
         Set<InetAddress> addresses = new HashSet<>();
 
         try {
-            addresses = getDeviceIpv4AddressesInternal();
+            addresses = getDeviceAddressesInternal();
         } catch (SocketException ignored) {
         }
 
         return addresses;
     }
 
-    public Set<InetAddress> getIpv4BroadcastAddresses() {
-        Set<InetAddress> addresses = new HashSet<>();
-
-        try {
-            addresses = getIpv4BroadcastAddressesInternal();
-        } catch (SocketException ignored) {
-        }
-
-        return addresses;
-    }
-
-    private Set<InetAddress> getDeviceIpv4AddressesInternal() throws SocketException {
+    private Set<InetAddress> getDeviceAddressesInternal() throws SocketException {
         Set<InetAddress> addresses = new HashSet<>();
 
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -71,10 +59,6 @@ public class NetworkDataProvider {
             Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
             while (inetAddresses.hasMoreElements()) {
                 InetAddress address = inetAddresses.nextElement();
-
-                if (address instanceof Inet6Address)
-                    continue;
-
                 addresses.add(address);
             }
         }
@@ -82,7 +66,18 @@ public class NetworkDataProvider {
         return addresses;
     }
 
-    private Set<InetAddress> getIpv4BroadcastAddressesInternal() throws SocketException {
+    public Set<InetAddress> getBroadcastAddresses() {
+        Set<InetAddress> addresses = new HashSet<>();
+
+        try {
+            addresses = getBroadcastAddressesInternal();
+        } catch (SocketException ignored) {
+        }
+
+        return addresses;
+    }
+
+    private Set<InetAddress> getBroadcastAddressesInternal() throws SocketException {
         Set<InetAddress> addresses = new HashSet<>();
 
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -95,7 +90,7 @@ public class NetworkDataProvider {
             }
             for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
                 InetAddress broadcast = interfaceAddress.getBroadcast();
-                if (broadcast == null || broadcast instanceof Inet6Address)
+                if (broadcast == null)
                     continue;
 
                 addresses.add(broadcast);

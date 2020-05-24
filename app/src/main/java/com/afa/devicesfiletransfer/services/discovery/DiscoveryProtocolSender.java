@@ -44,7 +44,7 @@ public class DiscoveryProtocolSender {
     }
 
     private void broadcastDiscovery() {
-        Set<InetAddress> addresses = network.getIpv4BroadcastAddresses();
+        Set<InetAddress> addresses = network.getBroadcastAddresses();
         for (InetAddress a : addresses) {
             try {
                 sendDiscovery(a);
@@ -54,7 +54,7 @@ public class DiscoveryProtocolSender {
     }
 
     private void broadcastDisconnect() {
-        Set<InetAddress> addresses = network.getIpv4BroadcastAddresses();
+        Set<InetAddress> addresses = network.getBroadcastAddresses();
         for (InetAddress a : addresses) {
             try {
                 sendDisconnect(a);
