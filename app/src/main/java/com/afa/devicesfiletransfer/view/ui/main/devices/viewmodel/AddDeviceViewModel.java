@@ -1,6 +1,7 @@
 package com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel;
 
 import com.afa.devicesfiletransfer.domain.model.Device;
+import com.afa.devicesfiletransfer.services.discovery.NetworkDataProvider;
 import com.afa.devicesfiletransfer.view.framework.livedata.LiveEvent;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 
@@ -46,7 +47,13 @@ public class AddDeviceViewModel extends ViewModel {
             public void run() {
                 try {
                     InetAddress deviceIpAddress = InetAddress.getByName(ipAddress);
-                    deviceLiveData.postValue(new Device(name, "Unknown", deviceIpAddress));
+                    NetworkDataProvider networkDataProvider = new NetworkDataProvider();
+                    if (!networkDataProvider.isCurrentDeviceIp(deviceIpAddress)) {
+                        deviceLiveData.postValue(new Device(name, "Unknown", deviceIpAddress));
+                    } else {
+                        onErrorEvent.postValue(new ErrorModel("Error",
+                                "The IP Address can´t be the current device address"));
+                    }
                 } catch (UnknownHostException e) {
                     onErrorEvent.postValue(
                             new ErrorModel("Error", "The IP Address is invalid"));
