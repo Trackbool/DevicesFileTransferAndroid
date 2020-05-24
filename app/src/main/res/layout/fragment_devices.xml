@@ -87,12 +87,4 @@
         android:layout_marginEnd="24dp"
         android:src="@drawable/icon_send"
         android:visibility="invisible" />
-
-    <com.afa.devicesfiletransfer.view.components.OverlayFormView
-        android:id="@+id/addDeviceOverlayFormView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"
-        app:formTitle="ADD DEVICE"
-        app:submitButtonText="@string/submit"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

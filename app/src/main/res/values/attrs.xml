@@ -3,10 +3,4 @@
     <declare-styleable name="ClickableImageView">
         <attr name="pressedColor" format="reference|color" />
     </declare-styleable>
-    <declare-styleable name="OverlayFormView">
-        <attr name="backgroundOverlayColor" format="color" />
-        <attr name="backgroundOverlayOpacity" format="integer" />
-        <attr name="formTitle" format="string" />
-        <attr name="submitButtonText" format="string" />
-    </declare-styleable>
 </resources>

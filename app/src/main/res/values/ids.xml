@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="addDeviceFormName" type="id"/>
-    <item name="addDeviceFormIpAddress" type="id"/>
-</resources>
