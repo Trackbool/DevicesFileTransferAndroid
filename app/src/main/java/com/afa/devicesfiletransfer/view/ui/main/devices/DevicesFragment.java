@@ -216,6 +216,12 @@ public class DevicesFragment extends BaseFragment implements Backable {
     }
 
     @Override
+    public void onPause() {
+        addDeviceOverlayFormView.hideFade();
+        super.onPause();
+    }
+
+    @Override
     public void onDestroyView() {
         devicesViewModel.onDestroy();
         super.onDestroyView();
