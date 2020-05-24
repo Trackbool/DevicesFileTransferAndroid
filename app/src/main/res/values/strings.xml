@@ -16,4 +16,7 @@
         Disable and enable the Wi-Fi in both devices and swipe again or try a direct connection
     </string>
     <string name="add_device_icon_description">Add device</string>
+    <string name="submit">Submit</string>
+    <string name="add_device_name_field">Name</string>
+    <string name="add_device_ip_address_field">IP Address</string>
 </resources>

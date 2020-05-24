@@ -17,6 +17,7 @@ import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceInteractor;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryServiceLauncher;
+import com.afa.devicesfiletransfer.view.components.OverlayFormView;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DiscoveryServiceInteractorImpl;
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DiscoveryServiceLauncherImpl;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
@@ -40,8 +41,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 public class DevicesFragment extends BaseFragment implements Backable {
     private DevicesViewModel devicesViewModel;
     private DevicesAdapter devicesAdapter;
+    private OverlayFormView addDeviceOverlayFormView;
     private ImageView questionIconImageView;
-    private ImageView addDirectConnectionImageView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView devicesRecyclerView;
     private FloatingActionButton sendFilesButton;
@@ -55,21 +56,23 @@ public class DevicesFragment extends BaseFragment implements Backable {
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_devices, container, false);
+        final View root = inflater.inflate(R.layout.fragment_devices, container, false);
 
         questionIconImageView = root.findViewById(R.id.questionIconImageView);
         headerTipPopup = createTipPopup();
+        addDeviceOverlayFormView = root.findViewById(R.id.addDeviceOverlayFormView);
+        initializeOverlayForm();
         questionIconImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 headerTipPopup.showAsDropDown(questionIconImageView);
             }
         });
-        addDirectConnectionImageView = root.findViewById(R.id.addDirectConnectionImageView);
+        ImageView addDirectConnectionImageView = root.findViewById(R.id.addDirectConnectionImageView);
         addDirectConnectionImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: Prompt window to fill device name and IP
+                addDeviceOverlayFormView.showFade();
             }
         });
         swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
@@ -87,6 +90,17 @@ public class DevicesFragment extends BaseFragment implements Backable {
         devicesViewModel.onStart();
 
         return root;
+    }
+
+    private void initializeOverlayForm() {
+        addDeviceOverlayFormView.addFormField(R.id.addDeviceFormName, "Name");
+        addDeviceOverlayFormView.addFormField(R.id.addDeviceFormIpAddress, "IP Address");
+        addDeviceOverlayFormView.getSubmitButton().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: Logic to add new device
+            }
+        });
     }
 
     private void initializeViews() {
@@ -209,6 +223,11 @@ public class DevicesFragment extends BaseFragment implements Backable {
 
     @Override
     public boolean onBackPressed() {
+        if (addDeviceOverlayFormView.getVisibility() == View.VISIBLE) {
+            addDeviceOverlayFormView.hideFade();
+            return false;
+        }
+
         headerTipPopup.dismiss();
         if (!devicesAdapter.getSelectedDevices().isEmpty()) {
             deselectAdapterDevices();
