@@ -30,12 +30,14 @@ public class DevicesViewModel extends ViewModel {
     private DiscoveryServiceInteractor discoveryServiceInteractor;
     private final NetworkDataProvider networkDataProvider;
 
+    private static final String NOT_CONNECTED = "Not connected";
     private static final int REFRESH_DEVICE_ADDRESS_RATE = 3000;
     private Timer refreshCurrentDeviceAddressTimer;
 
     public DevicesViewModel(DiscoveryServiceLauncher discoveryServiceLauncher,
                             DiscoveryServiceInteractor discoveryServiceInteractor) {
         currentDeviceAddress = new MutableLiveData<>();
+        currentDeviceAddress.postValue(NOT_CONNECTED);
         devices = new ArrayList<>();
         devicesLiveData = new MutableLiveData<>();
         discoveryRequestReceivedEvent = new LiveEvent<>();
@@ -138,7 +140,7 @@ public class DevicesViewModel extends ViewModel {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String addressToShow = "Not connected";
+                String addressToShow = NOT_CONNECTED;
                 try {
                     InetAddress currentAddress = networkDataProvider.getOutgoingDeviceIp();
                     if (networkDataProvider.isCurrentDeviceAddress(currentAddress)) {
@@ -146,7 +148,9 @@ public class DevicesViewModel extends ViewModel {
                     }
                 } catch (IOException ignored) {
                 } finally {
-                    currentDeviceAddress.postValue(addressToShow);
+                    if (!addressToShow.equals(currentDeviceAddress.getValue())) {
+                        currentDeviceAddress.postValue(addressToShow);
+                    }
                 }
             }
         }).start();
