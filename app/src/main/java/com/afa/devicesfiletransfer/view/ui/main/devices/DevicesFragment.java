@@ -229,8 +229,8 @@ public class DevicesFragment extends BaseFragment implements Backable {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ADD_DEVICE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                if (data.getExtras().containsKey("device")) {
-                    Device device = data.getParcelableExtra("device");
+                if (data.getExtras() .containsKey("device")) {
+                    Device device = (Device) data.getExtras().getSerializable("device");
                     devicesViewModel.addDevice(device);
                 }
             }
