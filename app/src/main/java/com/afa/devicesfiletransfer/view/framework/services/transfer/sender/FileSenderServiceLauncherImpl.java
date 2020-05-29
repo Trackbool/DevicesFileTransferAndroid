@@ -21,7 +21,7 @@ public class FileSenderServiceLauncherImpl implements FileSenderServiceLauncher 
 
     @Override
     public void send(List<Device> devices, List<TransferFile> files) {
-        Intent serviceIntent = new Intent(context, FilesSenderService.class);
+        Intent serviceIntent = new Intent(context, FileSenderService.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("devices", new ArrayList<>(devices));
         bundle.putSerializable("files", new ArrayList<>(files));

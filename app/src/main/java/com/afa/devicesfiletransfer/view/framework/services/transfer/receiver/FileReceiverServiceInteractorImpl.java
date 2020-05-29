@@ -19,7 +19,7 @@ public class FileReceiverServiceInteractorImpl implements FileReceiverServiceInt
     private boolean mBound = false;
     private ServiceConnectionCallback serviceConnectionCallback;
     private FileReceiverProtocol.Callback callback;
-    private FilesReceiverListenerService boundService;
+    private FileReceiverService boundService;
 
     public FileReceiverServiceInteractorImpl(Context context) {
         this.context = context;
@@ -46,7 +46,7 @@ public class FileReceiverServiceInteractorImpl implements FileReceiverServiceInt
 
     @Override
     public void receive() {
-        Intent serviceIntent = new Intent(context, FilesReceiverListenerService.class);
+        Intent serviceIntent = new Intent(context, FileReceiverService.class);
         context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
@@ -63,7 +63,7 @@ public class FileReceiverServiceInteractorImpl implements FileReceiverServiceInt
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            FilesReceiverListenerService.LocalBinder binder = (FilesReceiverListenerService.LocalBinder) service;
+            FileReceiverService.LocalBinder binder = (FileReceiverService.LocalBinder) service;
             boundService = binder.getService();
             boundService.addCallbackReceiver(callback);
             mBound = true;

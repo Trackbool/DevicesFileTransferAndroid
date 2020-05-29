@@ -28,8 +28,8 @@
             android:screenOrientation="portrait" />
         <activity android:name=".view.ui.BaseActivity" />
 
-        <service android:name=".view.framework.services.transfer.receiver.FilesReceiverListenerService" />
-        <service android:name=".view.framework.services.transfer.sender.FilesSenderService" />
+        <service android:name=".view.framework.services.transfer.receiver.FileReceiverService" />
+        <service android:name=".view.framework.services.transfer.sender.FileSenderService" />
         <service android:name=".view.framework.services.discovery.DevicesDiscoveryService" />
     </application>
 

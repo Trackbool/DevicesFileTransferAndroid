@@ -15,7 +15,6 @@ import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
-import com.afa.devicesfiletransfer.framework.TransferFileUri;
 import com.afa.devicesfiletransfer.framework.repository.TransfersRoomDatabaseRepository;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
 import com.afa.devicesfiletransfer.usecases.SaveTransferUseCase;
@@ -30,22 +29,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-public class FilesSenderService extends Service {
-    private static final String CHANNEL_ID = FilesSenderService.class.getName() + "Channel";
+public class FileSenderService extends Service {
+    private static final String CHANNEL_ID = FileSenderService.class.getName() + "Channel";
     private ThreadPoolExecutor fileSendingExecutor;
     private SaveTransferUseCase saveTransferUseCase;
-    private final IBinder binder = new FilesSenderService.LocalBinder();
+    private final IBinder binder = new FileSenderService.LocalBinder();
     private List<FileSenderProtocol.Callback> callbackReceivers = new ArrayList<>();
     private AtomicInteger notStartedTransfersCount = new AtomicInteger(0);
     private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
-        FilesSenderService getService() {
-            return FilesSenderService.this;
+        FileSenderService getService() {
+            return FileSenderService.this;
         }
     }
 
-    public FilesSenderService() {
+    public FileSenderService() {
         fileSendingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
     }
 

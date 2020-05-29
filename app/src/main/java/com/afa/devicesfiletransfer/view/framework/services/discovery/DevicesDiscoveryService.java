@@ -7,9 +7,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 
 import com.afa.devicesfiletransfer.ConfigProperties;
 import com.afa.devicesfiletransfer.R;
@@ -18,8 +16,7 @@ import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerFactory;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSender;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSenderFactory;
-import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderProtocol;
-import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FilesReceiverListenerService;
+import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FileReceiverService;
 
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -29,7 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public class DevicesDiscoveryService extends Service {
-    private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
+    private static final String CHANNEL_ID = FileReceiverService.class.getName() + "Channel";
     private final IBinder binder = new LocalBinder();
     private DiscoveryProtocolSender discoverySender;
     private DiscoveryProtocolListener discoveryListener;

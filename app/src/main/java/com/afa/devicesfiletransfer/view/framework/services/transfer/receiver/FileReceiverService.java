@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.afa.devicesfiletransfer.ConfigProperties;
@@ -34,22 +32,22 @@ import java.util.concurrent.ThreadPoolExecutor;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-public class FilesReceiverListenerService extends Service {
-    private static final String CHANNEL_ID = FilesReceiverListenerService.class.getName() + "Channel";
+public class FileReceiverService extends Service {
+    private static final String CHANNEL_ID = FileReceiverService.class.getName() + "Channel";
     private SaveTransferUseCase saveTransferUseCase;
     private FilesReceiverListener filesReceiverListener;
     private ThreadPoolExecutor fileReceivingExecutor;
-    private final IBinder binder = new FilesReceiverListenerService.LocalBinder();
+    private final IBinder binder = new FileReceiverService.LocalBinder();
     private List<FileReceiverProtocol.Callback> callbackReceivers = new ArrayList<>();
     private List<Transfer> inProgressTransfers = new ArrayList<>();
 
     public class LocalBinder extends Binder {
-        FilesReceiverListenerService getService() {
-            return FilesReceiverListenerService.this;
+        FileReceiverService getService() {
+            return FileReceiverService.this;
         }
     }
 
-    public FilesReceiverListenerService() {
+    public FileReceiverService() {
         fileReceivingExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
     }
 
@@ -81,7 +79,7 @@ public class FilesReceiverListenerService extends Service {
         filesReceiverListener = new FilesReceiverListener(ConfigProperties.TRANSFER_SERVICE_PORT, new FilesReceiverListener.Callback() {
             @Override
             public void onTransferReceived(final InputStream inputStream) {
-                final FileReceiverProtocol fileReceiver = FilesReceiverListenerService.this.createFileReceiver();
+                final FileReceiverProtocol fileReceiver = FileReceiverService.this.createFileReceiver();
                 fileReceivingExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -199,7 +197,7 @@ public class FilesReceiverListenerService extends Service {
     }
 
     private void notifySystemAboutNewFile(File file) {
-        MediaScannerConnection.scanFile(FilesReceiverListenerService.this,
+        MediaScannerConnection.scanFile(FileReceiverService.this,
                 new String[]{file.toString()},
                 new String[]{file.getName()},
                 null);

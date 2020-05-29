@@ -15,7 +15,7 @@ public class FileReceiverServiceLauncherImpl implements FileReceiverServiceLaunc
 
     @Override
     public void start() {
-        Intent serviceIntent = new Intent(context, FilesReceiverListenerService.class);
+        Intent serviceIntent = new Intent(context, FileReceiverService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent);
         } else {
@@ -25,7 +25,7 @@ public class FileReceiverServiceLauncherImpl implements FileReceiverServiceLaunc
 
     @Override
     public void stop() {
-        Intent serviceIntent = new Intent(context, FilesReceiverListenerService.class);
+        Intent serviceIntent = new Intent(context, FileReceiverService.class);
         context.stopService(serviceIntent);
     }
 }

@@ -219,6 +219,7 @@ public class DevicesFragment extends BaseFragment implements Backable {
         Intent intent = new Intent(requireActivity(), SendFileActivity.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("devicesList", new ArrayList<>(devices));
+
         intent.putExtras(bundle);
         startActivity(intent);
     }
