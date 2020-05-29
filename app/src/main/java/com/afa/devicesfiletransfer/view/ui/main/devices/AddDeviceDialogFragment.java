@@ -63,7 +63,7 @@ public class AddDeviceDialogFragment extends DialogFragment {
             @Override
             public void onChanged(Device device) {
                 Bundle bundle = new Bundle();
-                bundle.putParcelable("device", device);
+                bundle.putSerializable("device", device);
                 Intent intent = new Intent().putExtras(bundle);
                 getTargetFragment()
                         .onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);

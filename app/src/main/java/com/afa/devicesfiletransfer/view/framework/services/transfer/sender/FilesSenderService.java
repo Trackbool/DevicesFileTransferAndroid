@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -77,16 +78,13 @@ public class FilesSenderService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        final List<Device> devices = intent.getParcelableArrayListExtra("devices");
-
-        final List<TransferFileUri> intentFiles = intent.getParcelableArrayListExtra("files");
-        final List<TransferFile> files = new ArrayList<>();
-        files.addAll(intentFiles);
+        Bundle bundle = intent.getExtras();
+        final List<Device> devices = (List<Device>) bundle.getSerializable("devices");
+        final List<TransferFile> files = (List<TransferFile>) bundle.getSerializable("files");
 
         for (final Device device : devices) {
             final FileSenderProtocol fileSenderProtocol = createFileSender(device, files);
             notStartedTransfersCount.getAndAdd(fileSenderProtocol.getTransfersNum());
-
             fileSendingExecutor.execute(new Runnable() {
                 @Override
                 public void run() {

@@ -1,12 +1,10 @@
 package com.afa.devicesfiletransfer.domain.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.Objects;
 
-public class Device implements Parcelable {
+public class Device implements Serializable {
     private String name;
     private String os;
     private InetAddress address;
@@ -50,18 +48,6 @@ public class Device implements Parcelable {
     }
 
     @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(os);
-        dest.writeSerializable(address);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -73,22 +59,4 @@ public class Device implements Parcelable {
     public int hashCode() {
         return Objects.hash(address);
     }
-
-    protected Device(Parcel in) {
-        name = in.readString();
-        os = in.readString();
-        address = (InetAddress) in.readSerializable();
-    }
-
-    public static final Creator<Device> CREATOR = new Creator<Device>() {
-        @Override
-        public Device createFromParcel(Parcel in) {
-            return new Device(in);
-        }
-
-        @Override
-        public Device[] newArray(int size) {
-            return new Device[size];
-        }
-    };
 }

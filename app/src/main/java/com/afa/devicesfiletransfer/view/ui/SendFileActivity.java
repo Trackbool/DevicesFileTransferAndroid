@@ -63,8 +63,8 @@ public class SendFileActivity extends BaseActivity {
             actionBar.setDisplayShowHomeEnabled(true);
         }
 
-        devices = Objects.requireNonNull(
-                getIntent().getExtras()).getParcelableArrayList("devicesList");
+        Bundle bundle = getIntent().getExtras();
+        devices = (List<Device>) bundle.getSerializable("devicesList");
 
         initViews();
         initializeSendTransferViewModel();
