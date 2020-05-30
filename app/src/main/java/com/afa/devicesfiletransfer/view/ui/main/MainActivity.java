@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.afa.devicesfiletransfer.R;
+import com.afa.devicesfiletransfer.view.ui.Backable;
 import com.afa.devicesfiletransfer.view.ui.BaseActivity;
 import com.google.android.material.tabs.TabLayout;
 
@@ -70,7 +71,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        String displayedFragmentTag = makeFragmentTag(viewPager.getId(), viewPager.getCurrentItem());
+        String displayedFragmentTag = generateViewPagerFragmentTag(viewPager.getId(), viewPager.getCurrentItem());
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(displayedFragmentTag);
         if (fragment instanceof Backable) {
             if (!((Backable) fragment).onBackPressed()) {

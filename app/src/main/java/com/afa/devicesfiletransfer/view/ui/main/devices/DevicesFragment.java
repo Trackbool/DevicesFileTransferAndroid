@@ -22,8 +22,8 @@ import com.afa.devicesfiletransfer.view.framework.services.discovery.DiscoverySe
 import com.afa.devicesfiletransfer.view.framework.services.discovery.DiscoveryServiceLauncherImpl;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
-import com.afa.devicesfiletransfer.view.ui.SendFileActivity;
-import com.afa.devicesfiletransfer.view.ui.main.Backable;
+import com.afa.devicesfiletransfer.view.ui.filesender.SendFileActivity;
+import com.afa.devicesfiletransfer.view.ui.Backable;
 import com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel.DevicesViewModel;
 import com.afa.devicesfiletransfer.view.ui.main.devices.viewmodel.DevicesViewModelFactory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

@@ -23,7 +23,7 @@ public class BaseActivity extends AppCompatActivity {
         snackbar.show();
     }
 
-    protected static String makeFragmentTag(int viewId, long id) {
+    protected static String generateViewPagerFragmentTag(int viewId, long id) {
         return "android:switcher:" + viewId + ":" + id;
     }
 }

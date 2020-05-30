@@ -24,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.ui.SendFileActivity"
+        <activity android:name=".view.ui.filesender.SendFileActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".view.ui.BaseActivity" />
 

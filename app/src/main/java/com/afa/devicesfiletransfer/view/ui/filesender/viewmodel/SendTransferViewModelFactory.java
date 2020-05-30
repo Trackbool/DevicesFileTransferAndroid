@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.viewmodels.transfer.sender;
+package com.afa.devicesfiletransfer.view.ui.filesender.viewmodel;
 
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceInteractor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceLauncher;

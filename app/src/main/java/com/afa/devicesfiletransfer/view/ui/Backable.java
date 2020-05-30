@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.ui.main;
+package com.afa.devicesfiletransfer.view.ui;
 
 public interface Backable {
     boolean onBackPressed();

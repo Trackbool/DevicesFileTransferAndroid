@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.viewmodels.transfer.sender;
+package com.afa.devicesfiletransfer.view.ui.filesender.viewmodel;
 
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.Pair;
@@ -20,13 +20,13 @@ import androidx.lifecycle.ViewModel;
 public class SendTransferViewModel extends ViewModel {
     private final List<Transfer> transfers;
     private final MutableLiveData<List<Transfer>> transfersLiveData;
-    private List<TransferFile> attachedFiles;
     private final MutableLiveData<List<TransferFile>> attachedFilesLiveData;
     private final LiveEvent<Transfer> onTransferProgressUpdatedEvent;
     private final LiveEvent<Pair<Transfer, TransferFile>> onTransferSucceededEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onSendTransferErrorEvent;
     private final LiveEvent<AlertModel> alertEvent;
     private final LiveEvent<ErrorModel> errorEvent;
+    private List<TransferFile> attachedFiles;
     private FileSenderServiceLauncher fileSenderExecutor;
     private FileSenderServiceInteractor fileSenderServiceInteractor;
 

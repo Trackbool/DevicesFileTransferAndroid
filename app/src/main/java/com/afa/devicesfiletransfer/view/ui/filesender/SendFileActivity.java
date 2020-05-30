@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.view.ui;
+package com.afa.devicesfiletransfer.view.ui.filesender;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -24,14 +24,14 @@ import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileS
 import com.afa.devicesfiletransfer.view.framework.services.transfer.sender.FileSenderServiceLauncherImpl;
 import com.afa.devicesfiletransfer.view.model.AlertModel;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModel;
-import com.afa.devicesfiletransfer.view.viewmodels.transfer.sender.SendTransferViewModelFactory;
+import com.afa.devicesfiletransfer.view.ui.BaseActivity;
+import com.afa.devicesfiletransfer.view.ui.filesender.viewmodel.SendTransferViewModel;
+import com.afa.devicesfiletransfer.view.ui.filesender.viewmodel.SendTransferViewModelFactory;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
