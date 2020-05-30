@@ -142,7 +142,7 @@ public class TransfersViewModel extends ViewModel {
 
             @Override
             public void onTransferInitializationFailure(Transfer transfer, Exception e) {
-
+                triggerErrorEvent("Sending error", e.getMessage());
             }
 
             @Override
