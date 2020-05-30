@@ -3,9 +3,12 @@ package com.afa.devicesfiletransfer.domain.model;
 import android.content.ContentResolver;
 import android.net.Uri;
 
+import com.afa.devicesfiletransfer.DftApplication;
 import com.afa.devicesfiletransfer.framework.TransferFileUri;
 
 import java.io.File;
+
+import androidx.core.content.FileProvider;
 
 public class TransferFileFactory {
     public static TransferFile getFromFile(File file) {
@@ -30,7 +33,10 @@ public class TransferFileFactory {
             fileUri = ((TransferFileUri) transferFile).getUri();
         } else {
             File file = ((TransferFileLocal) transferFile).getFile();
-            fileUri = Uri.fromFile(file);
+            fileUri = FileProvider.getUriForFile(
+                    DftApplication.getContext(),
+                    DftApplication.getContext()
+                            .getPackageName() + ".provider", file);
         }
         return fileUri;
     }
