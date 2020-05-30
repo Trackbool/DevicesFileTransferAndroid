@@ -83,7 +83,7 @@ public class FileSenderService extends Service {
 
         for (final Device device : devices) {
             final FileSenderProtocol fileSenderProtocol = createFileSender(device, files);
-            notStartedTransfersCount.getAndAdd(fileSenderProtocol.getTransfersNum());
+            notStartedTransfersCount.getAndAdd(fileSenderProtocol.getTransfersCount());
             fileSendingExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -121,7 +121,7 @@ public class FileSenderService extends Service {
         fileSender.setCallback(new FileSenderProtocol.Callback() {
             @Override
             public void onInitializationFailure(FileSenderProtocol fileSenderProtocol) {
-                notStartedTransfersCount.getAndAdd(-fileSenderProtocol.getTransfersNum());
+                notStartedTransfersCount.getAndAdd(-fileSenderProtocol.getTransfersCount());
                 for (FileSenderProtocol.Callback callback : callbackReceivers) {
                     callback.onInitializationFailure(fileSenderProtocol);
                 }

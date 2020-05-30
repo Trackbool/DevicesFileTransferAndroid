@@ -42,7 +42,7 @@ public class FileSenderProtocol {
         return remoteDevice;
     }
 
-    public int getTransfersNum() {
+    public int getTransfersCount() {
         return files.size();
     }
 
