@@ -114,7 +114,7 @@ public class TransfersFragment extends BaseFragment {
         transfersViewModel.getOnTransferProgressUpdatedEvent().observe(this, new Observer<Transfer>() {
             @Override
             public void onChanged(Transfer transfer) {
-                transfersAdapter.refreshData();
+                transfersAdapter.refresh(transfer);
             }
         });
         transfersViewModel.onStart();

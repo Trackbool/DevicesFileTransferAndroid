@@ -89,8 +89,9 @@ public class TransfersAdapter extends RecyclerView.Adapter<TransfersAdapter.Tran
         return transfers.size();
     }
 
-    public void refreshData() {
-        notifyDataSetChanged();
+    public void refresh(Transfer transfer) {
+        int position = transfers.indexOf(transfer);
+        notifyItemChanged(position, transfer);
     }
 
     class TransfersViewHolder extends RecyclerView.ViewHolder {
