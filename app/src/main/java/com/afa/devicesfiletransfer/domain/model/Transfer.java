@@ -1,6 +1,5 @@
 package com.afa.devicesfiletransfer.domain.model;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -52,7 +51,7 @@ public class Transfer implements Serializable {
 
     //Method necessary to allow mapping with persistence entity
     public void setFilePath(String filePath) {
-        file = TransferFileFactory.getFromFile(new File(filePath));
+        file = TransferFileFactory.getFromPath(filePath);
     }
 
     //Method necessary to allow mapping with persistence entity
@@ -98,6 +97,11 @@ public class Transfer implements Serializable {
 
     public void setIncoming(boolean incoming) {
         this.incoming = incoming;
+    }
+
+    public boolean hasFinished() {
+        return status != Transfer.TransferStatus.TRANSFERRING &&
+                status != TransferStatus.NOT_STARTED;
     }
 
     public enum TransferStatus {

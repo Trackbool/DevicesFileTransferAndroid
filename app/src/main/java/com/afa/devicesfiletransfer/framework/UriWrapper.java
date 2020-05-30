@@ -44,10 +44,9 @@ public class UriWrapper implements Parcelable {
     }
 
     public String getRealPath() {
-        if (realPath == null)
-            setUpRealPath();
+        realPath = uri.toString();
 
-        if (realPath != null && !realPath.isEmpty()) {
+        if (!realPath.isEmpty()) {
             return realPath;
         }
         if (getFileName() != null) {
@@ -73,7 +72,7 @@ public class UriWrapper implements Parcelable {
 
     private void setUpFileName() {
         String result = null;
-        if (uri.getScheme() != null && uri.getScheme().equals("content")) {
+        if (uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
             try (Cursor cursor = context.getContentResolver()
                     .query(uri, new String[]{OpenableColumns.DISPLAY_NAME},
                             null, null, null)) {
@@ -114,41 +113,18 @@ public class UriWrapper implements Parcelable {
         return mime.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
-    private void setUpRealPath() {
-        realPath = null;
-        Cursor cursor = null;
-        try {
-            String[] projection = {MediaStore.Images.Media.DATA};
-            try {
-                cursor = context.getContentResolver()
-                        .query(uri, projection, null, null, null);
-                if (cursor != null) {
-                    int column_index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                    cursor.moveToFirst();
-                    realPath = cursor.getString(column_index);
-                }
-            } catch (Exception e) {
-                realPath = null;
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
     public boolean exists() {
         if (uri.getScheme() == null) return false;
 
         switch (uri.getScheme()) {
-            case "content":
+            case ContentResolver.SCHEME_CONTENT:
                 try (Cursor cursor = context.getContentResolver()
                         .query(uri, null, null, null, null)) {
                     return (cursor != null && cursor.getCount() > 0) && getLength() > -1;
                 } catch (Exception e) {
                     return false;
                 }
-            case "file":
+            case ContentResolver.SCHEME_FILE:
             default:
                 return new File(uri.getPath()).exists();
         }

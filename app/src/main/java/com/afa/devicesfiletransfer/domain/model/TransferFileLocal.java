@@ -32,6 +32,10 @@ public class TransferFileLocal implements TransferFile {
         return file.length();
     }
 
+    public File getFile() {
+        return file;
+    }
+
     @Override
     public InputStream getInputStream() throws FileNotFoundException {
         return new FileInputStream(file);

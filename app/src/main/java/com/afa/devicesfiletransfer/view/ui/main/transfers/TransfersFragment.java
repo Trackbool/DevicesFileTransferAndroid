@@ -1,14 +1,21 @@
 package com.afa.devicesfiletransfer.view.ui.main.transfers;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ProgressBar;
 
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Pair;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
+import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;
 import com.afa.devicesfiletransfer.view.ui.main.transfers.viewmodel.TransfersViewModel;
@@ -117,8 +124,37 @@ public class TransfersFragment extends BaseFragment {
         transfersRecyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         transfersRecyclerView.setLayoutManager(linearLayoutManager);
-        transfersAdapter = new TransfersAdapter();
+        transfersAdapter = new TransfersAdapter(new TransfersAdapter.Callback() {
+            @Override
+            public void onClick(Transfer transfer) {
+                if (!transfer.hasFinished()) {
+                    return;
+                }
+                TransferFile transferFile = transfer.getFile();
+                openFile(transferFile);
+            }
+        });
         transfersRecyclerView.setAdapter(transfersAdapter);
+    }
+
+    private void openFile(TransferFile transferFile) {
+        Uri fileUri = TransferFileFactory.getUriFromTransferFile(transferFile);
+
+        String extension = FileUtils.getFileExtension(transferFile.getName());
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(fileUri, mime);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (transferFile.exists()) {
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                showError("Error", "No application found to open this file");
+            }
+        } else {
+            showError("Error", "File doesn´t exists or cannot be accessed");
+        }
     }
 
     @Override
