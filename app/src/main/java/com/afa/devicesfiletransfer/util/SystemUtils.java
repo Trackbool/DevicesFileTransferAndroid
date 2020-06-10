@@ -1,7 +1,10 @@
 package com.afa.devicesfiletransfer.util;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
+
+import com.afa.devicesfiletransfer.DftApplication;
 
 import java.io.File;
 
@@ -19,10 +22,15 @@ public class SystemUtils {
 
     public static File getDownloadsDirectory() {
         String appFolderName = "DevicesFileTransfer";
-
-        File f = new File(Environment.getExternalStorageDirectory(), appFolderName);
-        if (!f.exists()) {
-            f.mkdirs();
+        Context context = DftApplication.getContext();
+        File f;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            f = context.getExternalFilesDir("ReceivedFiles");
+        } else {
+            f = new File(Environment.getExternalStorageDirectory(), appFolderName);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
         }
 
         return f;
