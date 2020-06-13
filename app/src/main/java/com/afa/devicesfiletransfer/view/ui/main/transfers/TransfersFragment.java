@@ -14,7 +14,7 @@ import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Pair;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
-import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
+import com.afa.devicesfiletransfer.framework.TransferFileFactory;
 import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.afa.devicesfiletransfer.view.model.ErrorModel;
 import com.afa.devicesfiletransfer.view.ui.BaseFragment;

@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
-import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
+import com.afa.devicesfiletransfer.framework.TransferFileFactory;
 import com.afa.devicesfiletransfer.framework.TransferFileUri;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceInteractor;
 import com.afa.devicesfiletransfer.services.transfer.sender.FileSenderServiceLauncher;

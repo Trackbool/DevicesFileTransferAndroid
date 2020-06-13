@@ -1,5 +1,7 @@
 package com.afa.devicesfiletransfer.domain.model;
 
+import com.afa.devicesfiletransfer.framework.TransferFileFactory;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;

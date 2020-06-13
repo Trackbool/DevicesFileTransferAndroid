@@ -1,4 +1,4 @@
-package com.afa.devicesfiletransfer.domain.model;
+package com.afa.devicesfiletransfer.framework;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -10,6 +10,8 @@ import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
 import com.afa.devicesfiletransfer.DftApplication;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
+import com.afa.devicesfiletransfer.domain.model.TransferFileLocal;
 import com.afa.devicesfiletransfer.framework.TransferFileUri;
 import com.afa.devicesfiletransfer.util.SystemUtils;
 import com.afa.devicesfiletransfer.util.file.FileUtils;
@@ -67,17 +69,18 @@ public class TransferFileFactory {
             }
             contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mime);
 
+            String volume = MediaStore.VOLUME_EXTERNAL_PRIMARY;
             String directory = Environment.DIRECTORY_DOWNLOADS;
-            Uri externalContentUri = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+            Uri externalContentUri = MediaStore.Downloads.getContentUri(volume);
             if (FileUtils.isImage(fileName)) {
                 directory = Environment.DIRECTORY_PICTURES;
-                externalContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                externalContentUri = MediaStore.Images.Media.getContentUri(volume);
             } else if (FileUtils.isVideo(fileName)) {
                 directory = Environment.DIRECTORY_MOVIES;
-                externalContentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                externalContentUri = MediaStore.Video.Media.getContentUri(volume);
             } else if (FileUtils.isAudio(fileName)) {
                 directory = Environment.DIRECTORY_MUSIC;
-                externalContentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                externalContentUri = MediaStore.Audio.Media.getContentUri(volume);
             }
             contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, directory);
             ContentResolver resolver = context.getContentResolver();
