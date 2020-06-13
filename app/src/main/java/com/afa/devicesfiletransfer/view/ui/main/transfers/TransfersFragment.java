@@ -59,7 +59,7 @@ public class TransfersFragment extends BaseFragment {
                 new TransfersViewModelFactory(requireActivity().getApplicationContext()))
                 .get(TransfersViewModel.class);
 
-        transfersViewModel.getLoading().observe(this, new Observer<Boolean>() {
+        transfersViewModel.getLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean loading) {
                 if (loading) {
@@ -69,21 +69,21 @@ public class TransfersFragment extends BaseFragment {
                 }
             }
         });
-        transfersViewModel.getTransfersLiveData().observe(this, new Observer<List<Transfer>>() {
+        transfersViewModel.getTransfersLiveData().observe(getViewLifecycleOwner(), new Observer<List<Transfer>>() {
             @Override
             public void onChanged(List<Transfer> transfers) {
                 transfersAdapter.setTransfers(transfers);
             }
         });
-        transfersViewModel.getOnReceiveTransferSucceededEvent().observe(this, new Observer<Pair<Transfer, File>>() {
+        transfersViewModel.getOnReceiveTransferSucceededEvent().observe(getViewLifecycleOwner(), new Observer<Transfer>() {
             @Override
-            public void onChanged(Pair<Transfer, File> transferFilePair) {
-                File file = transferFilePair.getRight();
+            public void onChanged(Transfer transfer) {
+                TransferFile file = transfer.getFile();
                 showAlert("File received", "The file " +
                         file.getName() + " has been received");
             }
         });
-        transfersViewModel.getOnSendTransferSucceededEvent().observe(this, new Observer<Pair<Transfer, File>>() {
+        transfersViewModel.getOnSendTransferSucceededEvent().observe(getViewLifecycleOwner(), new Observer<Pair<Transfer, File>>() {
             @Override
             public void onChanged(Pair<Transfer, File> transferFilePair) {
                 File file = transferFilePair.getRight();
@@ -91,27 +91,27 @@ public class TransfersFragment extends BaseFragment {
                         file.getName() + " has sent");
             }
         });
-        transfersViewModel.getOnErrorEvent().observe(this, new Observer<ErrorModel>() {
+        transfersViewModel.getOnErrorEvent().observe(getViewLifecycleOwner(), new Observer<ErrorModel>() {
             @Override
             public void onChanged(ErrorModel error) {
                 showError(error.getTitle(), error.getMessage());
             }
         });
-        transfersViewModel.getOnReceiveTransferErrorEvent().observe(this, new Observer<Pair<Transfer, ErrorModel>>() {
+        transfersViewModel.getOnReceiveTransferErrorEvent().observe(getViewLifecycleOwner(), new Observer<Pair<Transfer, ErrorModel>>() {
             @Override
             public void onChanged(Pair<Transfer, ErrorModel> transferErrorModelPair) {
                 ErrorModel error = transferErrorModelPair.getRight();
                 showError("Receiving error", error.getMessage());
             }
         });
-        transfersViewModel.getOnSendTransferErrorEvent().observe(this, new Observer<Pair<Transfer, ErrorModel>>() {
+        transfersViewModel.getOnSendTransferErrorEvent().observe(getViewLifecycleOwner(), new Observer<Pair<Transfer, ErrorModel>>() {
             @Override
             public void onChanged(Pair<Transfer, ErrorModel> transferErrorModelPair) {
                 ErrorModel error = transferErrorModelPair.getRight();
                 showError("Sending error", error.getMessage());
             }
         });
-        transfersViewModel.getOnTransferProgressUpdatedEvent().observe(this, new Observer<Transfer>() {
+        transfersViewModel.getOnTransferProgressUpdatedEvent().observe(getViewLifecycleOwner(), new Observer<Transfer>() {
             @Override
             public void onChanged(Transfer transfer) {
                 transfersAdapter.refresh(transfer);

@@ -9,8 +9,12 @@ import android.webkit.MimeTypeMap;
 import com.afa.devicesfiletransfer.DftApplication;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import androidx.documentfile.provider.DocumentFile;
 
@@ -65,14 +69,30 @@ public class TransferFileUri implements TransferFile, Parcelable {
     public InputStream getInputStream() throws FileNotFoundException {
         try {
             return DftApplication.getContext().getContentResolver()
-                    .openInputStream(uriWrapper.getUri());
+                    .openInputStream(uri);
         } catch (SecurityException e) {
             throw new FileNotFoundException("The file " + getName() + " doesn´t exists");
         }
     }
 
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        try {
+            return DftApplication.getContext().getContentResolver()
+                    .openOutputStream(uri);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
     public Uri getUri() {
         return uri;
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return uri.toString();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class TransfersViewModel extends ViewModel {
     private final MutableLiveData<List<Transfer>> transfersLiveData;
     private final LiveEvent<Transfer> onTransferProgressUpdatedEvent;
     private final LiveEvent<Pair<Transfer, File>> onSendTransferSucceededEvent;
-    private final LiveEvent<Pair<Transfer, File>> onReceiveTransferSucceededEvent;
+    private final LiveEvent<Transfer> onReceiveTransferSucceededEvent;
     private final LiveEvent<ErrorModel> onErrorEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onSendTransferErrorEvent;
     private final LiveEvent<Pair<Transfer, ErrorModel>> onReceiveTransferErrorEvent;
@@ -123,9 +123,9 @@ public class TransfersViewModel extends ViewModel {
             }
 
             @Override
-            public void onSuccess(Transfer transfer, File file) {
+            public void onSuccess(Transfer transfer) {
                 transfersLiveData.postValue(transfers);
-                onReceiveTransferSucceededEvent.postValue(new Pair<>(transfer, file));
+                onReceiveTransferSucceededEvent.postValue(transfer);
             }
         };
     }
@@ -188,7 +188,7 @@ public class TransfersViewModel extends ViewModel {
         return onSendTransferSucceededEvent;
     }
 
-    public MutableLiveData<Pair<Transfer, File>> getOnReceiveTransferSucceededEvent() {
+    public MutableLiveData<Transfer> getOnReceiveTransferSucceededEvent() {
         return onReceiveTransferSucceededEvent;
     }
 

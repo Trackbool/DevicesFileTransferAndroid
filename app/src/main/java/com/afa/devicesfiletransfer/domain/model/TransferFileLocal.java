@@ -1,9 +1,14 @@
 package com.afa.devicesfiletransfer.domain.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class TransferFileLocal implements TransferFile {
     private final File file;
@@ -32,12 +37,23 @@ public class TransferFileLocal implements TransferFile {
         return file.length();
     }
 
+    @Override
+    public InputStream getInputStream() throws FileNotFoundException {
+        return new FileInputStream(file);
+    }
+
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        return new FileOutputStream(file);
+    }
+
     public File getFile() {
         return file;
     }
 
+    @NotNull
     @Override
-    public InputStream getInputStream() throws FileNotFoundException {
-        return new FileInputStream(file);
+    public String toString() {
+        return file.toString();
     }
 }

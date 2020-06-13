@@ -1,10 +1,13 @@
 package com.afa.devicesfiletransfer.services.transfer.receiver;
 
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -39,7 +42,7 @@ public class FileReceiver {
         return (int) ((receivedCount.get() * 100) / fileSize);
     }
 
-    public void receive(File targetFile, long fileSize, InputStream inputStream) {
+    public void receive(TransferFile targetFile, long fileSize, InputStream inputStream, OutputStream outputStream) {
         if (receiving.get()) throw new IllegalStateException("Already receiving the file");
 
         this.fileSize = fileSize;
@@ -47,7 +50,7 @@ public class FileReceiver {
         if (callback != null) {
             callback.onStart();
         }
-        try (BufferedOutputStream fileWriter = new BufferedOutputStream(new FileOutputStream(targetFile))) {
+        try (BufferedOutputStream fileWriter = new BufferedOutputStream(outputStream)) {
             byte[] buffer = new byte[BUFFER_SIZE];
             receivedCount.set(0);
             int received;
@@ -101,6 +104,6 @@ public class FileReceiver {
 
         void onProgressUpdated(int percentage);
 
-        void onSuccess(File file);
+        void onSuccess(TransferFile file);
     }
 }

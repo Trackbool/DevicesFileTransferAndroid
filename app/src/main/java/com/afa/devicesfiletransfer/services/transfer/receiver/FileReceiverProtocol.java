@@ -2,36 +2,29 @@ package com.afa.devicesfiletransfer.services.transfer.receiver;
 
 import com.afa.devicesfiletransfer.domain.model.Device;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.domain.model.TransferFileFactory;
-import com.afa.devicesfiletransfer.util.file.FileUtils;
 import com.google.gson.Gson;
 
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class FileReceiverProtocol {
-    private File targetDirectory;
     private Callback callback;
     private boolean isReceiving;
 
-    public FileReceiverProtocol(File targetDirectory) {
-        this.targetDirectory = targetDirectory;
+    public FileReceiverProtocol() {
         isReceiving = false;
     }
 
-    public FileReceiverProtocol(File targetDirectory, Callback callback) {
-        this(targetDirectory);
+    public FileReceiverProtocol(Callback callback) {
+        this();
         this.callback = callback;
     }
 
     public void setCallback(Callback callback) {
         this.callback = callback;
-    }
-
-    public File getTargetDirectory() {
-        return targetDirectory;
     }
 
     public boolean isReceiving() {
@@ -49,11 +42,11 @@ public class FileReceiverProtocol {
                     Device device = new Gson().fromJson(deviceJson, Device.class);
                     String fileNameWithExtension = dataInputStream.readUTF();
                     long fileSize = dataInputStream.readLong();
-                    File file = createDestinationFile(fileNameWithExtension);
+                    TransferFile file = createDestinationFile(fileNameWithExtension);
                     final Transfer transfer = new Transfer(
-                            device, TransferFileFactory.getFromFile(file), 0, true);
+                            device, file, 0, true);
                     FileReceiver fileReceiver = createFileReceiver(transfer, callback);
-                    fileReceiver.receive(file, fileSize, inputStream);
+                    fileReceiver.receive(file, fileSize, inputStream, file.getOutputStream());
                 } catch (IOException ignored) {
                 }
             }
@@ -66,31 +59,13 @@ public class FileReceiverProtocol {
         }
     }
 
-    private File createDestinationFile(String fileNameWithExtension) {
-        String destinationPath = targetDirectory.getAbsolutePath();
+    private TransferFile createDestinationFile(String fileNameWithExtension) {
         String currentMillis = String.valueOf(System.currentTimeMillis());
         if (fileNameWithExtension == null || fileNameWithExtension.isEmpty()) {
-            return new File(destinationPath, currentMillis);
+            return TransferFileFactory.createIncomingTransferFile(currentMillis);
         }
 
-        String fileName = FileUtils.getFileNameWithoutExtension(fileNameWithExtension);
-        String extension = FileUtils.getFileExtension(fileNameWithExtension);
-
-        File destinationFile = new File(destinationPath, fileNameWithExtension);
-        int attempts = 0;
-        final int MAX_ATTEMPTS = 100;
-        while (destinationFile.exists() && attempts < MAX_ATTEMPTS) {
-            String incrementedFileName = fileName + "(" + (attempts + 1) + ")." + extension;
-            destinationFile = new File(destinationPath, incrementedFileName);
-            attempts++;
-        }
-
-        if (attempts == MAX_ATTEMPTS && destinationFile.exists()) {
-            destinationFile = new File(
-                    destinationPath, fileName + "_" + currentMillis + "." + extension);
-        }
-
-        return destinationFile;
+        return TransferFileFactory.createIncomingTransferFile(fileNameWithExtension);
     }
 
     private FileReceiver createFileReceiver(final Transfer transfer, final Callback callback) {
@@ -114,9 +89,9 @@ public class FileReceiverProtocol {
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(TransferFile file) {
                 transfer.setStatus(Transfer.TransferStatus.COMPLETED);
-                callback.onSuccess(transfer, file);
+                callback.onSuccess(transfer);
             }
         };
         return new FileReceiver(fileReceiverCallback);
@@ -131,6 +106,6 @@ public class FileReceiverProtocol {
 
         void onProgressUpdated(Transfer transfer);
 
-        void onSuccess(Transfer transfer, File file);
+        void onSuccess(Transfer transfer);
     }
 }

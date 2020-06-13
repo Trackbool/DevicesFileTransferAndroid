@@ -14,6 +14,7 @@ import android.util.Log;
 import com.afa.devicesfiletransfer.ConfigProperties;
 import com.afa.devicesfiletransfer.R;
 import com.afa.devicesfiletransfer.domain.model.Transfer;
+import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import com.afa.devicesfiletransfer.framework.repository.TransfersRoomDatabaseRepository;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FileReceiverProtocol;
 import com.afa.devicesfiletransfer.services.transfer.receiver.FilesReceiverListener;
@@ -129,7 +130,7 @@ public class FileReceiverService extends Service {
     }
 
     private FileReceiverProtocol createFileReceiver() {
-        final FileReceiverProtocol fileReceiver = new FileReceiverProtocol(SystemUtils.getDownloadsDirectory());
+        final FileReceiverProtocol fileReceiver = new FileReceiverProtocol();
         fileReceiver.setCallback(new FileReceiverProtocol.Callback() {
             @Override
             public void onInitializationFailure() {
@@ -164,11 +165,11 @@ public class FileReceiverService extends Service {
             }
 
             @Override
-            public void onSuccess(Transfer transfer, File file) {
-                notifySystemAboutNewFile(file);
+            public void onSuccess(Transfer transfer) {
+                notifySystemAboutNewFile(transfer.getFile());
                 inProgressTransfers.remove(transfer);
                 for (FileReceiverProtocol.Callback callbackReceiver : callbackReceivers) {
-                    callbackReceiver.onSuccess(transfer, file);
+                    callbackReceiver.onSuccess(transfer);
                 }
                 persistTransfer(transfer);
             }
@@ -196,7 +197,7 @@ public class FileReceiverService extends Service {
         }).start();
     }
 
-    private void notifySystemAboutNewFile(File file) {
+    private void notifySystemAboutNewFile(TransferFile file) {
         MediaScannerConnection.scanFile(FileReceiverService.this,
                 new String[]{file.toString()},
                 new String[]{file.getName()},

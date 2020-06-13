@@ -20,7 +20,7 @@ public class SystemUtils {
         return "Android " + Build.VERSION.RELEASE;
     }
 
-    public static File getDownloadsDirectory() {
+    public static File getAppDownloadsDirectory() {
         String appFolderName = "DevicesFileTransfer";
         Context context = DftApplication.getContext();
         File f;
