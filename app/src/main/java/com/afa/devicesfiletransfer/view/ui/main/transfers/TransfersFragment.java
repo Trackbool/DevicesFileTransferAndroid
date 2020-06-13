@@ -127,7 +127,9 @@ public class TransfersFragment extends BaseFragment {
         transfersAdapter = new TransfersAdapter(new TransfersAdapter.Callback() {
             @Override
             public void onClick(Transfer transfer) {
-                if (!transfer.hasFinished()) {
+                if (!transfer.hasFinished() ||
+                        (transfer.getStatus() != Transfer.TransferStatus.COMPLETED &&
+                                transfer.isIncoming())) {
                     return;
                 }
                 TransferFile transferFile = transfer.getFile();
