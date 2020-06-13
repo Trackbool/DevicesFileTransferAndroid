@@ -1,8 +1,10 @@
 package com.afa.devicesfiletransfer.framework;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.webkit.MimeTypeMap;
 
 import com.afa.devicesfiletransfer.DftApplication;
 import com.afa.devicesfiletransfer.domain.model.TransferFile;
@@ -10,13 +12,15 @@ import com.afa.devicesfiletransfer.domain.model.TransferFile;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import androidx.documentfile.provider.DocumentFile;
+
 public class TransferFileUri implements TransferFile, Parcelable {
-    private UriWrapper uriWrapper;
+    private DocumentFile uriWrapper;
     private Uri uri;
 
     public TransferFileUri(Uri uri) {
         this.uri = uri;
-        this.uriWrapper = new UriWrapper(DftApplication.getContext(), uri);
+        this.uriWrapper = DocumentFile.fromSingleUri(DftApplication.getContext(), uri);
     }
 
     @Override
@@ -26,17 +30,35 @@ public class TransferFileUri implements TransferFile, Parcelable {
 
     @Override
     public String getName() {
-        return uriWrapper.getFileName();
+        String fileName = uriWrapper.getName();
+        if (!hasExtension(fileName)) {
+            String extension = getExtension();
+            if (extension != null && !extension.equals("")) {
+                fileName = fileName + "." + extension;
+            }
+        }
+
+        return fileName;
+    }
+
+    private boolean hasExtension(String fileName) {
+        return fileName != null && fileName.contains(".");
+    }
+
+    public String getExtension() {
+        ContentResolver contentResolver = DftApplication.getContext().getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
     @Override
     public String getPath() {
-        return uriWrapper.getRealPath();
+        return uri.toString();
     }
 
     @Override
     public long length() {
-        return uriWrapper.getLength();
+        return uriWrapper.length();
     }
 
     @Override
@@ -65,7 +87,7 @@ public class TransferFileUri implements TransferFile, Parcelable {
 
     private TransferFileUri(Parcel in) {
         uri = in.readParcelable(Uri.class.getClassLoader());
-        uriWrapper = new UriWrapper(DftApplication.getContext(), uri);
+        uriWrapper = DocumentFile.fromSingleUri(DftApplication.getContext(), uri);
     }
 
     public static final Creator<TransferFileUri> CREATOR = new Creator<TransferFileUri>() {
