@@ -97,7 +97,7 @@ public class DevicesFragment extends BaseFragment implements Backable {
     }
 
     private void showOverlayForm() {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         DialogFragment dialog = new AddDeviceDialogFragment();
         dialog.setTargetFragment(this, ADD_DEVICE_REQUEST_CODE);
         dialog.show(fragmentManager, ADD_DEVICE_DIALOG);
@@ -113,7 +113,7 @@ public class DevicesFragment extends BaseFragment implements Backable {
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
                     }
-                }, 1200);
+                }, 2100);
             }
         });
         initializeRecyclerView();
@@ -157,19 +157,19 @@ public class DevicesFragment extends BaseFragment implements Backable {
                 new DevicesViewModelFactory(discoveryServiceLauncher, discoveryServiceInteractor))
                 .get(DevicesViewModel.class);
 
-        devicesViewModel.getCurrentDeviceAddress().observe(this, new Observer<String>() {
+        devicesViewModel.getCurrentDeviceAddress().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String text) {
                 currentDeviceIpTextView.setText(text);
             }
         });
-        devicesViewModel.getDevicesLiveData().observe(this, new Observer<List<Device>>() {
+        devicesViewModel.getDevicesLiveData().observe(getViewLifecycleOwner(), new Observer<List<Device>>() {
             @Override
             public void onChanged(List<Device> devices) {
                 devicesAdapter.setDevices(devices);
             }
         });
-        devicesViewModel.getErrorEvent().observe(this, new Observer<ErrorModel>() {
+        devicesViewModel.getErrorEvent().observe(getViewLifecycleOwner(), new Observer<ErrorModel>() {
             @Override
             public void onChanged(ErrorModel error) {
                 showError(error.getTitle(), error.getMessage());

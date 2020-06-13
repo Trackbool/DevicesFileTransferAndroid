@@ -185,8 +185,7 @@ public class SendFileActivity extends BaseActivity {
 
         fileImagesContainer.removeAllViews();
 
-        int limit = transferFiles.size() > MAX_GALLERY_IMAGES_INTERNAL ?
-                MAX_GALLERY_IMAGES_INTERNAL : transferFiles.size();
+        int limit = Math.min(transferFiles.size(), MAX_GALLERY_IMAGES_INTERNAL);
         for (int i = 0; i < limit; i++) {
             TransferFile file = transferFiles.get(i);
             int width = DEFAULT_IMAGE_DIMENSION;
