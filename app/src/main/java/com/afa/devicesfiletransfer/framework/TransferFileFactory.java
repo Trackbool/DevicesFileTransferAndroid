@@ -29,9 +29,21 @@ public class TransferFileFactory {
         return new TransferFileUri(uri);
     }
 
+    public static TransferFile getFromUri(Uri uri, String fileName) {
+        return new TransferFileUri(uri, fileName);
+    }
+
     public static TransferFile getFromPath(String filePath) {
+        return getFromPath(filePath, null);
+    }
+
+    public static TransferFile getFromPath(String filePath, String fileName) {
         if (filePath.startsWith(ContentResolver.SCHEME_CONTENT)) {
-            return getFromUri(Uri.parse(filePath));
+            if (fileName != null) {
+                return getFromUri(Uri.parse(filePath), fileName);
+            } else {
+                return getFromUri(Uri.parse(filePath));
+            }
         } else {
             return getFromFile(new File(filePath));
         }

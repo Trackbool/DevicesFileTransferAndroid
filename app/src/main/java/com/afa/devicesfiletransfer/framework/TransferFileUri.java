@@ -17,10 +17,16 @@ import java.io.OutputStream;
 public class TransferFileUri implements TransferFile, Parcelable {
     private UriWrapper uriWrapper;
     private Uri uri;
+    private String displayName;
 
     public TransferFileUri(Uri uri) {
         this.uri = uri;
         this.uriWrapper = new UriWrapper(DftApplication.getContext(), uri);
+    }
+
+    public TransferFileUri(Uri uri, String displayName) {
+        this(uri);
+        this.displayName = displayName;
     }
 
     @Override
@@ -30,6 +36,10 @@ public class TransferFileUri implements TransferFile, Parcelable {
 
     @Override
     public String getName() {
+        if (displayName != null) {
+            return displayName;
+        }
+
         return uriWrapper.getFileName();
     }
 
@@ -81,11 +91,13 @@ public class TransferFileUri implements TransferFile, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(uri, flags);
+        dest.writeString(displayName);
     }
 
     private TransferFileUri(Parcel in) {
         uri = in.readParcelable(Uri.class.getClassLoader());
         uriWrapper = new UriWrapper(DftApplication.getContext(), uri);
+        displayName = in.readString();
     }
 
     public static final Creator<TransferFileUri> CREATOR = new Creator<TransferFileUri>() {

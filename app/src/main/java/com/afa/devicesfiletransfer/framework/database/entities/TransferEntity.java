@@ -20,6 +20,8 @@ public class TransferEntity {
     @Embedded(prefix = "device_")
     private DeviceEntity device;
     @NotNull
+    private String fileName;
+    @NotNull
     private String filePath;
     @NotNull
     private int progress;
@@ -50,6 +52,15 @@ public class TransferEntity {
 
     public void setDevice(@NotNull DeviceEntity device) {
         this.device = device;
+    }
+
+    @NotNull
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(@NotNull String fileName) {
+        this.fileName = fileName;
     }
 
     @NotNull
