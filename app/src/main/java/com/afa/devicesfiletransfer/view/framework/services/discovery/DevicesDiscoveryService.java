@@ -16,6 +16,7 @@ import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListener;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolListenerFactory;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSender;
 import com.afa.devicesfiletransfer.services.discovery.DiscoveryProtocolSenderFactory;
+import com.afa.devicesfiletransfer.view.framework.WifiMulticastLockManager;
 import com.afa.devicesfiletransfer.view.framework.services.transfer.receiver.FileReceiverService;
 
 import java.net.SocketException;
@@ -59,6 +60,12 @@ public class DevicesDiscoveryService extends Service {
         discoverySender = DiscoveryProtocolSenderFactory.getDefault(ConfigProperties.DISCOVERY_SERVICE_PORT);
         discoveryListener = createDiscoveryListener();
         discoveryListener.start();
+
+        WifiMulticastLockManager wifiMulticastLockManager = WifiMulticastLockManager.getInstance();
+        if (wifiMulticastLockManager.isWifiEnabled(getApplicationContext())) {
+            wifiMulticastLockManager.acquire(getApplicationContext());
+        }
+
         super.onCreate();
     }
 
@@ -131,6 +138,7 @@ public class DevicesDiscoveryService extends Service {
     public void onDestroy() {
         noticeDisconnected();
         discoveryListener.stop();
+        WifiMulticastLockManager.getInstance().release();
         super.onDestroy();
     }
 

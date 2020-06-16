@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
     <application
         android:name="com.afa.devicesfiletransfer.DftApplication"
         android:allowBackup="true"
@@ -40,6 +43,12 @@
         <service android:name=".view.framework.services.transfer.receiver.FileReceiverService" />
         <service android:name=".view.framework.services.transfer.sender.FileSenderService" />
         <service android:name=".view.framework.services.discovery.DevicesDiscoveryService" />
+
+        <receiver android:name=".view.framework.WifiBroadcastReceiver" >
+            <intent-filter android:priority="100">
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
